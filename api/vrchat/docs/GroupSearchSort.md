@@ -1,0 +1,10 @@
+# GroupSearchSort
+
+
+## Enum
+
+* `JoinedAtAsc` (value: `'joinedAt:asc'`)
+
+* `JoinedAtDesc` (value: `'joinedAt:desc'`)
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
