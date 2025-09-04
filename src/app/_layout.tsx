@@ -1,4 +1,5 @@
 import { darkTheme, lightTheme } from "@/config/theme";
+import { ApiCacheProvider } from "@/contexts/ApiCacheContext";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ImageCacheProvider } from "@/contexts/ImageCacheContext";
 import { VRChatProvider } from "@/contexts/VRChatContext";
@@ -22,16 +23,18 @@ export default function Root() {
   return (
     <VRChatProvider>
       <AuthProvider>
-        <ImageCacheProvider>
-          <SafeAreaProvider>
-            <SafeAreaView style={{ flex: 1 }} edges={['left', 'right']}>
-              <ThemeProvider value={ useColorScheme() !== 'dark' ? lightTheme : darkTheme }>
-                <RootLayout />
-                <StatusBar style="auto" />
-              </ThemeProvider>
-            </SafeAreaView>
-          </SafeAreaProvider>
-        </ImageCacheProvider>
+        <ApiCacheProvider>
+          <ImageCacheProvider>
+            <SafeAreaProvider>
+              <SafeAreaView style={{ flex: 1 }} edges={['left', 'right']}>
+                <ThemeProvider value={ useColorScheme() !== 'dark' ? lightTheme : darkTheme }>
+                  <RootLayout />
+                  <StatusBar style="auto" />
+                </ThemeProvider>
+              </SafeAreaView>
+            </SafeAreaProvider>
+          </ImageCacheProvider>
+        </ApiCacheProvider>
       </AuthProvider>
     </VRChatProvider>
   );

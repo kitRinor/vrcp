@@ -16,10 +16,10 @@ interface ImageCacheContextType {
 const Context = createContext<ImageCacheContextType | undefined>(undefined)
 
 
-const cacheDir = `${FileSystem.documentDirectory}cache/images`;
+const cacheDir = `${FileSystem.documentDirectory}cache/images/`;
 const getLocalUri = async (url: string) => {
   const key = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, url)
-  return cacheDir + '/' + key;
+  return cacheDir + key;
 }
 
 

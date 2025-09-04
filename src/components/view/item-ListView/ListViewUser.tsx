@@ -1,7 +1,10 @@
+import { World } from "@/api/vrchat";
 import { radius, spacing } from "@/config/styles";
+import useApiCache from "@/contexts/ApiCacheContext";
 import { CachedImage } from "@/contexts/ImageCacheContext";
 import { getInstanceType, getStatusColor, parseInstanceId, parseLocationString, UserLike } from "@/lib/vrchatUtils";
 import { useTheme } from "@react-navigation/native";
+import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import BaseListView from "./BaseListView";
 
@@ -13,14 +16,14 @@ interface Props {
   [key: string]: any;
 }
 const extractTitle = (data: UserLike) => data.displayName;
-const extractSubtitles = (data: UserLike) => {
+const extractSubtitles = (data: UserLike, world?: World) => {
   if (Object(data).hasOwnProperty("location")) {
     const { isOffline, isPrivate, parsedLocation } =  parseLocationString(Object(data).location);
     if (isOffline) return ["offline"];
     if (isPrivate) return ["private"];
     if (parsedLocation) {
       const parsedInstance = parseInstanceId(parsedLocation.instanceId);
-      const worldName =  parsedLocation.worldId ? parsedLocation.worldId.slice(0, 30) + "..." : ""
+      const worldName =  world?.name ?? ""
       const instanceType = parsedInstance ? getInstanceType(parsedInstance.type, parsedInstance.groupAccessType) : "";
       const instanceStr = parsedInstance ? `#${parsedInstance.name}` : "";
       return [`${instanceType} ${instanceStr}  ${worldName}`];
@@ -33,11 +36,25 @@ const extractSubtitles = (data: UserLike) => {
 
 const ListViewUser = ({ user, onPress, onLongPress, ...rest }: Props) => {
   const theme = useTheme();
+  const { worlds } = useApiCache();
+  const [subtitles, setSubtitles] = useState<string[]>(extractSubtitles(user));
+  useEffect(() => {
+    const {parsedLocation} = parseLocationString(Object(user).location);
+    if (!parsedLocation?.worldId) return;
+    // get world data with using cache
+    worlds.get(parsedLocation.worldId)
+    .then((world) => {
+      setSubtitles(extractSubtitles(user, world));
+    })
+    .catch((e) => { 
+      console.error("Error fetching world data for ListViewUser:", e); 
+    });
+  }, []);
   return (
     <BaseListView
       data={user}
       title={extractTitle}
-      subtitles={extractSubtitles}
+      subtitles={subtitles}
       onPress={onPress}
       onLongPress={onLongPress}
       ContainerStyle={styles.container}

@@ -1,4 +1,4 @@
-
+// timestamp: RFC 3339形式の文字列 (toISOString())
 
 export function formatToDateTime(timestamp: string): string {
   const date = new Date(timestamp);

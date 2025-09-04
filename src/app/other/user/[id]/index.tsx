@@ -99,7 +99,7 @@ export default function UserDetail() {
           />
           <ScrollView>
             <DetailItemContainer title="Location">
-              {!locationInfo && <LoadingIndicator size={30} absolute />}
+              {!locationInfo && <LoadingIndicator size={30}/>}
               { locationInfo?.image && <CachedImage style={styles.detailItemImage} src={locationInfo?.image ?? ""} />}
               <View style={styles.detailItemContent}>
                 { locationInfo?.baseInfo && <Text numberOfLines={1} style={{color: theme.colors.text}}>{locationInfo?.baseInfo}</Text>}
