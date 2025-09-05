@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
     modalContainer: {
       width:"90%",
       maxHeight: "90%",
-      minHeight: 200,
+      minHeight: 100,
       borderRadius: radius.medium,
       padding: spacing.large,
       

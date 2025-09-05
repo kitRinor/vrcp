@@ -79,6 +79,12 @@ const globalStyles = StyleSheet.create({
     padding: spacing.medium,
     borderRadius: 5,
   },
+  linkText: { // button with no background
+    borderRadius: 5,
+    marginHorizontal: spacing.small,
+    paddingHorizontal: spacing.small,
+    paddingVertical: 0,
+  },
 
 
   // repeating items except for the first one

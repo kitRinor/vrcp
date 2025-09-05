@@ -4,8 +4,9 @@ import { Button, Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
 import Constants from "expo-constants";
 import * as FileSystem from 'expo-file-system';
+import { navigate } from "expo-router/build/global-state/routing";
 import { useEffect, useState } from "react";
-import { Platform } from "react-native";
+import { Platform, View } from "react-native";
 
 interface Props {
   open: boolean;
@@ -44,7 +45,20 @@ const DevelopperModal = ({ open, setOpen }: Props) => {
       <Text style={[globalStyles.header, globalStyles.headerContainer, {color: theme.colors.text}]}>Developper Info</Text>
       
       <Text style={[globalStyles.text, {color: theme.colors.text}]}>{Object.entries(devInfo).map(([key, value]) => `${key}:   ${value}`).join("\n")}</Text>
-      <Text style={[globalStyles.text, {color: theme.colors.text}]}>{cacheInfo}</Text>
+
+
+      { Constants.expoConfig?.extra?.vrcmm.buildProfile === "development" && ( // only show in development build
+        <View style={globalStyles.containerHorizontal}>
+          <Text style={[globalStyles.text, {color: theme.colors.text, flex: 1}]}>{cacheInfo}</Text>
+          <Button
+            style={[globalStyles.button, {marginTop: spacing.medium}]}
+            color={theme.colors.primary}
+            onPress={()=>navigate("/_sitemap")}
+          >
+            [Sitemap]
+          </Button>
+        </View>
+      )}
 
 
       <Button

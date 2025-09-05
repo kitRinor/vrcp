@@ -1,33 +1,34 @@
 import GenericModal from "@/components/layout/GenericModal";
 import GenericScreen from "@/components/layout/GenericScreen";
+import { Atag } from "@/components/view/Atag";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
-import globalStyles, { spacing } from "@/config/styles";
-import texts from "@/config/texts";
+import globalStyles, { fontSize, spacing } from "@/config/styles";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
+import Constants from "expo-constants";
 import { navigate } from "expo-router/build/global-state/routing";
 import { useRef, useState } from "react";
-import { Alert, Image, KeyboardAvoidingView, Linking, Text, TextInput, View } from "react-native";
+import { Alert, Animated, KeyboardAvoidingView, Pressable, Text, TextInput, View } from "react-native";
 
 
 // login screen
 export default function Login() {
   const theme = useTheme();
   const auth = useAuth();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [TFACode, setTFACode] = useState("");
-
-  const [openTFA, setOpenTFA] = useState(false);
-  const [modeTFA, setModeTFA] = useState<"totp"|"email">("totp");
-
-  const [isLoadingLogin, setIsLoadingLogin] = useState(false);
-  const [isLoadingVerify, setIsLoadingVerify] = useState(false);
-
   const usernameRef = useRef<TextInput>(null);
   const passwordRef = useRef<TextInput>(null);
   const TFACodeRef = useRef<TextInput>(null);
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [TFACode, setTFACode] = useState("");
+  const [isLoadingLogin, setIsLoadingLogin] = useState(false);
+  const [isLoadingVerify, setIsLoadingVerify] = useState(false);
+  const [modeTFA, setModeTFA] = useState<"totp"|"email">("totp");
+  const [openTFA, setOpenTFA] = useState(false);
+  const [openLinks, setOpenLinks] = useState(false); 
+
+
 
   const handleLogin = async () => {
     if (!username) {
@@ -94,29 +95,68 @@ export default function Login() {
     setIsLoadingVerify(false);
   }
 
+  
+  const logoAnim = useRef(new Animated.Value(0)).current; //
+  const onPressInLogo = () => {
+      Animated.timing(logoAnim, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }).start();
+  }
+  const onPressOutLogo = () => {
+      Animated.timing(logoAnim, {
+        toValue: 0,
+        duration: 100,
+        useNativeDriver: true,
+      }).start();
+  }
+  const onLongPressLogo = () => {
+    if (Constants.expoConfig?.extra?.vrcmm.buildProfile === "development") {
+      navigate("/_sitemap"); // navigate to sitemap on logo press (for debug)
+    } else {
+      // [ToDO] funny easter egg?
+    }
+  }
+
   return (
     <KeyboardAvoidingView style={{flex:1}} behavior="padding">
       <GenericScreen>
         { (isLoadingLogin || isLoadingVerify) && <LoadingIndicator absolute/> }
         <View style={globalStyles.containerCentered}>
           
-          <View style={{
-            width: "100%", 
-            aspectRatio: 1.3,
-            padding: spacing.large,
-            marginBottom: spacing.large,
-            alignItems: 'center',
-            justifyContent: 'center',
-            // borderColor: 'blue', borderWidth: 1, borderStyle: 'solid'
-          }}>
-            <Image 
-              source={require('@/assets/images/logo.png')} 
-              style={{aspectRatio: 1, resizeMode: 'center' }} 
+          <Pressable 
+            style={{
+              width: "80%", 
+              aspectRatio: 1.2,
+              marginBottom: spacing.large,
+              alignItems: 'center',
+              justifyContent: 'center',
+              // borderColor: 'blue', borderWidth: 1, borderStyle: 'solid'
+            }}
+            onPressIn={onPressInLogo}
+            onPressOut={onPressOutLogo}
+            onLongPress={onLongPressLogo}  // navigate to sitemap on logo press (for debug)
+            delayLongPress={1000}
+          >
+            <Animated.Image
+              source={require('@/assets/images/logo.png')}
+              style={{ 
+                height: "100%",
+                aspectRatio: 1, 
+                resizeMode: 'cover', 
+                transform: [{ scale: logoAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [1, 0.95]
+                })}],
+              }}
             />
-          </View>
+          </Pressable>
 
-          <Text style={[globalStyles.text,{color: theme.colors.text}]}>{texts.welcome}</Text>
           <View style={globalStyles.containerVertical}>
+            <Text style={[globalStyles.subheader, {color: theme.colors.text, marginBottom: spacing.large}]}>
+              Login with your VRChat account
+            </Text>
             <TextInput
               ref={usernameRef}
               style={[globalStyles.input, {color: theme.colors.text}]}
@@ -141,9 +181,10 @@ export default function Login() {
             <Button  // button to navigate to sitemap (for debug)
               style={[globalStyles.button]}
               color={theme.colors.primary}
-              onPress={() => Linking.openURL("https://vrchat.com/home/register")}
+              onPress={() => setOpenLinks(true)}
             > 
-              Create Account
+              {/* [ Sitemap ] */}
+              Can't login?
             </Button>
             <Button
               style={[globalStyles.button, globalStyles.repeatingitemHorizontal, {flex:1}]}
@@ -155,13 +196,6 @@ export default function Login() {
             </Button>
           </View>
 
-          <Button  // button to navigate to sitemap (for debug)
-            style={[globalStyles.button, {transform: [{ translateY: 200 }]}]}
-            color={theme.colors.primary}
-            onPress={() => navigate("/_sitemap")}
-          > 
-            [ SiteMap ]
-          </Button>
         </View>
 
         {/* 2fa modal */}
@@ -186,6 +220,30 @@ export default function Login() {
             onPress={handleVerify}
           >
             Verify
+          </Button>
+        </GenericModal>
+
+        
+        {/* links to vrchat modal */}
+        <GenericModal open={openLinks} onClose={() => setOpenLinks(false)}>
+          <Text style={[globalStyles.subheader, globalStyles.headerContainer, {color: theme.colors.text}]}>
+            Having trouble logging in?
+          </Text>
+          <View style={[globalStyles.containerVertical, {padding: spacing.medium}]}>
+            <Text style={[globalStyles.text, {color: theme.colors.text, fontSize: fontSize.medium, marginBottom: spacing.small}]}>
+              New to VRChat? <Atag href="https://vrchat.com/home/register">Create an account</Atag> !
+            </Text>
+            <Text style={[globalStyles.text, {color: theme.colors.text, fontSize: fontSize.medium, marginBottom: spacing.small}]}>
+              Forgot <Atag href="https://vrchat.com/home/password">password</Atag> or <Atag href="https://vrchat.com/home/forgot-email">email</Atag> ?
+            </Text>
+          </View>
+
+          <Button
+            style={[globalStyles.button, {marginBottom: spacing.small}]}
+            color={theme.colors.text}
+            onPress={() => setOpenLinks(false)}
+          >
+            Close
           </Button>
         </GenericModal>
 
