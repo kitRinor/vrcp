@@ -18,7 +18,7 @@ gen-d-ts:  # generate missing d.ts files for not typed modules
 .PHONY : gen-vrcapi
 gen-vrcapi:  # generate the vrcapi types
 	@rm -rf ./src/vrchat/api/* ./src/vrchat/openapi.yaml
-	@curl -L https://vrchat.community/openapi.yaml -o ./src/vrchat/openapi.yaml
+	@curl -fsSL https://vrchat.community/openapi.yaml -o ./src/vrchat/openapi.yaml
 	@npx @openapitools/openapi-generator-cli generate -i ./src/vrchat/openapi.yaml -g typescript-axios -o ./src/vrchat/api/
 
 .PHONY : build-dev build-pre submit

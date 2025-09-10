@@ -5,6 +5,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@modules/*": [ // Alias for custom-modules
+        "./modules/*"
       ]
     }
   },
