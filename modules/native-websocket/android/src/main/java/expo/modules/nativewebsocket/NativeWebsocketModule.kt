@@ -2,7 +2,6 @@ package expo.modules.nativewebsocket
 
 import expo.modules.kotlin.modules.Module
 import expo.modules.kotlin.modules.ModuleDefinition
-import java.net.URL
 
 class NativeWebsocketModule : Module() {
   // Each module class must implement the definition function. The definition consists of components
@@ -34,17 +33,6 @@ class NativeWebsocketModule : Module() {
       sendEvent("onChange", mapOf(
         "value" to value
       ))
-    }
-
-    // Enables the module to be used as a native view. Definition components that are accepted as part of
-    // the view definition: Prop, Events.
-    View(NativeWebsocketView::class) {
-      // Defines a setter for the `url` prop.
-      Prop("url") { view: NativeWebsocketView, url: URL ->
-        view.webView.loadUrl(url.toString())
-      }
-      // Defines an event that the view can send to JavaScript.
-      Events("onLoad")
     }
   }
 }
