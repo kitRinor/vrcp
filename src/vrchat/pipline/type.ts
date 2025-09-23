@@ -172,7 +172,7 @@ export type FriendOnlinePipelineContent = {
 }
 
 export type FriendActivePipelineContent = {
-  userid: string,
+  userId: string,
   platform: string,
   user: _API.User
 }

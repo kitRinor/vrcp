@@ -1,23 +1,17 @@
 import GenericScreen from "@/components/layout/GenericScreen";
 import globalStyles from "@/config/styles";
+import { useData } from "@/contexts/DataContext";
 import { useVRChat } from "@/contexts/VRChatContext";
 import { Button } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
 import { useEffect, useRef, useState } from "react";
 import { FlatList, StyleSheet, Text, TextInput, View } from "react-native";
 
-const TODO_TEXT = `
-[ToDo]  
-  - webhook for Feed,
-  - globally state controll
-    - how to handle data pagenation?
-    - how to handle data update?
-  - push notification for Feed update
-`;
 
 export default function Home() {
   const theme = useTheme();
   const vrc = useVRChat();
+  const {friends} = useData();
 
   const msgListRef = useRef<FlatList<any>>(null);
   const [msgs, setMsgs] = useState<{
@@ -38,15 +32,15 @@ export default function Home() {
     setMsgs((prev) => [{mode: "recv", data: `[${msg.type}] ${ctt}`}, ...prev ]);
   }, [vrc.pipeline?.lastMessage])
 
+  useEffect(() => {
+    console.log("Friends updated:", friends.data.length);
+  }, [friends.data]);
+
   return (
     <GenericScreen>
 
-      <Text style={[globalStyles.text, {color: theme.colors.text}]}>
-        {TODO_TEXT}
-      </Text>
-      
-      {/* Standard WebSocket Test */}
-      <View style={{height: "70%", borderStyle: "solid", borderColor: theme.colors.border, borderWidth: 1, borderRadius: 8, padding: 8, marginTop: 8}}>
+      {/* Pipeline */}
+      <View style={{height: "35%", borderStyle: "solid", borderColor: theme.colors.border, borderWidth: 1, borderRadius: 8, padding: 8, marginTop: 8}}>
         <View style={{display: "flex", flexDirection: "row-reverse",  flexWrap: "wrap", gap: 8, paddingVertical: 8}}>
           <Button onPress={() => {
             setMsgs([]);
@@ -59,6 +53,19 @@ export default function Home() {
           renderItem={({ item }) => (
             <Text style={[globalStyles.text, {color:  item.mode === "recv" ? theme.colors.primary : theme.colors.text, marginBottom: 4}]}>
               {item.data}
+            </Text>
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
+      </View>
+      {/* State */}
+      <View style={{height: "60%", borderStyle: "solid", borderColor: theme.colors.border, borderWidth: 1, borderRadius: 8, padding: 8, marginTop: 8}}>
+        <Text style={[globalStyles.text, {color:theme.colors.text, fontWeight: "bold", marginBottom: 8}]}> Friends ({friends.data.length}) </Text>
+        <FlatList
+          data={friends.data}
+          renderItem={({ item }) => (
+            <Text style={[globalStyles.text, {color:theme.colors.text, marginBottom: 4}]}>
+              {`${item.displayName}\n (${item.id.slice(0, 20)}) - ${item.location.slice(0, 20)}`}
             </Text>
           )}
           keyExtractor={(item, index) => index.toString()}

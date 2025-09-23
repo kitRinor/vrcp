@@ -1,8 +1,9 @@
-import { CurrentUser, FavoriteGroup } from '@/vrchat/api';
+import { CurrentUser, FavoriteGroup, LimitedUserFriend } from '@/vrchat/api';
 import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { useVRChat } from './VRChatContext';
-import { PipelineType } from '@/vrchat/pipline/type';
+import { PipelineContent, PipelineType } from '@/vrchat/pipline/type';
+import { convertUserToLimitedUserFriend } from '@/lib/vrchatUtils';
 
 
 
@@ -12,7 +13,7 @@ interface DataWrapper<T> {
   data: T;
   isLoading: boolean;
   fetch: () => Promise<T>;
-  set: (data: T) => void;
+  set: (v: React.SetStateAction<T>) => void;
   clear: () => void;
 }
 
@@ -22,16 +23,9 @@ interface DataContextType {
 
   currentUser: DataWrapper<CurrentUser | undefined>;
 
-  // friends: DataWrapper<LimitedUserFriend[]>; // all friends
-  // onlineFriends: DataWrapper<LimitedUserFriend[]>;
-  // activeFriends: DataWrapper<LimitedUserFriend[]>;
-  // offlineFriends: DataWrapper<LimitedUserFriend[]>;
+  friends: DataWrapper<LimitedUserFriend[]>; // all friends
 
   favoriteGroups: DataWrapper<FavoriteGroup[]>;
-
-  // favoriteFriends: DataWrapper<LimitedUserFriend[]>;
-  // favoriteWorlds: DataWrapper<LimitedWorld[]>;
-  // favoriteAvatars: DataWrapper<Avatar[]>;
 
 }
 
@@ -54,10 +48,19 @@ const DataProvider: React.FC<{ children?: React.ReactNode }> = ({children}) => {
   // data getters
   const getCurrentUser = async () => (await vrc.authenticationApi.getCurrentUser()).data;
   const getFavoriteGroups = async () => (await vrc.favoritesApi.getFavoriteGroups()).data;
+  const getFriends = async () => {
+    const res = await Promise.all([
+      vrc.friendsApi.getFriends(0, 100, false), // online or active
+      vrc.friendsApi.getFriends(0, 100, true), // offline
+      vrc.friendsApi.getFriends(100, 100, true) // offline-2
+    ])
+    return res.flatMap(r => r.data);
+  };
   //
   const values = {
     currentUser: initDataWrapper<CurrentUser | undefined>(undefined, getCurrentUser),
     favoriteGroups: initDataWrapper<FavoriteGroup[]>([], getFavoriteGroups),
+    friends: initDataWrapper<LimitedUserFriend[]>([], getFriends),
   }
 
   const fetchAll = async () => {
@@ -69,19 +72,40 @@ const DataProvider: React.FC<{ children?: React.ReactNode }> = ({children}) => {
 
   useEffect(() => {
     if (auth.user) {
-      fetchAll();
+      fetchAll().catch(console.error);
     } else {
       clearAll(); // clear data on logout
     }
   }, [auth.user]);
 
   /** Pipelines */
-  // log pipeline messages for debug
+  // Apply pipeline messages to update states
+  const applyPipeMsgToStates = <T extends PipelineType>(type: T, content: PipelineContent<T>) => {
+    // about friends only for now 
+    if ((["friend-update", "friend-location", "friend-online", "friend-active"] as PipelineType[]).includes(type)) {
+      const data = content as PipelineContent<"friend-update" | "friend-location" | "friend-online" | "friend-active">;
+      if (values.friends.data.find(f => f.id === data.userId) != undefined) {
+        values.friends.set(prev => prev.map(f => f.id === data.userId ? { ...f, ...data.user } : f));
+      } else {
+        values.friends.set(prev => [...prev, convertUserToLimitedUserFriend(data.user)]);
+      }
+    } else if (type == "friend-offline") {
+      const data = content as PipelineContent<"friend-offline">;
+      values.friends.set(prev => prev.map(f => f.id === data.userId ? { ...f, location: "offline"} : f));
+    } else if (type == "friend-add") {
+      const data = content as PipelineContent<"friend-add">;
+      values.friends.set(prev => [...prev, convertUserToLimitedUserFriend(data.user)]);
+    } else if (type == "friend-delete") {
+      const data = content as PipelineContent<"friend-delete">;
+      values.friends.set(prev => prev.filter(f => f.id !== data.userId));
+    }
+  }
+
   useEffect(() => {
     const msg = vrc.pipeline?.lastMessage;
     if (!msg) return ;
     if (PipelineType.includes(msg.type as any)) {
-      console.log("Pipeline message:", msg.type);
+      applyPipeMsgToStates(msg.type, msg.content as any);
     } else {
       console.log("Pipeline unknown message:", msg.type);
     }
@@ -113,7 +137,7 @@ function initDataWrapper<T>(initialData: T, getter: ()=>Promise<T>): DataWrapper
       setIsLoading(false);
     }
   };
-  const set = (newData: T) => setData(newData);
+  const set = (v: React.SetStateAction<T>) => setData(v);
   const clear = () => setData(initialData);
   return { data, fetch, set, clear, isLoading };
 }

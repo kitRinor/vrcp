@@ -155,7 +155,7 @@ function createContentDefinition(type: string, content: Object | null): string {
 /** 例外的処理を記述 */
 function manuallyFixDefinitions(content: string): string {
   content = content.replace(/"dateTimeString"/g, 'string'); // NotificationV2.expiresAt
-
+  content = content.replace(/userid/g, 'userId'); // FriendActive.userId
   return content;
 }
 

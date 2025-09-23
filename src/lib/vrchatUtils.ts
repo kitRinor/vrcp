@@ -158,3 +158,15 @@ export function getWorldPlatform (data: WorldLike) {
   if (data.unityPackages?.some(pkg => pkg.platform == "ios")) platforms.push("ios");
   return platforms;
 }
+
+
+// converter (for Pipeline)
+export function convertUserToLimitedUserFriend(user: User): LimitedUserFriend {
+  return {
+    ...user,
+    imageUrl: user?.currentAvatarThumbnailImageUrl ?? "",
+    location: user.location ?? "offline",
+    last_mobile: user.last_mobile ?? "",
+    platform: user.platform ?? "",
+  };
+}
