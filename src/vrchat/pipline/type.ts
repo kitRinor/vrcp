@@ -1,3 +1,6 @@
+// This file is generated automatically by a script(gen-type.ts).
+// Don't modify manually!
+
 import * as _API from "../api";
 
 
@@ -101,9 +104,9 @@ export type PipelineContent<T extends PipelineType> = T extends 'notification'
 export type NotificationPipelineContent = _API.Notification
 
 export type ResponseNotificationPipelineContent = {
-  notificationId: string,
-  receiverId: string,
-  responseId: string
+  notificationId: string;
+  receiverId: string;
+  responseId: string;
 }
 
 export type SeeNotificationPipelineContent = string
@@ -113,161 +116,161 @@ export type HideNotificationPipelineContent = string
 export type ClearNotificationPipelineContent = null;
 
 export type NotificationV2PipelineContent = {
-  id: string,
-  version: 2,
-  type: string,
-  category: string,
-  isSystem: boolean,
-  ignoreDND: boolean,
-  senderUserId: string,
-  senderUsername: string,
-  receiverUserId: string,
-  relatedNotificationsId: string | undefined,
-  title: string,
-  message: string,
-  imageUrl: string,
-  link: string,
-  linkText: string,
+  id: string;
+  version: 2;
+  type: string;
+  category: string;
+  isSystem: boolean;
+  ignoreDND: boolean;
+  senderUserId: string;
+  senderUsername: string;
+  receiverUserId: string;
+  relatedNotificationsId: string | undefined;
+  title: string;
+  message: string;
+  imageUrl: string;
+  link: string;
+  linkText: string;
   responses: {
-      type: string,
-      data: string,
-      icon: string,
-      text: string
-    }[],
-  expiresAt: string,
-  expiryAfterSeen: number,
-  requireSeen: boolean,
-  seen: boolean,
-  canDelete: boolean,
-  createdAt: string,
-  updatedAt: string
+      type: string;
+      data: string;
+      icon: string;
+      text: string;
+    }[];
+  expiresAt: string;
+  expiryAfterSeen: number;
+  requireSeen: boolean;
+  seen: boolean;
+  canDelete: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type NotificationV2UpdatePipelineContent = {
-  id: string,
-  version: 2,
-  updates: Record<string, any>
+  id: string;
+  version: 2;
+  updates: Record<string, any>;
 }
 
 export type NotificationV2DeletePipelineContent = {
-  ids: string[],
-  version: 2
+  ids: string[];
+  version: 2;
 }
 
 export type FriendAddPipelineContent = {
-  userId: string,
-  user: _API.User
+  userId: string;
+  user: _API.User;
 }
 
 export type FriendDeletePipelineContent = {
-  userId: string
+  userId: string;
 }
 
 export type FriendOnlinePipelineContent = {
-  userId: string,
-  platform: string,
-  location: string,
-  canRequestInvite: boolean,
-  user: _API.User
+  userId: string;
+  platform: string;
+  location: string;
+  canRequestInvite: boolean;
+  user: _API.User;
 }
 
 export type FriendActivePipelineContent = {
-  userId: string,
-  platform: string,
-  user: _API.User
+  userId: string;
+  platform: string;
+  user: _API.User;
 }
 
 export type FriendOfflinePipelineContent = {
-  userId: string,
-  platform: string
+  userId: string;
+  platform: string;
 }
 
 export type FriendUpdatePipelineContent = {
-  userId: string,
-  user: _API.User
+  userId: string;
+  user: _API.User;
 }
 
 export type FriendLocationPipelineContent = {
-  userId: string,
-  location: string,
-  travelingToLocation: string,
-  worldId: string,
-  canRequestInvite: boolean,
-  user: _API.User
+  userId: string;
+  location: string;
+  travelingToLocation: string;
+  worldId: string;
+  canRequestInvite: boolean;
+  user: _API.User;
 }
 
 export type UserUpdatePipelineContent = {
-  userId: string,
+  userId: string;
   user: {
-    bio: string,
-    currentAvatar: string,
-    currentAvatarImageUrl: string,
-    currentAvatarThumbnailImageUrl: string,
-    displayName: string,
-    fallbackAvatar: string,
-    id: string,
-    profilePicOverride: string,
-    status: string,
-    statusDescription: string,
-    tags: string[],
-    userIcon: string,
-    username: string
+    bio: string;
+    currentAvatar: string;
+    currentAvatarImageUrl: string;
+    currentAvatarThumbnailImageUrl: string;
+    displayName: string;
+    fallbackAvatar: string;
+    id: string;
+    profilePicOverride: string;
+    status: string;
+    statusDescription: string;
+    tags: string[];
+    userIcon: string;
+    username: string;
   }
 }
 
 export type UserLocationPipelineContent = {
-  userId: string,
-  user: _API.User,
-  location: string,
-  instance: string,
-  travelingToLocation: string
+  userId: string;
+  user: _API.User;
+  location: string;
+  instance: string;
+  travelingToLocation: string;
 }
 
 export type UserBadgeAssignedPipelineContent = {
-  badge: string
+  badge: string;
 }
 
 export type UserBadgeUnassignedPipelineContent = {
-  badgeId: string
+  badgeId: string;
 }
 
 export type ContentRefreshPipelineContent = {
-  contentType: string,
-  fileId: string,
-  itemId: string,
-  itemType: string,
-  actionType: string
+  contentType: string;
+  fileId: string;
+  itemId: string;
+  itemType: string;
+  actionType: string;
 }
 
 export type ModifiedImageUpdatePipelineContent = {
-  fileId: string,
-  pixelSize: number,
-  versionNumber: number,
-  needsProcessing: boolean
+  fileId: string;
+  pixelSize: number;
+  versionNumber: number;
+  needsProcessing: boolean;
 }
 
 export type InstanceQueueJoinedPipelineContent = {
-  instanceLocation: string,
-  position: number
+  instanceLocation: string;
+  position: number;
 }
 
 export type InstanceQueueReadyPipelineContent = {
-  instanceLocation: string,
-  expiry: string
+  instanceLocation: string;
+  expiry: string;
 }
 
 export type GroupJoinedPipelineContent = {
-  groupId: string
+  groupId: string;
 }
 
 export type GroupLeftPipelineContent = {
-  groupId: string
+  groupId: string;
 }
 
 export type GroupMemberUpdatedPipelineContent = {
-  member: _API.GroupLimitedMember
+  member: _API.GroupLimitedMember;
 }
 
 export type GroupRoleUpdatedPipelineContent = {
-  role: _API.GroupRole
+  role: _API.GroupRole;
 }

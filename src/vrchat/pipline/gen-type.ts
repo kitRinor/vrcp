@@ -74,12 +74,12 @@ function generateDefinitionFileContent (objs :  {type: string, content: Object |
   });
   const types = Array.from(typeMap.keys());
 
-  const definitions = "// This file is generated automatically by a script(gen-type.ts).\n Don't modify manually!\n\n"
+  const definitions = "// This file is generated automatically by a script(gen-type.ts).\n// Don't modify manually!\n\n"
     + createimportStatements() + "\n\n"
     + createOtherDefinitions() + "\n\n"
     + createEnums(types) + "\n\n"
     + createConditionalTypes(types) + "\n\n"
-    + types.map(t => createContentDefinition(t, typeMap.get(t) || null)).join("\n\n");
+    + types.map(t => createEachContentDefinition(t, typeMap.get(t) || null)).join("\n\n");
 
   return definitions;
 }
@@ -119,7 +119,7 @@ function createConditionalTypes (types: string[]) : string {
   return `export type PipelineContent<T extends PipelineType> = ${conditionalTypes}null;`
 }
 
-function createContentDefinition(type: string, content: Object | null): string {
+function createEachContentDefinition(type: string, content: Object | null): string {
   const interfaceName = pascalCase(type) + "PipelineContent";
   if (!content) {
     return `export type ${interfaceName} = null;`;
@@ -146,6 +146,13 @@ function createContentDefinition(type: string, content: Object | null): string {
  
   // replace {} with Record<string, any>
   fields = fields.replace(/{\s*}/g, 'Record<string, any>');
+
+
+  // optional formatter
+  // replace last comma(json) with semicolon(ts) and add semicolon before }
+  fields = fields.replace(/,$/gm, ';');
+  fields = fields.replace(/(\S+)\n(\s*)}/g, '$1;\n$2}');
+
 
   // wrap with interface 
   return `export type ${interfaceName} = ${fields}`
