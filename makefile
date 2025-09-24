@@ -14,9 +14,14 @@ run:  # run the application
 
 .PHONY : gen-vrcapi gen-vrcpipe
 gen-vrcapi:  # generate the vrcapi types and clients from openapi spec
+# config on openapitools.json
 	@rm -rf ./src/vrchat/api/* ./src/vrchat/openapi.yaml
 	@curl -fsSL https://vrchat.community/openapi.yaml -o ./src/vrchat/openapi.yaml
-	@npx @openapitools/openapi-generator-cli generate -i ./src/vrchat/openapi.yaml -g typescript-axios -o ./src/vrchat/api/
+	@npx @openapitools/openapi-generator-cli generate \
+		-i ./src/vrchat/openapi.yaml \
+		-g typescript-axios \
+		-o ./src/vrchat/api/ \
+		--additional-properties="useSingleRequestParameter=true"
 	@rm -f ./src/vrchat/openapi.yaml
 
 gen-vrcpipe: # generate the vrcpipe types from websocket spec

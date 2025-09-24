@@ -13,15 +13,15 @@
  */
 
 
-import type { AxiosInstance, AxiosPromise, RawAxiosRequestConfig } from 'axios';
-import globalAxios from 'axios';
 import type { Configuration } from './configuration';
+import type { AxiosPromise, AxiosInstance, RawAxiosRequestConfig } from 'axios';
+import globalAxios from 'axios';
 // Some imports not used depending on template conditions
 // @ts-ignore
+import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObject, setBearerAuthToObject, setOAuthToObject, setSearchParams, serializeDataIfNeeded, toPathString, createRequestFunction } from './common';
 import type { RequestArgs } from './base';
-import { DUMMY_BASE_URL, assertParamExists, createRequestFunction, serializeDataIfNeeded, setBasicAuthToObject, setSearchParams, toPathString } from './common';
 // @ts-ignore
-import { BASE_PATH, BaseAPI, RequiredError, operationServerMap } from './base';
+import { BASE_PATH, COLLECTION_FORMATS, BaseAPI, RequiredError, operationServerMap } from './base';
 
 /**
  * 
@@ -7748,13 +7748,13 @@ export interface LimitedUserFriend {
      * @type {string}
      * @memberof LimitedUserFriend
      */
-    'profilePicOverride': string;
+    'profilePicOverride'?: string;
     /**
      * 
      * @type {string}
      * @memberof LimitedUserFriend
      */
-    'profilePicOverrideThumbnail': string;
+    'profilePicOverrideThumbnail'?: string;
     /**
      * 
      * @type {UserStatus}
@@ -7778,7 +7778,7 @@ export interface LimitedUserFriend {
      * @type {string}
      * @memberof LimitedUserFriend
      */
-    'userIcon': string;
+    'userIcon'?: string;
 }
 
 
@@ -8022,13 +8022,13 @@ export interface LimitedUserInstance {
      * @type {string}
      * @memberof LimitedUserInstance
      */
-    'profilePicOverride': string;
+    'profilePicOverride'?: string;
     /**
      * 
      * @type {string}
      * @memberof LimitedUserInstance
      */
-    'profilePicOverrideThumbnail': string;
+    'profilePicOverrideThumbnail'?: string;
     /**
      * 
      * @type {string}
@@ -8064,7 +8064,7 @@ export interface LimitedUserInstance {
      * @type {string}
      * @memberof LimitedUserInstance
      */
-    'userIcon': string;
+    'userIcon'?: string;
 }
 
 
@@ -8139,7 +8139,7 @@ export interface LimitedUserSearch {
      * @type {string}
      * @memberof LimitedUserSearch
      */
-    'profilePicOverride': string;
+    'profilePicOverride'?: string;
     /**
      * 
      * @type {string}
@@ -8169,7 +8169,7 @@ export interface LimitedUserSearch {
      * @type {string}
      * @memberof LimitedUserSearch
      */
-    'userIcon': string;
+    'userIcon'?: string;
 }
 
 
@@ -13000,36 +13000,32 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
         /**
          * Checks if a user by a given `username`, `displayName` or `email` exist. This is used during registration to check if a username has already been taken, during change of displayName to check if a displayName is available, and during change of email to check if the email is already used. In the later two cases the `excludeUserId` is used to exclude oneself, otherwise the result would always be true.  It is **REQUIRED** to include **AT LEAST** `username`, `displayName` **or** `email` query parameter. Although they can be combined - in addition with `excludeUserId` (generally to exclude yourself) - to further fine-tune the search.
          * @summary Check User Exists
-         * @param {string} [email] Filter by email.
-         * @param {string} [displayName] Filter by displayName.
-         * @param {string} [username] Filter by Username.
-         * @param {string} [excludeUserId] Exclude by UserID.
+         * @param {AuthenticationApiCheckUserExistsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        checkUserExists(email?: string, displayName?: string, username?: string, excludeUserId?: string, options?: RawAxiosRequestConfig): AxiosPromise<UserExists> {
-            return localVarFp.checkUserExists(email, displayName, username, excludeUserId, options).then((request) => request(axios, basePath));
+        checkUserExists(requestParameters: AuthenticationApiCheckUserExistsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<UserExists> {
+            return localVarFp.checkUserExists(requestParameters.email, requestParameters.displayName, requestParameters.username, requestParameters.excludeUserId, options).then((request) => request(axios, basePath));
         },
         /**
          * Confirms the email address for a user
          * @summary Confirm Email
-         * @param {string} id Target user for which to verify email.
-         * @param {string} verifyEmail Token to verify email.
+         * @param {AuthenticationApiConfirmEmailRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        confirmEmail(id: string, verifyEmail: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.confirmEmail(id, verifyEmail, options).then((request) => request(axios, basePath));
+        confirmEmail(requestParameters: AuthenticationApiConfirmEmailRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.confirmEmail(requestParameters.id, requestParameters.verifyEmail, options).then((request) => request(axios, basePath));
         },
         /**
          * Deletes the account with given ID. Normal users only have permission to delete their own account. Account deletion is 14 days from this request, and will be cancelled if you do an authenticated request with the account afterwards.  **VRC+ NOTE:** Despite the 14-days cooldown, any VRC+ subscription will be cancelled **immediately**.  **METHOD NOTE:** Despite this being a Delete action, the method type required is PUT.
          * @summary Delete User
-         * @param {string} userId Must be a valid user ID.
+         * @param {AuthenticationApiDeleteUserRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteUser(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<CurrentUser> {
-            return localVarFp.deleteUser(userId, options).then((request) => request(axios, basePath));
+        deleteUser(requestParameters: AuthenticationApiDeleteUserRequest, options?: RawAxiosRequestConfig): AxiosPromise<CurrentUser> {
+            return localVarFp.deleteUser(requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Disables 2FA for the currently logged in account
@@ -13079,13 +13075,13 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
         /**
          * ~~Register a new user account.~~  **DEPRECATED:** Automated creation of accounts has no legitimate public third-party use case, and would be in violation of ToS §13.2: *By using the Platform, you agree not to: i. [...] use the Platform in a manner inconsistent with individual human usage* This endpoint is documented in the interest of completeness
          * @summary Register User Account
-         * @param {RegisterUserAccountRequest} registerUserAccountRequest 
+         * @param {AuthenticationApiRegisterUserAccountRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @deprecated
          * @throws {RequiredError}
          */
-        registerUserAccount(registerUserAccountRequest: RegisterUserAccountRequest, options?: RawAxiosRequestConfig): AxiosPromise<CurrentUser> {
-            return localVarFp.registerUserAccount(registerUserAccountRequest, options).then((request) => request(axios, basePath));
+        registerUserAccount(requestParameters: AuthenticationApiRegisterUserAccountRequest, options?: RawAxiosRequestConfig): AxiosPromise<CurrentUser> {
+            return localVarFp.registerUserAccount(requestParameters.registerUserAccountRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Requests a resend of pending email address confirmation email
@@ -13099,22 +13095,22 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
         /**
          * Finishes the login sequence with a normal 2FA-generated code for accounts with 2FA-protection enabled.
          * @summary Verify 2FA code
-         * @param {TwoFactorAuthCode} twoFactorAuthCode 
+         * @param {AuthenticationApiVerify2FARequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        verify2FA(twoFactorAuthCode: TwoFactorAuthCode, options?: RawAxiosRequestConfig): AxiosPromise<Verify2FAResult> {
-            return localVarFp.verify2FA(twoFactorAuthCode, options).then((request) => request(axios, basePath));
+        verify2FA(requestParameters: AuthenticationApiVerify2FARequest, options?: RawAxiosRequestConfig): AxiosPromise<Verify2FAResult> {
+            return localVarFp.verify2FA(requestParameters.twoFactorAuthCode, options).then((request) => request(axios, basePath));
         },
         /**
          * Finishes the login sequence with an 2FA email code.
          * @summary Verify 2FA email code
-         * @param {TwoFactorEmailCode} twoFactorEmailCode 
+         * @param {AuthenticationApiVerify2FAEmailCodeRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        verify2FAEmailCode(twoFactorEmailCode: TwoFactorEmailCode, options?: RawAxiosRequestConfig): AxiosPromise<Verify2FAEmailCodeResult> {
-            return localVarFp.verify2FAEmailCode(twoFactorEmailCode, options).then((request) => request(axios, basePath));
+        verify2FAEmailCode(requestParameters: AuthenticationApiVerify2FAEmailCodeRequest, options?: RawAxiosRequestConfig): AxiosPromise<Verify2FAEmailCodeResult> {
+            return localVarFp.verify2FAEmailCode(requestParameters.twoFactorEmailCode, options).then((request) => request(axios, basePath));
         },
         /**
          * Verify whether the currently provided Auth Token is valid.
@@ -13128,36 +13124,196 @@ export const AuthenticationApiFactory = function (configuration?: Configuration,
         /**
          * Verifies a login attempt for a user
          * @summary Verify Login Place
-         * @param {string} token Token to verify login attempt.
-         * @param {string} [userId] Filter by UserID.
+         * @param {AuthenticationApiVerifyLoginPlaceRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        verifyLoginPlace(token: string, userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.verifyLoginPlace(token, userId, options).then((request) => request(axios, basePath));
+        verifyLoginPlace(requestParameters: AuthenticationApiVerifyLoginPlaceRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.verifyLoginPlace(requestParameters.token, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Finishes sequence for enabling time-based 2FA.
          * @summary Verify Pending 2FA code
-         * @param {TwoFactorAuthCode} twoFactorAuthCode 
+         * @param {AuthenticationApiVerifyPending2FARequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        verifyPending2FA(twoFactorAuthCode: TwoFactorAuthCode, options?: RawAxiosRequestConfig): AxiosPromise<Verify2FAResult> {
-            return localVarFp.verifyPending2FA(twoFactorAuthCode, options).then((request) => request(axios, basePath));
+        verifyPending2FA(requestParameters: AuthenticationApiVerifyPending2FARequest, options?: RawAxiosRequestConfig): AxiosPromise<Verify2FAResult> {
+            return localVarFp.verifyPending2FA(requestParameters.twoFactorAuthCode, options).then((request) => request(axios, basePath));
         },
         /**
          * Finishes the login sequence with an OTP (One Time Password) recovery code for accounts with 2FA-protection enabled.
          * @summary Verify 2FA code with Recovery code
-         * @param {TwoFactorAuthCode} twoFactorAuthCode 
+         * @param {AuthenticationApiVerifyRecoveryCodeRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        verifyRecoveryCode(twoFactorAuthCode: TwoFactorAuthCode, options?: RawAxiosRequestConfig): AxiosPromise<Verify2FAResult> {
-            return localVarFp.verifyRecoveryCode(twoFactorAuthCode, options).then((request) => request(axios, basePath));
+        verifyRecoveryCode(requestParameters: AuthenticationApiVerifyRecoveryCodeRequest, options?: RawAxiosRequestConfig): AxiosPromise<Verify2FAResult> {
+            return localVarFp.verifyRecoveryCode(requestParameters.twoFactorAuthCode, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for checkUserExists operation in AuthenticationApi.
+ * @export
+ * @interface AuthenticationApiCheckUserExistsRequest
+ */
+export interface AuthenticationApiCheckUserExistsRequest {
+    /**
+     * Filter by email.
+     * @type {string}
+     * @memberof AuthenticationApiCheckUserExists
+     */
+    readonly email?: string
+
+    /**
+     * Filter by displayName.
+     * @type {string}
+     * @memberof AuthenticationApiCheckUserExists
+     */
+    readonly displayName?: string
+
+    /**
+     * Filter by Username.
+     * @type {string}
+     * @memberof AuthenticationApiCheckUserExists
+     */
+    readonly username?: string
+
+    /**
+     * Exclude by UserID.
+     * @type {string}
+     * @memberof AuthenticationApiCheckUserExists
+     */
+    readonly excludeUserId?: string
+}
+
+/**
+ * Request parameters for confirmEmail operation in AuthenticationApi.
+ * @export
+ * @interface AuthenticationApiConfirmEmailRequest
+ */
+export interface AuthenticationApiConfirmEmailRequest {
+    /**
+     * Target user for which to verify email.
+     * @type {string}
+     * @memberof AuthenticationApiConfirmEmail
+     */
+    readonly id: string
+
+    /**
+     * Token to verify email.
+     * @type {string}
+     * @memberof AuthenticationApiConfirmEmail
+     */
+    readonly verifyEmail: string
+}
+
+/**
+ * Request parameters for deleteUser operation in AuthenticationApi.
+ * @export
+ * @interface AuthenticationApiDeleteUserRequest
+ */
+export interface AuthenticationApiDeleteUserRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof AuthenticationApiDeleteUser
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for registerUserAccount operation in AuthenticationApi.
+ * @export
+ * @interface AuthenticationApiRegisterUserAccountRequest
+ */
+export interface AuthenticationApiRegisterUserAccountRequest {
+    /**
+     * 
+     * @type {RegisterUserAccountRequest}
+     * @memberof AuthenticationApiRegisterUserAccount
+     */
+    readonly registerUserAccountRequest: RegisterUserAccountRequest
+}
+
+/**
+ * Request parameters for verify2FA operation in AuthenticationApi.
+ * @export
+ * @interface AuthenticationApiVerify2FARequest
+ */
+export interface AuthenticationApiVerify2FARequest {
+    /**
+     * 
+     * @type {TwoFactorAuthCode}
+     * @memberof AuthenticationApiVerify2FA
+     */
+    readonly twoFactorAuthCode: TwoFactorAuthCode
+}
+
+/**
+ * Request parameters for verify2FAEmailCode operation in AuthenticationApi.
+ * @export
+ * @interface AuthenticationApiVerify2FAEmailCodeRequest
+ */
+export interface AuthenticationApiVerify2FAEmailCodeRequest {
+    /**
+     * 
+     * @type {TwoFactorEmailCode}
+     * @memberof AuthenticationApiVerify2FAEmailCode
+     */
+    readonly twoFactorEmailCode: TwoFactorEmailCode
+}
+
+/**
+ * Request parameters for verifyLoginPlace operation in AuthenticationApi.
+ * @export
+ * @interface AuthenticationApiVerifyLoginPlaceRequest
+ */
+export interface AuthenticationApiVerifyLoginPlaceRequest {
+    /**
+     * Token to verify login attempt.
+     * @type {string}
+     * @memberof AuthenticationApiVerifyLoginPlace
+     */
+    readonly token: string
+
+    /**
+     * Filter by UserID.
+     * @type {string}
+     * @memberof AuthenticationApiVerifyLoginPlace
+     */
+    readonly userId?: string
+}
+
+/**
+ * Request parameters for verifyPending2FA operation in AuthenticationApi.
+ * @export
+ * @interface AuthenticationApiVerifyPending2FARequest
+ */
+export interface AuthenticationApiVerifyPending2FARequest {
+    /**
+     * 
+     * @type {TwoFactorAuthCode}
+     * @memberof AuthenticationApiVerifyPending2FA
+     */
+    readonly twoFactorAuthCode: TwoFactorAuthCode
+}
+
+/**
+ * Request parameters for verifyRecoveryCode operation in AuthenticationApi.
+ * @export
+ * @interface AuthenticationApiVerifyRecoveryCodeRequest
+ */
+export interface AuthenticationApiVerifyRecoveryCodeRequest {
+    /**
+     * 
+     * @type {TwoFactorAuthCode}
+     * @memberof AuthenticationApiVerifyRecoveryCode
+     */
+    readonly twoFactorAuthCode: TwoFactorAuthCode
+}
 
 /**
  * AuthenticationApi - object-oriented interface
@@ -13180,41 +13336,37 @@ export class AuthenticationApi extends BaseAPI {
     /**
      * Checks if a user by a given `username`, `displayName` or `email` exist. This is used during registration to check if a username has already been taken, during change of displayName to check if a displayName is available, and during change of email to check if the email is already used. In the later two cases the `excludeUserId` is used to exclude oneself, otherwise the result would always be true.  It is **REQUIRED** to include **AT LEAST** `username`, `displayName` **or** `email` query parameter. Although they can be combined - in addition with `excludeUserId` (generally to exclude yourself) - to further fine-tune the search.
      * @summary Check User Exists
-     * @param {string} [email] Filter by email.
-     * @param {string} [displayName] Filter by displayName.
-     * @param {string} [username] Filter by Username.
-     * @param {string} [excludeUserId] Exclude by UserID.
+     * @param {AuthenticationApiCheckUserExistsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AuthenticationApi
      */
-    public checkUserExists(email?: string, displayName?: string, username?: string, excludeUserId?: string, options?: RawAxiosRequestConfig) {
-        return AuthenticationApiFp(this.configuration).checkUserExists(email, displayName, username, excludeUserId, options).then((request) => request(this.axios, this.basePath));
+    public checkUserExists(requestParameters: AuthenticationApiCheckUserExistsRequest = {}, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).checkUserExists(requestParameters.email, requestParameters.displayName, requestParameters.username, requestParameters.excludeUserId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Confirms the email address for a user
      * @summary Confirm Email
-     * @param {string} id Target user for which to verify email.
-     * @param {string} verifyEmail Token to verify email.
+     * @param {AuthenticationApiConfirmEmailRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AuthenticationApi
      */
-    public confirmEmail(id: string, verifyEmail: string, options?: RawAxiosRequestConfig) {
-        return AuthenticationApiFp(this.configuration).confirmEmail(id, verifyEmail, options).then((request) => request(this.axios, this.basePath));
+    public confirmEmail(requestParameters: AuthenticationApiConfirmEmailRequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).confirmEmail(requestParameters.id, requestParameters.verifyEmail, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Deletes the account with given ID. Normal users only have permission to delete their own account. Account deletion is 14 days from this request, and will be cancelled if you do an authenticated request with the account afterwards.  **VRC+ NOTE:** Despite the 14-days cooldown, any VRC+ subscription will be cancelled **immediately**.  **METHOD NOTE:** Despite this being a Delete action, the method type required is PUT.
      * @summary Delete User
-     * @param {string} userId Must be a valid user ID.
+     * @param {AuthenticationApiDeleteUserRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AuthenticationApi
      */
-    public deleteUser(userId: string, options?: RawAxiosRequestConfig) {
-        return AuthenticationApiFp(this.configuration).deleteUser(userId, options).then((request) => request(this.axios, this.basePath));
+    public deleteUser(requestParameters: AuthenticationApiDeleteUserRequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).deleteUser(requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -13275,14 +13427,14 @@ export class AuthenticationApi extends BaseAPI {
     /**
      * ~~Register a new user account.~~  **DEPRECATED:** Automated creation of accounts has no legitimate public third-party use case, and would be in violation of ToS §13.2: *By using the Platform, you agree not to: i. [...] use the Platform in a manner inconsistent with individual human usage* This endpoint is documented in the interest of completeness
      * @summary Register User Account
-     * @param {RegisterUserAccountRequest} registerUserAccountRequest 
+     * @param {AuthenticationApiRegisterUserAccountRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @deprecated
      * @throws {RequiredError}
      * @memberof AuthenticationApi
      */
-    public registerUserAccount(registerUserAccountRequest: RegisterUserAccountRequest, options?: RawAxiosRequestConfig) {
-        return AuthenticationApiFp(this.configuration).registerUserAccount(registerUserAccountRequest, options).then((request) => request(this.axios, this.basePath));
+    public registerUserAccount(requestParameters: AuthenticationApiRegisterUserAccountRequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).registerUserAccount(requestParameters.registerUserAccountRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -13299,25 +13451,25 @@ export class AuthenticationApi extends BaseAPI {
     /**
      * Finishes the login sequence with a normal 2FA-generated code for accounts with 2FA-protection enabled.
      * @summary Verify 2FA code
-     * @param {TwoFactorAuthCode} twoFactorAuthCode 
+     * @param {AuthenticationApiVerify2FARequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AuthenticationApi
      */
-    public verify2FA(twoFactorAuthCode: TwoFactorAuthCode, options?: RawAxiosRequestConfig) {
-        return AuthenticationApiFp(this.configuration).verify2FA(twoFactorAuthCode, options).then((request) => request(this.axios, this.basePath));
+    public verify2FA(requestParameters: AuthenticationApiVerify2FARequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).verify2FA(requestParameters.twoFactorAuthCode, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Finishes the login sequence with an 2FA email code.
      * @summary Verify 2FA email code
-     * @param {TwoFactorEmailCode} twoFactorEmailCode 
+     * @param {AuthenticationApiVerify2FAEmailCodeRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AuthenticationApi
      */
-    public verify2FAEmailCode(twoFactorEmailCode: TwoFactorEmailCode, options?: RawAxiosRequestConfig) {
-        return AuthenticationApiFp(this.configuration).verify2FAEmailCode(twoFactorEmailCode, options).then((request) => request(this.axios, this.basePath));
+    public verify2FAEmailCode(requestParameters: AuthenticationApiVerify2FAEmailCodeRequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).verify2FAEmailCode(requestParameters.twoFactorEmailCode, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -13334,38 +13486,37 @@ export class AuthenticationApi extends BaseAPI {
     /**
      * Verifies a login attempt for a user
      * @summary Verify Login Place
-     * @param {string} token Token to verify login attempt.
-     * @param {string} [userId] Filter by UserID.
+     * @param {AuthenticationApiVerifyLoginPlaceRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AuthenticationApi
      */
-    public verifyLoginPlace(token: string, userId?: string, options?: RawAxiosRequestConfig) {
-        return AuthenticationApiFp(this.configuration).verifyLoginPlace(token, userId, options).then((request) => request(this.axios, this.basePath));
+    public verifyLoginPlace(requestParameters: AuthenticationApiVerifyLoginPlaceRequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).verifyLoginPlace(requestParameters.token, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Finishes sequence for enabling time-based 2FA.
      * @summary Verify Pending 2FA code
-     * @param {TwoFactorAuthCode} twoFactorAuthCode 
+     * @param {AuthenticationApiVerifyPending2FARequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AuthenticationApi
      */
-    public verifyPending2FA(twoFactorAuthCode: TwoFactorAuthCode, options?: RawAxiosRequestConfig) {
-        return AuthenticationApiFp(this.configuration).verifyPending2FA(twoFactorAuthCode, options).then((request) => request(this.axios, this.basePath));
+    public verifyPending2FA(requestParameters: AuthenticationApiVerifyPending2FARequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).verifyPending2FA(requestParameters.twoFactorAuthCode, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Finishes the login sequence with an OTP (One Time Password) recovery code for accounts with 2FA-protection enabled.
      * @summary Verify 2FA code with Recovery code
-     * @param {TwoFactorAuthCode} twoFactorAuthCode 
+     * @param {AuthenticationApiVerifyRecoveryCodeRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AuthenticationApi
      */
-    public verifyRecoveryCode(twoFactorAuthCode: TwoFactorAuthCode, options?: RawAxiosRequestConfig) {
-        return AuthenticationApiFp(this.configuration).verifyRecoveryCode(twoFactorAuthCode, options).then((request) => request(this.axios, this.basePath));
+    public verifyRecoveryCode(requestParameters: AuthenticationApiVerifyRecoveryCodeRequest, options?: RawAxiosRequestConfig) {
+        return AuthenticationApiFp(this.configuration).verifyRecoveryCode(requestParameters.twoFactorAuthCode, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -14234,52 +14385,52 @@ export const AvatarsApiFactory = function (configuration?: Configuration, basePa
         /**
          * Create an avatar. It\'s possible to optionally specify a ID if you want a custom one. Attempting to create an Avatar with an already claimed ID will result in a DB error.
          * @summary Create Avatar
-         * @param {CreateAvatarRequest} [createAvatarRequest] 
+         * @param {AvatarsApiCreateAvatarRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createAvatar(createAvatarRequest?: CreateAvatarRequest, options?: RawAxiosRequestConfig): AxiosPromise<Avatar> {
-            return localVarFp.createAvatar(createAvatarRequest, options).then((request) => request(axios, basePath));
+        createAvatar(requestParameters: AvatarsApiCreateAvatarRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Avatar> {
+            return localVarFp.createAvatar(requestParameters.createAvatarRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Delete an avatar. Notice an avatar is never fully \"deleted\", only its ReleaseStatus is set to \"hidden\" and the linked Files are deleted. The AvatarID is permanently reserved.
          * @summary Delete Avatar
-         * @param {string} avatarId Must be a valid avatar ID.
+         * @param {AvatarsApiDeleteAvatarRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteAvatar(avatarId: string, options?: RawAxiosRequestConfig): AxiosPromise<Avatar> {
-            return localVarFp.deleteAvatar(avatarId, options).then((request) => request(axios, basePath));
+        deleteAvatar(requestParameters: AvatarsApiDeleteAvatarRequest, options?: RawAxiosRequestConfig): AxiosPromise<Avatar> {
+            return localVarFp.deleteAvatar(requestParameters.avatarId, options).then((request) => request(axios, basePath));
         },
         /**
          * Delete generated Impostor for that avatar.
          * @summary Delete generated Impostor
-         * @param {string} avatarId Must be a valid avatar ID.
+         * @param {AvatarsApiDeleteImpostorRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteImpostor(avatarId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteImpostor(avatarId, options).then((request) => request(axios, basePath));
+        deleteImpostor(requestParameters: AvatarsApiDeleteImpostorRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteImpostor(requestParameters.avatarId, options).then((request) => request(axios, basePath));
         },
         /**
          * Enqueue Impostor generation for that avatar.
          * @summary Enqueue Impostor generation
-         * @param {string} avatarId Must be a valid avatar ID.
+         * @param {AvatarsApiEnqueueImpostorRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        enqueueImpostor(avatarId: string, options?: RawAxiosRequestConfig): AxiosPromise<ServiceStatus> {
-            return localVarFp.enqueueImpostor(avatarId, options).then((request) => request(axios, basePath));
+        enqueueImpostor(requestParameters: AvatarsApiEnqueueImpostorRequest, options?: RawAxiosRequestConfig): AxiosPromise<ServiceStatus> {
+            return localVarFp.enqueueImpostor(requestParameters.avatarId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get information about a specific Avatar.
          * @summary Get Avatar
-         * @param {string} avatarId Must be a valid avatar ID.
+         * @param {AvatarsApiGetAvatarRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAvatar(avatarId: string, options?: RawAxiosRequestConfig): AxiosPromise<Avatar> {
-            return localVarFp.getAvatar(avatarId, options).then((request) => request(axios, basePath));
+        getAvatar(requestParameters: AvatarsApiGetAvatarRequest, options?: RawAxiosRequestConfig): AxiosPromise<Avatar> {
+            return localVarFp.getAvatar(requestParameters.avatarId, options).then((request) => request(axios, basePath));
         },
         /**
          * List avatar styles.
@@ -14293,24 +14444,12 @@ export const AvatarsApiFactory = function (configuration?: Configuration, basePa
         /**
          * Search and list favorited avatars by query filters.
          * @summary List Favorited Avatars
-         * @param {boolean} [featured] Filters on featured results.
-         * @param {SortOption} [sort] The sort order of the results.
-         * @param {number} [n] The number of objects to return.
-         * @param {OrderOption} [order] Result ordering
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {string} [search] Filters by world name.
-         * @param {string} [tag] Tags to include (comma-separated). Any of the tags needs to be present.
-         * @param {string} [notag] Tags to exclude (comma-separated).
-         * @param {ReleaseStatus} [releaseStatus] Filter by ReleaseStatus.
-         * @param {string} [maxUnityVersion] The maximum Unity version supported by the asset.
-         * @param {string} [minUnityVersion] The minimum Unity version supported by the asset.
-         * @param {string} [platform] The platform the asset supports.
-         * @param {string} [userId] Target user to see information on, admin-only.
+         * @param {AvatarsApiGetFavoritedAvatarsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFavoritedAvatars(featured?: boolean, sort?: SortOption, n?: number, order?: OrderOption, offset?: number, search?: string, tag?: string, notag?: string, releaseStatus?: ReleaseStatus, maxUnityVersion?: string, minUnityVersion?: string, platform?: string, userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Avatar>> {
-            return localVarFp.getFavoritedAvatars(featured, sort, n, order, offset, search, tag, notag, releaseStatus, maxUnityVersion, minUnityVersion, platform, userId, options).then((request) => request(axios, basePath));
+        getFavoritedAvatars(requestParameters: AvatarsApiGetFavoritedAvatarsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<Avatar>> {
+            return localVarFp.getFavoritedAvatars(requestParameters.featured, requestParameters.sort, requestParameters.n, requestParameters.order, requestParameters.offset, requestParameters.search, requestParameters.tag, requestParameters.notag, requestParameters.releaseStatus, requestParameters.maxUnityVersion, requestParameters.minUnityVersion, requestParameters.platform, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Gets service stats for queued impostor.
@@ -14324,80 +14463,416 @@ export const AvatarsApiFactory = function (configuration?: Configuration, basePa
         /**
          * List licensed avatars.
          * @summary List Licensed Avatars
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+         * @param {AvatarsApiGetLicensedAvatarsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getLicensedAvatars(n?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<Avatar>> {
-            return localVarFp.getLicensedAvatars(n, offset, options).then((request) => request(axios, basePath));
+        getLicensedAvatars(requestParameters: AvatarsApiGetLicensedAvatarsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<Avatar>> {
+            return localVarFp.getLicensedAvatars(requestParameters.n, requestParameters.offset, options).then((request) => request(axios, basePath));
         },
         /**
          * Get the current avatar for the user. This will return an error for any other user than the one logged in.
          * @summary Get Own Avatar
-         * @param {string} userId Must be a valid user ID.
+         * @param {AvatarsApiGetOwnAvatarRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getOwnAvatar(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<Avatar> {
-            return localVarFp.getOwnAvatar(userId, options).then((request) => request(axios, basePath));
+        getOwnAvatar(requestParameters: AvatarsApiGetOwnAvatarRequest, options?: RawAxiosRequestConfig): AxiosPromise<Avatar> {
+            return localVarFp.getOwnAvatar(requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Search and list avatars by query filters. You can only search your own or featured avatars. It is not possible as a normal user to search other peoples avatars.
          * @summary Search Avatars
-         * @param {boolean} [featured] Filters on featured results.
-         * @param {SortOption} [sort] The sort order of the results.
-         * @param {SearchAvatarsUserEnum} [user] Set to &#x60;me&#x60; for searching own avatars.
-         * @param {string} [userId] Filter by UserID.
-         * @param {number} [n] The number of objects to return.
-         * @param {OrderOption} [order] Result ordering
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {string} [tag] Tags to include (comma-separated). Any of the tags needs to be present.
-         * @param {string} [notag] Tags to exclude (comma-separated).
-         * @param {ReleaseStatus} [releaseStatus] Filter by ReleaseStatus.
-         * @param {string} [maxUnityVersion] The maximum Unity version supported by the asset.
-         * @param {string} [minUnityVersion] The minimum Unity version supported by the asset.
-         * @param {string} [platform] The platform the asset supports.
+         * @param {AvatarsApiSearchAvatarsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchAvatars(featured?: boolean, sort?: SortOption, user?: SearchAvatarsUserEnum, userId?: string, n?: number, order?: OrderOption, offset?: number, tag?: string, notag?: string, releaseStatus?: ReleaseStatus, maxUnityVersion?: string, minUnityVersion?: string, platform?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Avatar>> {
-            return localVarFp.searchAvatars(featured, sort, user, userId, n, order, offset, tag, notag, releaseStatus, maxUnityVersion, minUnityVersion, platform, options).then((request) => request(axios, basePath));
+        searchAvatars(requestParameters: AvatarsApiSearchAvatarsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<Avatar>> {
+            return localVarFp.searchAvatars(requestParameters.featured, requestParameters.sort, requestParameters.user, requestParameters.userId, requestParameters.n, requestParameters.order, requestParameters.offset, requestParameters.tag, requestParameters.notag, requestParameters.releaseStatus, requestParameters.maxUnityVersion, requestParameters.minUnityVersion, requestParameters.platform, options).then((request) => request(axios, basePath));
         },
         /**
          * Switches into that avatar.
          * @summary Select Avatar
-         * @param {string} avatarId Must be a valid avatar ID.
+         * @param {AvatarsApiSelectAvatarRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        selectAvatar(avatarId: string, options?: RawAxiosRequestConfig): AxiosPromise<CurrentUser> {
-            return localVarFp.selectAvatar(avatarId, options).then((request) => request(axios, basePath));
+        selectAvatar(requestParameters: AvatarsApiSelectAvatarRequest, options?: RawAxiosRequestConfig): AxiosPromise<CurrentUser> {
+            return localVarFp.selectAvatar(requestParameters.avatarId, options).then((request) => request(axios, basePath));
         },
         /**
          * Switches into that avatar as your fallback avatar.
          * @summary Select Fallback Avatar
-         * @param {string} avatarId Must be a valid avatar ID.
+         * @param {AvatarsApiSelectFallbackAvatarRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @deprecated
          * @throws {RequiredError}
          */
-        selectFallbackAvatar(avatarId: string, options?: RawAxiosRequestConfig): AxiosPromise<CurrentUser> {
-            return localVarFp.selectFallbackAvatar(avatarId, options).then((request) => request(axios, basePath));
+        selectFallbackAvatar(requestParameters: AvatarsApiSelectFallbackAvatarRequest, options?: RawAxiosRequestConfig): AxiosPromise<CurrentUser> {
+            return localVarFp.selectFallbackAvatar(requestParameters.avatarId, options).then((request) => request(axios, basePath));
         },
         /**
          * Update information about a specific avatar.
          * @summary Update Avatar
-         * @param {string} avatarId Must be a valid avatar ID.
-         * @param {UpdateAvatarRequest} [updateAvatarRequest] 
+         * @param {AvatarsApiUpdateAvatarRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateAvatar(avatarId: string, updateAvatarRequest?: UpdateAvatarRequest, options?: RawAxiosRequestConfig): AxiosPromise<Avatar> {
-            return localVarFp.updateAvatar(avatarId, updateAvatarRequest, options).then((request) => request(axios, basePath));
+        updateAvatar(requestParameters: AvatarsApiUpdateAvatarRequest, options?: RawAxiosRequestConfig): AxiosPromise<Avatar> {
+            return localVarFp.updateAvatar(requestParameters.avatarId, requestParameters.updateAvatarRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for createAvatar operation in AvatarsApi.
+ * @export
+ * @interface AvatarsApiCreateAvatarRequest
+ */
+export interface AvatarsApiCreateAvatarRequest {
+    /**
+     * 
+     * @type {CreateAvatarRequest}
+     * @memberof AvatarsApiCreateAvatar
+     */
+    readonly createAvatarRequest?: CreateAvatarRequest
+}
+
+/**
+ * Request parameters for deleteAvatar operation in AvatarsApi.
+ * @export
+ * @interface AvatarsApiDeleteAvatarRequest
+ */
+export interface AvatarsApiDeleteAvatarRequest {
+    /**
+     * Must be a valid avatar ID.
+     * @type {string}
+     * @memberof AvatarsApiDeleteAvatar
+     */
+    readonly avatarId: string
+}
+
+/**
+ * Request parameters for deleteImpostor operation in AvatarsApi.
+ * @export
+ * @interface AvatarsApiDeleteImpostorRequest
+ */
+export interface AvatarsApiDeleteImpostorRequest {
+    /**
+     * Must be a valid avatar ID.
+     * @type {string}
+     * @memberof AvatarsApiDeleteImpostor
+     */
+    readonly avatarId: string
+}
+
+/**
+ * Request parameters for enqueueImpostor operation in AvatarsApi.
+ * @export
+ * @interface AvatarsApiEnqueueImpostorRequest
+ */
+export interface AvatarsApiEnqueueImpostorRequest {
+    /**
+     * Must be a valid avatar ID.
+     * @type {string}
+     * @memberof AvatarsApiEnqueueImpostor
+     */
+    readonly avatarId: string
+}
+
+/**
+ * Request parameters for getAvatar operation in AvatarsApi.
+ * @export
+ * @interface AvatarsApiGetAvatarRequest
+ */
+export interface AvatarsApiGetAvatarRequest {
+    /**
+     * Must be a valid avatar ID.
+     * @type {string}
+     * @memberof AvatarsApiGetAvatar
+     */
+    readonly avatarId: string
+}
+
+/**
+ * Request parameters for getFavoritedAvatars operation in AvatarsApi.
+ * @export
+ * @interface AvatarsApiGetFavoritedAvatarsRequest
+ */
+export interface AvatarsApiGetFavoritedAvatarsRequest {
+    /**
+     * Filters on featured results.
+     * @type {boolean}
+     * @memberof AvatarsApiGetFavoritedAvatars
+     */
+    readonly featured?: boolean
+
+    /**
+     * The sort order of the results.
+     * @type {SortOption}
+     * @memberof AvatarsApiGetFavoritedAvatars
+     */
+    readonly sort?: SortOption
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof AvatarsApiGetFavoritedAvatars
+     */
+    readonly n?: number
+
+    /**
+     * Result ordering
+     * @type {OrderOption}
+     * @memberof AvatarsApiGetFavoritedAvatars
+     */
+    readonly order?: OrderOption
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof AvatarsApiGetFavoritedAvatars
+     */
+    readonly offset?: number
+
+    /**
+     * Filters by world name.
+     * @type {string}
+     * @memberof AvatarsApiGetFavoritedAvatars
+     */
+    readonly search?: string
+
+    /**
+     * Tags to include (comma-separated). Any of the tags needs to be present.
+     * @type {string}
+     * @memberof AvatarsApiGetFavoritedAvatars
+     */
+    readonly tag?: string
+
+    /**
+     * Tags to exclude (comma-separated).
+     * @type {string}
+     * @memberof AvatarsApiGetFavoritedAvatars
+     */
+    readonly notag?: string
+
+    /**
+     * Filter by ReleaseStatus.
+     * @type {ReleaseStatus}
+     * @memberof AvatarsApiGetFavoritedAvatars
+     */
+    readonly releaseStatus?: ReleaseStatus
+
+    /**
+     * The maximum Unity version supported by the asset.
+     * @type {string}
+     * @memberof AvatarsApiGetFavoritedAvatars
+     */
+    readonly maxUnityVersion?: string
+
+    /**
+     * The minimum Unity version supported by the asset.
+     * @type {string}
+     * @memberof AvatarsApiGetFavoritedAvatars
+     */
+    readonly minUnityVersion?: string
+
+    /**
+     * The platform the asset supports.
+     * @type {string}
+     * @memberof AvatarsApiGetFavoritedAvatars
+     */
+    readonly platform?: string
+
+    /**
+     * Target user to see information on, admin-only.
+     * @type {string}
+     * @memberof AvatarsApiGetFavoritedAvatars
+     */
+    readonly userId?: string
+}
+
+/**
+ * Request parameters for getLicensedAvatars operation in AvatarsApi.
+ * @export
+ * @interface AvatarsApiGetLicensedAvatarsRequest
+ */
+export interface AvatarsApiGetLicensedAvatarsRequest {
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof AvatarsApiGetLicensedAvatars
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof AvatarsApiGetLicensedAvatars
+     */
+    readonly offset?: number
+}
+
+/**
+ * Request parameters for getOwnAvatar operation in AvatarsApi.
+ * @export
+ * @interface AvatarsApiGetOwnAvatarRequest
+ */
+export interface AvatarsApiGetOwnAvatarRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof AvatarsApiGetOwnAvatar
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for searchAvatars operation in AvatarsApi.
+ * @export
+ * @interface AvatarsApiSearchAvatarsRequest
+ */
+export interface AvatarsApiSearchAvatarsRequest {
+    /**
+     * Filters on featured results.
+     * @type {boolean}
+     * @memberof AvatarsApiSearchAvatars
+     */
+    readonly featured?: boolean
+
+    /**
+     * The sort order of the results.
+     * @type {SortOption}
+     * @memberof AvatarsApiSearchAvatars
+     */
+    readonly sort?: SortOption
+
+    /**
+     * Set to &#x60;me&#x60; for searching own avatars.
+     * @type {'me'}
+     * @memberof AvatarsApiSearchAvatars
+     */
+    readonly user?: SearchAvatarsUserEnum
+
+    /**
+     * Filter by UserID.
+     * @type {string}
+     * @memberof AvatarsApiSearchAvatars
+     */
+    readonly userId?: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof AvatarsApiSearchAvatars
+     */
+    readonly n?: number
+
+    /**
+     * Result ordering
+     * @type {OrderOption}
+     * @memberof AvatarsApiSearchAvatars
+     */
+    readonly order?: OrderOption
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof AvatarsApiSearchAvatars
+     */
+    readonly offset?: number
+
+    /**
+     * Tags to include (comma-separated). Any of the tags needs to be present.
+     * @type {string}
+     * @memberof AvatarsApiSearchAvatars
+     */
+    readonly tag?: string
+
+    /**
+     * Tags to exclude (comma-separated).
+     * @type {string}
+     * @memberof AvatarsApiSearchAvatars
+     */
+    readonly notag?: string
+
+    /**
+     * Filter by ReleaseStatus.
+     * @type {ReleaseStatus}
+     * @memberof AvatarsApiSearchAvatars
+     */
+    readonly releaseStatus?: ReleaseStatus
+
+    /**
+     * The maximum Unity version supported by the asset.
+     * @type {string}
+     * @memberof AvatarsApiSearchAvatars
+     */
+    readonly maxUnityVersion?: string
+
+    /**
+     * The minimum Unity version supported by the asset.
+     * @type {string}
+     * @memberof AvatarsApiSearchAvatars
+     */
+    readonly minUnityVersion?: string
+
+    /**
+     * The platform the asset supports.
+     * @type {string}
+     * @memberof AvatarsApiSearchAvatars
+     */
+    readonly platform?: string
+}
+
+/**
+ * Request parameters for selectAvatar operation in AvatarsApi.
+ * @export
+ * @interface AvatarsApiSelectAvatarRequest
+ */
+export interface AvatarsApiSelectAvatarRequest {
+    /**
+     * Must be a valid avatar ID.
+     * @type {string}
+     * @memberof AvatarsApiSelectAvatar
+     */
+    readonly avatarId: string
+}
+
+/**
+ * Request parameters for selectFallbackAvatar operation in AvatarsApi.
+ * @export
+ * @interface AvatarsApiSelectFallbackAvatarRequest
+ */
+export interface AvatarsApiSelectFallbackAvatarRequest {
+    /**
+     * Must be a valid avatar ID.
+     * @type {string}
+     * @memberof AvatarsApiSelectFallbackAvatar
+     */
+    readonly avatarId: string
+}
+
+/**
+ * Request parameters for updateAvatar operation in AvatarsApi.
+ * @export
+ * @interface AvatarsApiUpdateAvatarRequest
+ */
+export interface AvatarsApiUpdateAvatarRequest {
+    /**
+     * Must be a valid avatar ID.
+     * @type {string}
+     * @memberof AvatarsApiUpdateAvatar
+     */
+    readonly avatarId: string
+
+    /**
+     * 
+     * @type {UpdateAvatarRequest}
+     * @memberof AvatarsApiUpdateAvatar
+     */
+    readonly updateAvatarRequest?: UpdateAvatarRequest
+}
 
 /**
  * AvatarsApi - object-oriented interface
@@ -14409,61 +14884,61 @@ export class AvatarsApi extends BaseAPI {
     /**
      * Create an avatar. It\'s possible to optionally specify a ID if you want a custom one. Attempting to create an Avatar with an already claimed ID will result in a DB error.
      * @summary Create Avatar
-     * @param {CreateAvatarRequest} [createAvatarRequest] 
+     * @param {AvatarsApiCreateAvatarRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AvatarsApi
      */
-    public createAvatar(createAvatarRequest?: CreateAvatarRequest, options?: RawAxiosRequestConfig) {
-        return AvatarsApiFp(this.configuration).createAvatar(createAvatarRequest, options).then((request) => request(this.axios, this.basePath));
+    public createAvatar(requestParameters: AvatarsApiCreateAvatarRequest = {}, options?: RawAxiosRequestConfig) {
+        return AvatarsApiFp(this.configuration).createAvatar(requestParameters.createAvatarRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Delete an avatar. Notice an avatar is never fully \"deleted\", only its ReleaseStatus is set to \"hidden\" and the linked Files are deleted. The AvatarID is permanently reserved.
      * @summary Delete Avatar
-     * @param {string} avatarId Must be a valid avatar ID.
+     * @param {AvatarsApiDeleteAvatarRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AvatarsApi
      */
-    public deleteAvatar(avatarId: string, options?: RawAxiosRequestConfig) {
-        return AvatarsApiFp(this.configuration).deleteAvatar(avatarId, options).then((request) => request(this.axios, this.basePath));
+    public deleteAvatar(requestParameters: AvatarsApiDeleteAvatarRequest, options?: RawAxiosRequestConfig) {
+        return AvatarsApiFp(this.configuration).deleteAvatar(requestParameters.avatarId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Delete generated Impostor for that avatar.
      * @summary Delete generated Impostor
-     * @param {string} avatarId Must be a valid avatar ID.
+     * @param {AvatarsApiDeleteImpostorRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AvatarsApi
      */
-    public deleteImpostor(avatarId: string, options?: RawAxiosRequestConfig) {
-        return AvatarsApiFp(this.configuration).deleteImpostor(avatarId, options).then((request) => request(this.axios, this.basePath));
+    public deleteImpostor(requestParameters: AvatarsApiDeleteImpostorRequest, options?: RawAxiosRequestConfig) {
+        return AvatarsApiFp(this.configuration).deleteImpostor(requestParameters.avatarId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Enqueue Impostor generation for that avatar.
      * @summary Enqueue Impostor generation
-     * @param {string} avatarId Must be a valid avatar ID.
+     * @param {AvatarsApiEnqueueImpostorRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AvatarsApi
      */
-    public enqueueImpostor(avatarId: string, options?: RawAxiosRequestConfig) {
-        return AvatarsApiFp(this.configuration).enqueueImpostor(avatarId, options).then((request) => request(this.axios, this.basePath));
+    public enqueueImpostor(requestParameters: AvatarsApiEnqueueImpostorRequest, options?: RawAxiosRequestConfig) {
+        return AvatarsApiFp(this.configuration).enqueueImpostor(requestParameters.avatarId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get information about a specific Avatar.
      * @summary Get Avatar
-     * @param {string} avatarId Must be a valid avatar ID.
+     * @param {AvatarsApiGetAvatarRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AvatarsApi
      */
-    public getAvatar(avatarId: string, options?: RawAxiosRequestConfig) {
-        return AvatarsApiFp(this.configuration).getAvatar(avatarId, options).then((request) => request(this.axios, this.basePath));
+    public getAvatar(requestParameters: AvatarsApiGetAvatarRequest, options?: RawAxiosRequestConfig) {
+        return AvatarsApiFp(this.configuration).getAvatar(requestParameters.avatarId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -14480,25 +14955,13 @@ export class AvatarsApi extends BaseAPI {
     /**
      * Search and list favorited avatars by query filters.
      * @summary List Favorited Avatars
-     * @param {boolean} [featured] Filters on featured results.
-     * @param {SortOption} [sort] The sort order of the results.
-     * @param {number} [n] The number of objects to return.
-     * @param {OrderOption} [order] Result ordering
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {string} [search] Filters by world name.
-     * @param {string} [tag] Tags to include (comma-separated). Any of the tags needs to be present.
-     * @param {string} [notag] Tags to exclude (comma-separated).
-     * @param {ReleaseStatus} [releaseStatus] Filter by ReleaseStatus.
-     * @param {string} [maxUnityVersion] The maximum Unity version supported by the asset.
-     * @param {string} [minUnityVersion] The minimum Unity version supported by the asset.
-     * @param {string} [platform] The platform the asset supports.
-     * @param {string} [userId] Target user to see information on, admin-only.
+     * @param {AvatarsApiGetFavoritedAvatarsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AvatarsApi
      */
-    public getFavoritedAvatars(featured?: boolean, sort?: SortOption, n?: number, order?: OrderOption, offset?: number, search?: string, tag?: string, notag?: string, releaseStatus?: ReleaseStatus, maxUnityVersion?: string, minUnityVersion?: string, platform?: string, userId?: string, options?: RawAxiosRequestConfig) {
-        return AvatarsApiFp(this.configuration).getFavoritedAvatars(featured, sort, n, order, offset, search, tag, notag, releaseStatus, maxUnityVersion, minUnityVersion, platform, userId, options).then((request) => request(this.axios, this.basePath));
+    public getFavoritedAvatars(requestParameters: AvatarsApiGetFavoritedAvatarsRequest = {}, options?: RawAxiosRequestConfig) {
+        return AvatarsApiFp(this.configuration).getFavoritedAvatars(requestParameters.featured, requestParameters.sort, requestParameters.n, requestParameters.order, requestParameters.offset, requestParameters.search, requestParameters.tag, requestParameters.notag, requestParameters.releaseStatus, requestParameters.maxUnityVersion, requestParameters.minUnityVersion, requestParameters.platform, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -14515,88 +14978,74 @@ export class AvatarsApi extends BaseAPI {
     /**
      * List licensed avatars.
      * @summary List Licensed Avatars
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+     * @param {AvatarsApiGetLicensedAvatarsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AvatarsApi
      */
-    public getLicensedAvatars(n?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return AvatarsApiFp(this.configuration).getLicensedAvatars(n, offset, options).then((request) => request(this.axios, this.basePath));
+    public getLicensedAvatars(requestParameters: AvatarsApiGetLicensedAvatarsRequest = {}, options?: RawAxiosRequestConfig) {
+        return AvatarsApiFp(this.configuration).getLicensedAvatars(requestParameters.n, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get the current avatar for the user. This will return an error for any other user than the one logged in.
      * @summary Get Own Avatar
-     * @param {string} userId Must be a valid user ID.
+     * @param {AvatarsApiGetOwnAvatarRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AvatarsApi
      */
-    public getOwnAvatar(userId: string, options?: RawAxiosRequestConfig) {
-        return AvatarsApiFp(this.configuration).getOwnAvatar(userId, options).then((request) => request(this.axios, this.basePath));
+    public getOwnAvatar(requestParameters: AvatarsApiGetOwnAvatarRequest, options?: RawAxiosRequestConfig) {
+        return AvatarsApiFp(this.configuration).getOwnAvatar(requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Search and list avatars by query filters. You can only search your own or featured avatars. It is not possible as a normal user to search other peoples avatars.
      * @summary Search Avatars
-     * @param {boolean} [featured] Filters on featured results.
-     * @param {SortOption} [sort] The sort order of the results.
-     * @param {SearchAvatarsUserEnum} [user] Set to &#x60;me&#x60; for searching own avatars.
-     * @param {string} [userId] Filter by UserID.
-     * @param {number} [n] The number of objects to return.
-     * @param {OrderOption} [order] Result ordering
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {string} [tag] Tags to include (comma-separated). Any of the tags needs to be present.
-     * @param {string} [notag] Tags to exclude (comma-separated).
-     * @param {ReleaseStatus} [releaseStatus] Filter by ReleaseStatus.
-     * @param {string} [maxUnityVersion] The maximum Unity version supported by the asset.
-     * @param {string} [minUnityVersion] The minimum Unity version supported by the asset.
-     * @param {string} [platform] The platform the asset supports.
+     * @param {AvatarsApiSearchAvatarsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AvatarsApi
      */
-    public searchAvatars(featured?: boolean, sort?: SortOption, user?: SearchAvatarsUserEnum, userId?: string, n?: number, order?: OrderOption, offset?: number, tag?: string, notag?: string, releaseStatus?: ReleaseStatus, maxUnityVersion?: string, minUnityVersion?: string, platform?: string, options?: RawAxiosRequestConfig) {
-        return AvatarsApiFp(this.configuration).searchAvatars(featured, sort, user, userId, n, order, offset, tag, notag, releaseStatus, maxUnityVersion, minUnityVersion, platform, options).then((request) => request(this.axios, this.basePath));
+    public searchAvatars(requestParameters: AvatarsApiSearchAvatarsRequest = {}, options?: RawAxiosRequestConfig) {
+        return AvatarsApiFp(this.configuration).searchAvatars(requestParameters.featured, requestParameters.sort, requestParameters.user, requestParameters.userId, requestParameters.n, requestParameters.order, requestParameters.offset, requestParameters.tag, requestParameters.notag, requestParameters.releaseStatus, requestParameters.maxUnityVersion, requestParameters.minUnityVersion, requestParameters.platform, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Switches into that avatar.
      * @summary Select Avatar
-     * @param {string} avatarId Must be a valid avatar ID.
+     * @param {AvatarsApiSelectAvatarRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AvatarsApi
      */
-    public selectAvatar(avatarId: string, options?: RawAxiosRequestConfig) {
-        return AvatarsApiFp(this.configuration).selectAvatar(avatarId, options).then((request) => request(this.axios, this.basePath));
+    public selectAvatar(requestParameters: AvatarsApiSelectAvatarRequest, options?: RawAxiosRequestConfig) {
+        return AvatarsApiFp(this.configuration).selectAvatar(requestParameters.avatarId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Switches into that avatar as your fallback avatar.
      * @summary Select Fallback Avatar
-     * @param {string} avatarId Must be a valid avatar ID.
+     * @param {AvatarsApiSelectFallbackAvatarRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @deprecated
      * @throws {RequiredError}
      * @memberof AvatarsApi
      */
-    public selectFallbackAvatar(avatarId: string, options?: RawAxiosRequestConfig) {
-        return AvatarsApiFp(this.configuration).selectFallbackAvatar(avatarId, options).then((request) => request(this.axios, this.basePath));
+    public selectFallbackAvatar(requestParameters: AvatarsApiSelectFallbackAvatarRequest, options?: RawAxiosRequestConfig) {
+        return AvatarsApiFp(this.configuration).selectFallbackAvatar(requestParameters.avatarId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Update information about a specific avatar.
      * @summary Update Avatar
-     * @param {string} avatarId Must be a valid avatar ID.
-     * @param {UpdateAvatarRequest} [updateAvatarRequest] 
+     * @param {AvatarsApiUpdateAvatarRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof AvatarsApi
      */
-    public updateAvatar(avatarId: string, updateAvatarRequest?: UpdateAvatarRequest, options?: RawAxiosRequestConfig) {
-        return AvatarsApiFp(this.configuration).updateAvatar(avatarId, updateAvatarRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateAvatar(requestParameters: AvatarsApiUpdateAvatarRequest, options?: RawAxiosRequestConfig) {
+        return AvatarsApiFp(this.configuration).updateAvatar(requestParameters.avatarId, requestParameters.updateAvatarRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -15237,122 +15686,364 @@ export const CalendarApiFactory = function (configuration?: Configuration, baseP
         /**
          * Creates an event for a group on the calendar
          * @summary Create a calendar event
-         * @param {string} groupId Must be a valid group ID.
-         * @param {CreateCalendarEventRequest} createCalendarEventRequest 
+         * @param {CalendarApiCreateGroupCalendarEventRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createGroupCalendarEvent(groupId: string, createCalendarEventRequest: CreateCalendarEventRequest, options?: RawAxiosRequestConfig): AxiosPromise<CalendarEvent> {
-            return localVarFp.createGroupCalendarEvent(groupId, createCalendarEventRequest, options).then((request) => request(axios, basePath));
+        createGroupCalendarEvent(requestParameters: CalendarApiCreateGroupCalendarEventRequest, options?: RawAxiosRequestConfig): AxiosPromise<CalendarEvent> {
+            return localVarFp.createGroupCalendarEvent(requestParameters.groupId, requestParameters.createCalendarEventRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Delete a group calendar event
          * @summary Delete a calendar event
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} calendarId Must be a valid calendar ID.
+         * @param {CalendarApiDeleteGroupCalendarEventRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteGroupCalendarEvent(groupId: string, calendarId: string, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
-            return localVarFp.deleteGroupCalendarEvent(groupId, calendarId, options).then((request) => request(axios, basePath));
+        deleteGroupCalendarEvent(requestParameters: CalendarApiDeleteGroupCalendarEventRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
+            return localVarFp.deleteGroupCalendarEvent(requestParameters.groupId, requestParameters.calendarId, options).then((request) => request(axios, basePath));
         },
         /**
          * Follow or unfollow an event on a group\'s calendar
          * @summary Follow a calendar event
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} calendarId Must be a valid calendar ID.
-         * @param {FollowCalendarEventRequest} followCalendarEventRequest 
+         * @param {CalendarApiFollowGroupCalendarEventRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        followGroupCalendarEvent(groupId: string, calendarId: string, followCalendarEventRequest: FollowCalendarEventRequest, options?: RawAxiosRequestConfig): AxiosPromise<CalendarEvent> {
-            return localVarFp.followGroupCalendarEvent(groupId, calendarId, followCalendarEventRequest, options).then((request) => request(axios, basePath));
+        followGroupCalendarEvent(requestParameters: CalendarApiFollowGroupCalendarEventRequest, options?: RawAxiosRequestConfig): AxiosPromise<CalendarEvent> {
+            return localVarFp.followGroupCalendarEvent(requestParameters.groupId, requestParameters.calendarId, requestParameters.followCalendarEventRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Get a list of a user\'s calendar events for the month in ?date
          * @summary List calendar events
-         * @param {string} [date] The month to search in.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+         * @param {CalendarApiGetCalendarEventsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getCalendarEvents(date?: string, n?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedCalendarEventList> {
-            return localVarFp.getCalendarEvents(date, n, offset, options).then((request) => request(axios, basePath));
+        getCalendarEvents(requestParameters: CalendarApiGetCalendarEventsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedCalendarEventList> {
+            return localVarFp.getCalendarEvents(requestParameters.date, requestParameters.n, requestParameters.offset, options).then((request) => request(axios, basePath));
         },
         /**
          * Get a list of a featured calendar events for the month in ?date
          * @summary List featured calendar events
-         * @param {string} [date] The month to search in.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+         * @param {CalendarApiGetFeaturedCalendarEventsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFeaturedCalendarEvents(date?: string, n?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedCalendarEventList> {
-            return localVarFp.getFeaturedCalendarEvents(date, n, offset, options).then((request) => request(axios, basePath));
+        getFeaturedCalendarEvents(requestParameters: CalendarApiGetFeaturedCalendarEventsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedCalendarEventList> {
+            return localVarFp.getFeaturedCalendarEvents(requestParameters.date, requestParameters.n, requestParameters.offset, options).then((request) => request(axios, basePath));
         },
         /**
          * Get a list of a followed calendar events for the month in ?date
          * @summary List followed calendar events
-         * @param {string} [date] The month to search in.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+         * @param {CalendarApiGetFollowedCalendarEventsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFollowedCalendarEvents(date?: string, n?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedCalendarEventList> {
-            return localVarFp.getFollowedCalendarEvents(date, n, offset, options).then((request) => request(axios, basePath));
+        getFollowedCalendarEvents(requestParameters: CalendarApiGetFollowedCalendarEventsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedCalendarEventList> {
+            return localVarFp.getFollowedCalendarEvents(requestParameters.date, requestParameters.n, requestParameters.offset, options).then((request) => request(axios, basePath));
         },
         /**
          * Get a group calendar event
          * @summary Get a calendar event
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} calendarId Must be a valid calendar ID.
+         * @param {CalendarApiGetGroupCalendarEventRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupCalendarEvent(groupId: string, calendarId: string, options?: RawAxiosRequestConfig): AxiosPromise<CalendarEvent> {
-            return localVarFp.getGroupCalendarEvent(groupId, calendarId, options).then((request) => request(axios, basePath));
+        getGroupCalendarEvent(requestParameters: CalendarApiGetGroupCalendarEventRequest, options?: RawAxiosRequestConfig): AxiosPromise<CalendarEvent> {
+            return localVarFp.getGroupCalendarEvent(requestParameters.groupId, requestParameters.calendarId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns the specified calendar in iCalendar (ICS) format.
          * @summary Download calendar event as ICS
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} calendarId Must be a valid calendar ID.
+         * @param {CalendarApiGetGroupCalendarEventICSRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupCalendarEventICS(groupId: string, calendarId: string, options?: RawAxiosRequestConfig): AxiosPromise<File> {
-            return localVarFp.getGroupCalendarEventICS(groupId, calendarId, options).then((request) => request(axios, basePath));
+        getGroupCalendarEventICS(requestParameters: CalendarApiGetGroupCalendarEventICSRequest, options?: RawAxiosRequestConfig): AxiosPromise<File> {
+            return localVarFp.getGroupCalendarEventICS(requestParameters.groupId, requestParameters.calendarId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get a list of a group\'s calendar events
          * @summary List a group\'s calendar events
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} [date] The month to search in.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+         * @param {CalendarApiGetGroupCalendarEventsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupCalendarEvents(groupId: string, date?: string, n?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedCalendarEventList> {
-            return localVarFp.getGroupCalendarEvents(groupId, date, n, offset, options).then((request) => request(axios, basePath));
+        getGroupCalendarEvents(requestParameters: CalendarApiGetGroupCalendarEventsRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedCalendarEventList> {
+            return localVarFp.getGroupCalendarEvents(requestParameters.groupId, requestParameters.date, requestParameters.n, requestParameters.offset, options).then((request) => request(axios, basePath));
         },
         /**
          * Updates an event for a group on the calendar
          * @summary Update a calendar event
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} calendarId Must be a valid calendar ID.
-         * @param {UpdateCalendarEventRequest} updateCalendarEventRequest 
+         * @param {CalendarApiUpdateGroupCalendarEventRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateGroupCalendarEvent(groupId: string, calendarId: string, updateCalendarEventRequest: UpdateCalendarEventRequest, options?: RawAxiosRequestConfig): AxiosPromise<CalendarEvent> {
-            return localVarFp.updateGroupCalendarEvent(groupId, calendarId, updateCalendarEventRequest, options).then((request) => request(axios, basePath));
+        updateGroupCalendarEvent(requestParameters: CalendarApiUpdateGroupCalendarEventRequest, options?: RawAxiosRequestConfig): AxiosPromise<CalendarEvent> {
+            return localVarFp.updateGroupCalendarEvent(requestParameters.groupId, requestParameters.calendarId, requestParameters.updateCalendarEventRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for createGroupCalendarEvent operation in CalendarApi.
+ * @export
+ * @interface CalendarApiCreateGroupCalendarEventRequest
+ */
+export interface CalendarApiCreateGroupCalendarEventRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof CalendarApiCreateGroupCalendarEvent
+     */
+    readonly groupId: string
+
+    /**
+     * 
+     * @type {CreateCalendarEventRequest}
+     * @memberof CalendarApiCreateGroupCalendarEvent
+     */
+    readonly createCalendarEventRequest: CreateCalendarEventRequest
+}
+
+/**
+ * Request parameters for deleteGroupCalendarEvent operation in CalendarApi.
+ * @export
+ * @interface CalendarApiDeleteGroupCalendarEventRequest
+ */
+export interface CalendarApiDeleteGroupCalendarEventRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof CalendarApiDeleteGroupCalendarEvent
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid calendar ID.
+     * @type {string}
+     * @memberof CalendarApiDeleteGroupCalendarEvent
+     */
+    readonly calendarId: string
+}
+
+/**
+ * Request parameters for followGroupCalendarEvent operation in CalendarApi.
+ * @export
+ * @interface CalendarApiFollowGroupCalendarEventRequest
+ */
+export interface CalendarApiFollowGroupCalendarEventRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof CalendarApiFollowGroupCalendarEvent
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid calendar ID.
+     * @type {string}
+     * @memberof CalendarApiFollowGroupCalendarEvent
+     */
+    readonly calendarId: string
+
+    /**
+     * 
+     * @type {FollowCalendarEventRequest}
+     * @memberof CalendarApiFollowGroupCalendarEvent
+     */
+    readonly followCalendarEventRequest: FollowCalendarEventRequest
+}
+
+/**
+ * Request parameters for getCalendarEvents operation in CalendarApi.
+ * @export
+ * @interface CalendarApiGetCalendarEventsRequest
+ */
+export interface CalendarApiGetCalendarEventsRequest {
+    /**
+     * The month to search in.
+     * @type {string}
+     * @memberof CalendarApiGetCalendarEvents
+     */
+    readonly date?: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof CalendarApiGetCalendarEvents
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof CalendarApiGetCalendarEvents
+     */
+    readonly offset?: number
+}
+
+/**
+ * Request parameters for getFeaturedCalendarEvents operation in CalendarApi.
+ * @export
+ * @interface CalendarApiGetFeaturedCalendarEventsRequest
+ */
+export interface CalendarApiGetFeaturedCalendarEventsRequest {
+    /**
+     * The month to search in.
+     * @type {string}
+     * @memberof CalendarApiGetFeaturedCalendarEvents
+     */
+    readonly date?: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof CalendarApiGetFeaturedCalendarEvents
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof CalendarApiGetFeaturedCalendarEvents
+     */
+    readonly offset?: number
+}
+
+/**
+ * Request parameters for getFollowedCalendarEvents operation in CalendarApi.
+ * @export
+ * @interface CalendarApiGetFollowedCalendarEventsRequest
+ */
+export interface CalendarApiGetFollowedCalendarEventsRequest {
+    /**
+     * The month to search in.
+     * @type {string}
+     * @memberof CalendarApiGetFollowedCalendarEvents
+     */
+    readonly date?: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof CalendarApiGetFollowedCalendarEvents
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof CalendarApiGetFollowedCalendarEvents
+     */
+    readonly offset?: number
+}
+
+/**
+ * Request parameters for getGroupCalendarEvent operation in CalendarApi.
+ * @export
+ * @interface CalendarApiGetGroupCalendarEventRequest
+ */
+export interface CalendarApiGetGroupCalendarEventRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof CalendarApiGetGroupCalendarEvent
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid calendar ID.
+     * @type {string}
+     * @memberof CalendarApiGetGroupCalendarEvent
+     */
+    readonly calendarId: string
+}
+
+/**
+ * Request parameters for getGroupCalendarEventICS operation in CalendarApi.
+ * @export
+ * @interface CalendarApiGetGroupCalendarEventICSRequest
+ */
+export interface CalendarApiGetGroupCalendarEventICSRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof CalendarApiGetGroupCalendarEventICS
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid calendar ID.
+     * @type {string}
+     * @memberof CalendarApiGetGroupCalendarEventICS
+     */
+    readonly calendarId: string
+}
+
+/**
+ * Request parameters for getGroupCalendarEvents operation in CalendarApi.
+ * @export
+ * @interface CalendarApiGetGroupCalendarEventsRequest
+ */
+export interface CalendarApiGetGroupCalendarEventsRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof CalendarApiGetGroupCalendarEvents
+     */
+    readonly groupId: string
+
+    /**
+     * The month to search in.
+     * @type {string}
+     * @memberof CalendarApiGetGroupCalendarEvents
+     */
+    readonly date?: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof CalendarApiGetGroupCalendarEvents
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof CalendarApiGetGroupCalendarEvents
+     */
+    readonly offset?: number
+}
+
+/**
+ * Request parameters for updateGroupCalendarEvent operation in CalendarApi.
+ * @export
+ * @interface CalendarApiUpdateGroupCalendarEventRequest
+ */
+export interface CalendarApiUpdateGroupCalendarEventRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof CalendarApiUpdateGroupCalendarEvent
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid calendar ID.
+     * @type {string}
+     * @memberof CalendarApiUpdateGroupCalendarEvent
+     */
+    readonly calendarId: string
+
+    /**
+     * 
+     * @type {UpdateCalendarEventRequest}
+     * @memberof CalendarApiUpdateGroupCalendarEvent
+     */
+    readonly updateCalendarEventRequest: UpdateCalendarEventRequest
+}
 
 /**
  * CalendarApi - object-oriented interface
@@ -15364,138 +16055,121 @@ export class CalendarApi extends BaseAPI {
     /**
      * Creates an event for a group on the calendar
      * @summary Create a calendar event
-     * @param {string} groupId Must be a valid group ID.
-     * @param {CreateCalendarEventRequest} createCalendarEventRequest 
+     * @param {CalendarApiCreateGroupCalendarEventRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CalendarApi
      */
-    public createGroupCalendarEvent(groupId: string, createCalendarEventRequest: CreateCalendarEventRequest, options?: RawAxiosRequestConfig) {
-        return CalendarApiFp(this.configuration).createGroupCalendarEvent(groupId, createCalendarEventRequest, options).then((request) => request(this.axios, this.basePath));
+    public createGroupCalendarEvent(requestParameters: CalendarApiCreateGroupCalendarEventRequest, options?: RawAxiosRequestConfig) {
+        return CalendarApiFp(this.configuration).createGroupCalendarEvent(requestParameters.groupId, requestParameters.createCalendarEventRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Delete a group calendar event
      * @summary Delete a calendar event
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} calendarId Must be a valid calendar ID.
+     * @param {CalendarApiDeleteGroupCalendarEventRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CalendarApi
      */
-    public deleteGroupCalendarEvent(groupId: string, calendarId: string, options?: RawAxiosRequestConfig) {
-        return CalendarApiFp(this.configuration).deleteGroupCalendarEvent(groupId, calendarId, options).then((request) => request(this.axios, this.basePath));
+    public deleteGroupCalendarEvent(requestParameters: CalendarApiDeleteGroupCalendarEventRequest, options?: RawAxiosRequestConfig) {
+        return CalendarApiFp(this.configuration).deleteGroupCalendarEvent(requestParameters.groupId, requestParameters.calendarId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Follow or unfollow an event on a group\'s calendar
      * @summary Follow a calendar event
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} calendarId Must be a valid calendar ID.
-     * @param {FollowCalendarEventRequest} followCalendarEventRequest 
+     * @param {CalendarApiFollowGroupCalendarEventRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CalendarApi
      */
-    public followGroupCalendarEvent(groupId: string, calendarId: string, followCalendarEventRequest: FollowCalendarEventRequest, options?: RawAxiosRequestConfig) {
-        return CalendarApiFp(this.configuration).followGroupCalendarEvent(groupId, calendarId, followCalendarEventRequest, options).then((request) => request(this.axios, this.basePath));
+    public followGroupCalendarEvent(requestParameters: CalendarApiFollowGroupCalendarEventRequest, options?: RawAxiosRequestConfig) {
+        return CalendarApiFp(this.configuration).followGroupCalendarEvent(requestParameters.groupId, requestParameters.calendarId, requestParameters.followCalendarEventRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get a list of a user\'s calendar events for the month in ?date
      * @summary List calendar events
-     * @param {string} [date] The month to search in.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+     * @param {CalendarApiGetCalendarEventsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CalendarApi
      */
-    public getCalendarEvents(date?: string, n?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return CalendarApiFp(this.configuration).getCalendarEvents(date, n, offset, options).then((request) => request(this.axios, this.basePath));
+    public getCalendarEvents(requestParameters: CalendarApiGetCalendarEventsRequest = {}, options?: RawAxiosRequestConfig) {
+        return CalendarApiFp(this.configuration).getCalendarEvents(requestParameters.date, requestParameters.n, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get a list of a featured calendar events for the month in ?date
      * @summary List featured calendar events
-     * @param {string} [date] The month to search in.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+     * @param {CalendarApiGetFeaturedCalendarEventsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CalendarApi
      */
-    public getFeaturedCalendarEvents(date?: string, n?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return CalendarApiFp(this.configuration).getFeaturedCalendarEvents(date, n, offset, options).then((request) => request(this.axios, this.basePath));
+    public getFeaturedCalendarEvents(requestParameters: CalendarApiGetFeaturedCalendarEventsRequest = {}, options?: RawAxiosRequestConfig) {
+        return CalendarApiFp(this.configuration).getFeaturedCalendarEvents(requestParameters.date, requestParameters.n, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get a list of a followed calendar events for the month in ?date
      * @summary List followed calendar events
-     * @param {string} [date] The month to search in.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+     * @param {CalendarApiGetFollowedCalendarEventsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CalendarApi
      */
-    public getFollowedCalendarEvents(date?: string, n?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return CalendarApiFp(this.configuration).getFollowedCalendarEvents(date, n, offset, options).then((request) => request(this.axios, this.basePath));
+    public getFollowedCalendarEvents(requestParameters: CalendarApiGetFollowedCalendarEventsRequest = {}, options?: RawAxiosRequestConfig) {
+        return CalendarApiFp(this.configuration).getFollowedCalendarEvents(requestParameters.date, requestParameters.n, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get a group calendar event
      * @summary Get a calendar event
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} calendarId Must be a valid calendar ID.
+     * @param {CalendarApiGetGroupCalendarEventRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CalendarApi
      */
-    public getGroupCalendarEvent(groupId: string, calendarId: string, options?: RawAxiosRequestConfig) {
-        return CalendarApiFp(this.configuration).getGroupCalendarEvent(groupId, calendarId, options).then((request) => request(this.axios, this.basePath));
+    public getGroupCalendarEvent(requestParameters: CalendarApiGetGroupCalendarEventRequest, options?: RawAxiosRequestConfig) {
+        return CalendarApiFp(this.configuration).getGroupCalendarEvent(requestParameters.groupId, requestParameters.calendarId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns the specified calendar in iCalendar (ICS) format.
      * @summary Download calendar event as ICS
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} calendarId Must be a valid calendar ID.
+     * @param {CalendarApiGetGroupCalendarEventICSRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CalendarApi
      */
-    public getGroupCalendarEventICS(groupId: string, calendarId: string, options?: RawAxiosRequestConfig) {
-        return CalendarApiFp(this.configuration).getGroupCalendarEventICS(groupId, calendarId, options).then((request) => request(this.axios, this.basePath));
+    public getGroupCalendarEventICS(requestParameters: CalendarApiGetGroupCalendarEventICSRequest, options?: RawAxiosRequestConfig) {
+        return CalendarApiFp(this.configuration).getGroupCalendarEventICS(requestParameters.groupId, requestParameters.calendarId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get a list of a group\'s calendar events
      * @summary List a group\'s calendar events
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} [date] The month to search in.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+     * @param {CalendarApiGetGroupCalendarEventsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CalendarApi
      */
-    public getGroupCalendarEvents(groupId: string, date?: string, n?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return CalendarApiFp(this.configuration).getGroupCalendarEvents(groupId, date, n, offset, options).then((request) => request(this.axios, this.basePath));
+    public getGroupCalendarEvents(requestParameters: CalendarApiGetGroupCalendarEventsRequest, options?: RawAxiosRequestConfig) {
+        return CalendarApiFp(this.configuration).getGroupCalendarEvents(requestParameters.groupId, requestParameters.date, requestParameters.n, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Updates an event for a group on the calendar
      * @summary Update a calendar event
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} calendarId Must be a valid calendar ID.
-     * @param {UpdateCalendarEventRequest} updateCalendarEventRequest 
+     * @param {CalendarApiUpdateGroupCalendarEventRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof CalendarApi
      */
-    public updateGroupCalendarEvent(groupId: string, calendarId: string, updateCalendarEventRequest: UpdateCalendarEventRequest, options?: RawAxiosRequestConfig) {
-        return CalendarApiFp(this.configuration).updateGroupCalendarEvent(groupId, calendarId, updateCalendarEventRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateGroupCalendarEvent(requestParameters: CalendarApiUpdateGroupCalendarEventRequest, options?: RawAxiosRequestConfig) {
+        return CalendarApiFp(this.configuration).updateGroupCalendarEvent(requestParameters.groupId, requestParameters.calendarId, requestParameters.updateCalendarEventRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -16082,12 +16756,12 @@ export const EconomyApiFactory = function (configuration?: Configuration, basePa
         /**
          * Gets the balance of a user
          * @summary Get Balance
-         * @param {string} userId Must be a valid user ID.
+         * @param {EconomyApiGetBalanceRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getBalance(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<Balance> {
-            return localVarFp.getBalance(userId, options).then((request) => request(axios, basePath));
+        getBalance(requestParameters: EconomyApiGetBalanceRequest, options?: RawAxiosRequestConfig): AxiosPromise<Balance> {
+            return localVarFp.getBalance(requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get a list of all current user subscriptions.
@@ -16101,49 +16775,43 @@ export const EconomyApiFactory = function (configuration?: Configuration, basePa
         /**
          * Get a single License Group by given ID.
          * @summary Get License Group
-         * @param {string} licenseGroupId Must be a valid license group ID.
+         * @param {EconomyApiGetLicenseGroupRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getLicenseGroup(licenseGroupId: string, options?: RawAxiosRequestConfig): AxiosPromise<LicenseGroup> {
-            return localVarFp.getLicenseGroup(licenseGroupId, options).then((request) => request(axios, basePath));
+        getLicenseGroup(requestParameters: EconomyApiGetLicenseGroupRequest, options?: RawAxiosRequestConfig): AxiosPromise<LicenseGroup> {
+            return localVarFp.getLicenseGroup(requestParameters.licenseGroupId, options).then((request) => request(axios, basePath));
         },
         /**
          * Gets a product listing
          * @summary Get Product Listing
-         * @param {string} productId Must be a valid product ID.
-         * @param {boolean} [hydrate] Populates some fields and changes types of others for certain objects.
+         * @param {EconomyApiGetProductListingRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getProductListing(productId: string, hydrate?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<ProductListing> {
-            return localVarFp.getProductListing(productId, hydrate, options).then((request) => request(axios, basePath));
+        getProductListing(requestParameters: EconomyApiGetProductListingRequest, options?: RawAxiosRequestConfig): AxiosPromise<ProductListing> {
+            return localVarFp.getProductListing(requestParameters.productId, requestParameters.hydrate, options).then((request) => request(axios, basePath));
         },
         /**
          * Gets the product listings of a given user
          * @summary Get User Product Listings
-         * @param {string} userId Must be a valid user ID.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {boolean} [hydrate] Populates some fields and changes types of others for certain objects.
-         * @param {string} [groupId] Must be a valid group ID.
-         * @param {boolean} [active] Filter for users\&#39; listings and inventory bundles.
+         * @param {EconomyApiGetProductListingsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getProductListings(userId: string, n?: number, offset?: number, hydrate?: boolean, groupId?: string, active?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<ProductListing>> {
-            return localVarFp.getProductListings(userId, n, offset, hydrate, groupId, active, options).then((request) => request(axios, basePath));
+        getProductListings(requestParameters: EconomyApiGetProductListingsRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<ProductListing>> {
+            return localVarFp.getProductListings(requestParameters.userId, requestParameters.n, requestParameters.offset, requestParameters.hydrate, requestParameters.groupId, requestParameters.active, options).then((request) => request(axios, basePath));
         },
         /**
          * Get a single Steam transactions by ID. This returns the exact same information as `getSteamTransactions`, so no point in using this endpoint.
          * @summary Get Steam Transaction
-         * @param {string} transactionId Must be a valid transaction ID.
+         * @param {EconomyApiGetSteamTransactionRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @deprecated
          * @throws {RequiredError}
          */
-        getSteamTransaction(transactionId: string, options?: RawAxiosRequestConfig): AxiosPromise<Transaction> {
-            return localVarFp.getSteamTransaction(transactionId, options).then((request) => request(axios, basePath));
+        getSteamTransaction(requestParameters: EconomyApiGetSteamTransactionRequest, options?: RawAxiosRequestConfig): AxiosPromise<Transaction> {
+            return localVarFp.getSteamTransaction(requestParameters.transactionId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get all own Steam transactions.
@@ -16175,12 +16843,12 @@ export const EconomyApiFactory = function (configuration?: Configuration, basePa
         /**
          * Gets the status of the agreement of a user to the Tilia TOS
          * @summary Get Tilia TOS Agreement Status
-         * @param {string} userId Must be a valid user ID.
+         * @param {EconomyApiGetTiliaTosRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getTiliaTos(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<TiliaTOS> {
-            return localVarFp.getTiliaTos(userId, options).then((request) => request(axios, basePath));
+        getTiliaTos(requestParameters: EconomyApiGetTiliaTosRequest, options?: RawAxiosRequestConfig): AxiosPromise<TiliaTOS> {
+            return localVarFp.getTiliaTos(requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Gets the list of token bundles
@@ -16195,6 +16863,132 @@ export const EconomyApiFactory = function (configuration?: Configuration, basePa
 };
 
 /**
+ * Request parameters for getBalance operation in EconomyApi.
+ * @export
+ * @interface EconomyApiGetBalanceRequest
+ */
+export interface EconomyApiGetBalanceRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof EconomyApiGetBalance
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for getLicenseGroup operation in EconomyApi.
+ * @export
+ * @interface EconomyApiGetLicenseGroupRequest
+ */
+export interface EconomyApiGetLicenseGroupRequest {
+    /**
+     * Must be a valid license group ID.
+     * @type {string}
+     * @memberof EconomyApiGetLicenseGroup
+     */
+    readonly licenseGroupId: string
+}
+
+/**
+ * Request parameters for getProductListing operation in EconomyApi.
+ * @export
+ * @interface EconomyApiGetProductListingRequest
+ */
+export interface EconomyApiGetProductListingRequest {
+    /**
+     * Must be a valid product ID.
+     * @type {string}
+     * @memberof EconomyApiGetProductListing
+     */
+    readonly productId: string
+
+    /**
+     * Populates some fields and changes types of others for certain objects.
+     * @type {boolean}
+     * @memberof EconomyApiGetProductListing
+     */
+    readonly hydrate?: boolean
+}
+
+/**
+ * Request parameters for getProductListings operation in EconomyApi.
+ * @export
+ * @interface EconomyApiGetProductListingsRequest
+ */
+export interface EconomyApiGetProductListingsRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof EconomyApiGetProductListings
+     */
+    readonly userId: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof EconomyApiGetProductListings
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof EconomyApiGetProductListings
+     */
+    readonly offset?: number
+
+    /**
+     * Populates some fields and changes types of others for certain objects.
+     * @type {boolean}
+     * @memberof EconomyApiGetProductListings
+     */
+    readonly hydrate?: boolean
+
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof EconomyApiGetProductListings
+     */
+    readonly groupId?: string
+
+    /**
+     * Filter for users\&#39; listings and inventory bundles.
+     * @type {boolean}
+     * @memberof EconomyApiGetProductListings
+     */
+    readonly active?: boolean
+}
+
+/**
+ * Request parameters for getSteamTransaction operation in EconomyApi.
+ * @export
+ * @interface EconomyApiGetSteamTransactionRequest
+ */
+export interface EconomyApiGetSteamTransactionRequest {
+    /**
+     * Must be a valid transaction ID.
+     * @type {string}
+     * @memberof EconomyApiGetSteamTransaction
+     */
+    readonly transactionId: string
+}
+
+/**
+ * Request parameters for getTiliaTos operation in EconomyApi.
+ * @export
+ * @interface EconomyApiGetTiliaTosRequest
+ */
+export interface EconomyApiGetTiliaTosRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof EconomyApiGetTiliaTos
+     */
+    readonly userId: string
+}
+
+/**
  * EconomyApi - object-oriented interface
  * @export
  * @class EconomyApi
@@ -16204,13 +16998,13 @@ export class EconomyApi extends BaseAPI {
     /**
      * Gets the balance of a user
      * @summary Get Balance
-     * @param {string} userId Must be a valid user ID.
+     * @param {EconomyApiGetBalanceRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof EconomyApi
      */
-    public getBalance(userId: string, options?: RawAxiosRequestConfig) {
-        return EconomyApiFp(this.configuration).getBalance(userId, options).then((request) => request(this.axios, this.basePath));
+    public getBalance(requestParameters: EconomyApiGetBalanceRequest, options?: RawAxiosRequestConfig) {
+        return EconomyApiFp(this.configuration).getBalance(requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -16227,56 +17021,50 @@ export class EconomyApi extends BaseAPI {
     /**
      * Get a single License Group by given ID.
      * @summary Get License Group
-     * @param {string} licenseGroupId Must be a valid license group ID.
+     * @param {EconomyApiGetLicenseGroupRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof EconomyApi
      */
-    public getLicenseGroup(licenseGroupId: string, options?: RawAxiosRequestConfig) {
-        return EconomyApiFp(this.configuration).getLicenseGroup(licenseGroupId, options).then((request) => request(this.axios, this.basePath));
+    public getLicenseGroup(requestParameters: EconomyApiGetLicenseGroupRequest, options?: RawAxiosRequestConfig) {
+        return EconomyApiFp(this.configuration).getLicenseGroup(requestParameters.licenseGroupId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Gets a product listing
      * @summary Get Product Listing
-     * @param {string} productId Must be a valid product ID.
-     * @param {boolean} [hydrate] Populates some fields and changes types of others for certain objects.
+     * @param {EconomyApiGetProductListingRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof EconomyApi
      */
-    public getProductListing(productId: string, hydrate?: boolean, options?: RawAxiosRequestConfig) {
-        return EconomyApiFp(this.configuration).getProductListing(productId, hydrate, options).then((request) => request(this.axios, this.basePath));
+    public getProductListing(requestParameters: EconomyApiGetProductListingRequest, options?: RawAxiosRequestConfig) {
+        return EconomyApiFp(this.configuration).getProductListing(requestParameters.productId, requestParameters.hydrate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Gets the product listings of a given user
      * @summary Get User Product Listings
-     * @param {string} userId Must be a valid user ID.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {boolean} [hydrate] Populates some fields and changes types of others for certain objects.
-     * @param {string} [groupId] Must be a valid group ID.
-     * @param {boolean} [active] Filter for users\&#39; listings and inventory bundles.
+     * @param {EconomyApiGetProductListingsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof EconomyApi
      */
-    public getProductListings(userId: string, n?: number, offset?: number, hydrate?: boolean, groupId?: string, active?: boolean, options?: RawAxiosRequestConfig) {
-        return EconomyApiFp(this.configuration).getProductListings(userId, n, offset, hydrate, groupId, active, options).then((request) => request(this.axios, this.basePath));
+    public getProductListings(requestParameters: EconomyApiGetProductListingsRequest, options?: RawAxiosRequestConfig) {
+        return EconomyApiFp(this.configuration).getProductListings(requestParameters.userId, requestParameters.n, requestParameters.offset, requestParameters.hydrate, requestParameters.groupId, requestParameters.active, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get a single Steam transactions by ID. This returns the exact same information as `getSteamTransactions`, so no point in using this endpoint.
      * @summary Get Steam Transaction
-     * @param {string} transactionId Must be a valid transaction ID.
+     * @param {EconomyApiGetSteamTransactionRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @deprecated
      * @throws {RequiredError}
      * @memberof EconomyApi
      */
-    public getSteamTransaction(transactionId: string, options?: RawAxiosRequestConfig) {
-        return EconomyApiFp(this.configuration).getSteamTransaction(transactionId, options).then((request) => request(this.axios, this.basePath));
+    public getSteamTransaction(requestParameters: EconomyApiGetSteamTransactionRequest, options?: RawAxiosRequestConfig) {
+        return EconomyApiFp(this.configuration).getSteamTransaction(requestParameters.transactionId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -16315,13 +17103,13 @@ export class EconomyApi extends BaseAPI {
     /**
      * Gets the status of the agreement of a user to the Tilia TOS
      * @summary Get Tilia TOS Agreement Status
-     * @param {string} userId Must be a valid user ID.
+     * @param {EconomyApiGetTiliaTosRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof EconomyApi
      */
-    public getTiliaTos(userId: string, options?: RawAxiosRequestConfig) {
-        return EconomyApiFp(this.configuration).getTiliaTos(userId, options).then((request) => request(this.axios, this.basePath));
+    public getTiliaTos(requestParameters: EconomyApiGetTiliaTosRequest, options?: RawAxiosRequestConfig) {
+        return EconomyApiFp(this.configuration).getTiliaTos(requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -16827,49 +17615,42 @@ export const FavoritesApiFactory = function (configuration?: Configuration, base
         /**
          * Add a new favorite.  Friend groups are named `group_0` through `group_3`. Avatar and World groups are named `avatars1` to `avatars4` and `worlds1` to `worlds4`.  You cannot add people whom you are not friends with to your friends list. Destroying a friendship removes the person as favorite on both sides.
          * @summary Add Favorite
-         * @param {AddFavoriteRequest} [addFavoriteRequest] 
+         * @param {FavoritesApiAddFavoriteRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addFavorite(addFavoriteRequest?: AddFavoriteRequest, options?: RawAxiosRequestConfig): AxiosPromise<Favorite> {
-            return localVarFp.addFavorite(addFavoriteRequest, options).then((request) => request(axios, basePath));
+        addFavorite(requestParameters: FavoritesApiAddFavoriteRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Favorite> {
+            return localVarFp.addFavorite(requestParameters.addFavoriteRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Clear ALL contents of a specific favorite group.
          * @summary Clear Favorite Group
-         * @param {ClearFavoriteGroupFavoriteGroupTypeEnum} favoriteGroupType The type of group to fetch, must be a valid FavoriteType.
-         * @param {string} favoriteGroupName The name of the group to fetch, must be a name of a FavoriteGroup.
-         * @param {string} userId Must be a valid user ID.
+         * @param {FavoritesApiClearFavoriteGroupRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        clearFavoriteGroup(favoriteGroupType: ClearFavoriteGroupFavoriteGroupTypeEnum, favoriteGroupName: string, userId: string, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
-            return localVarFp.clearFavoriteGroup(favoriteGroupType, favoriteGroupName, userId, options).then((request) => request(axios, basePath));
+        clearFavoriteGroup(requestParameters: FavoritesApiClearFavoriteGroupRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
+            return localVarFp.clearFavoriteGroup(requestParameters.favoriteGroupType, requestParameters.favoriteGroupName, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Fetch information about a specific favorite group.
          * @summary Show Favorite Group
-         * @param {GetFavoriteGroupFavoriteGroupTypeEnum} favoriteGroupType The type of group to fetch, must be a valid FavoriteType.
-         * @param {string} favoriteGroupName The name of the group to fetch, must be a name of a FavoriteGroup.
-         * @param {string} userId Must be a valid user ID.
+         * @param {FavoritesApiGetFavoriteGroupRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFavoriteGroup(favoriteGroupType: GetFavoriteGroupFavoriteGroupTypeEnum, favoriteGroupName: string, userId: string, options?: RawAxiosRequestConfig): AxiosPromise<FavoriteGroup> {
-            return localVarFp.getFavoriteGroup(favoriteGroupType, favoriteGroupName, userId, options).then((request) => request(axios, basePath));
+        getFavoriteGroup(requestParameters: FavoritesApiGetFavoriteGroupRequest, options?: RawAxiosRequestConfig): AxiosPromise<FavoriteGroup> {
+            return localVarFp.getFavoriteGroup(requestParameters.favoriteGroupType, requestParameters.favoriteGroupName, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Return a list of favorite groups owned by a user. Returns the same information as `getFavoriteGroups`.
          * @summary List Favorite Groups
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {string} [userId] Target user to see information on, admin-only.
-         * @param {string} [ownerId] The owner of whoms favorite groups to return. Must be a UserID.
+         * @param {FavoritesApiGetFavoriteGroupsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFavoriteGroups(n?: number, offset?: number, userId?: string, ownerId?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<FavoriteGroup>> {
-            return localVarFp.getFavoriteGroups(n, offset, userId, ownerId, options).then((request) => request(axios, basePath));
+        getFavoriteGroups(requestParameters: FavoritesApiGetFavoriteGroupsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<FavoriteGroup>> {
+            return localVarFp.getFavoriteGroups(requestParameters.n, requestParameters.offset, requestParameters.userId, requestParameters.ownerId, options).then((request) => request(axios, basePath));
         },
         /**
          * Return information about a specific Favorite.
@@ -16883,41 +17664,224 @@ export const FavoritesApiFactory = function (configuration?: Configuration, base
         /**
          * Returns a list of favorites.
          * @summary List Favorites
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {string} [type] The type of favorites to return, FavoriteType.
-         * @param {string} [tag] Tags to include (comma-separated). Any of the tags needs to be present.
+         * @param {FavoritesApiGetFavoritesRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFavorites(n?: number, offset?: number, type?: string, tag?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Favorite>> {
-            return localVarFp.getFavorites(n, offset, type, tag, options).then((request) => request(axios, basePath));
+        getFavorites(requestParameters: FavoritesApiGetFavoritesRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<Favorite>> {
+            return localVarFp.getFavorites(requestParameters.n, requestParameters.offset, requestParameters.type, requestParameters.tag, options).then((request) => request(axios, basePath));
         },
         /**
          * Remove a favorite from your favorites list.
          * @summary Remove Favorite
-         * @param {string} favoriteId Must be a valid favorite ID.
+         * @param {FavoritesApiRemoveFavoriteRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        removeFavorite(favoriteId: string, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
-            return localVarFp.removeFavorite(favoriteId, options).then((request) => request(axios, basePath));
+        removeFavorite(requestParameters: FavoritesApiRemoveFavoriteRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
+            return localVarFp.removeFavorite(requestParameters.favoriteId, options).then((request) => request(axios, basePath));
         },
         /**
          * Update information about a specific favorite group.
          * @summary Update Favorite Group
-         * @param {UpdateFavoriteGroupFavoriteGroupTypeEnum} favoriteGroupType The type of group to fetch, must be a valid FavoriteType.
-         * @param {string} favoriteGroupName The name of the group to fetch, must be a name of a FavoriteGroup.
-         * @param {string} userId Must be a valid user ID.
-         * @param {UpdateFavoriteGroupRequest} [updateFavoriteGroupRequest] 
+         * @param {FavoritesApiUpdateFavoriteGroupRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateFavoriteGroup(favoriteGroupType: UpdateFavoriteGroupFavoriteGroupTypeEnum, favoriteGroupName: string, userId: string, updateFavoriteGroupRequest?: UpdateFavoriteGroupRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.updateFavoriteGroup(favoriteGroupType, favoriteGroupName, userId, updateFavoriteGroupRequest, options).then((request) => request(axios, basePath));
+        updateFavoriteGroup(requestParameters: FavoritesApiUpdateFavoriteGroupRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.updateFavoriteGroup(requestParameters.favoriteGroupType, requestParameters.favoriteGroupName, requestParameters.userId, requestParameters.updateFavoriteGroupRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for addFavorite operation in FavoritesApi.
+ * @export
+ * @interface FavoritesApiAddFavoriteRequest
+ */
+export interface FavoritesApiAddFavoriteRequest {
+    /**
+     * 
+     * @type {AddFavoriteRequest}
+     * @memberof FavoritesApiAddFavorite
+     */
+    readonly addFavoriteRequest?: AddFavoriteRequest
+}
+
+/**
+ * Request parameters for clearFavoriteGroup operation in FavoritesApi.
+ * @export
+ * @interface FavoritesApiClearFavoriteGroupRequest
+ */
+export interface FavoritesApiClearFavoriteGroupRequest {
+    /**
+     * The type of group to fetch, must be a valid FavoriteType.
+     * @type {'world' | 'friend' | 'avatar'}
+     * @memberof FavoritesApiClearFavoriteGroup
+     */
+    readonly favoriteGroupType: ClearFavoriteGroupFavoriteGroupTypeEnum
+
+    /**
+     * The name of the group to fetch, must be a name of a FavoriteGroup.
+     * @type {string}
+     * @memberof FavoritesApiClearFavoriteGroup
+     */
+    readonly favoriteGroupName: string
+
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof FavoritesApiClearFavoriteGroup
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for getFavoriteGroup operation in FavoritesApi.
+ * @export
+ * @interface FavoritesApiGetFavoriteGroupRequest
+ */
+export interface FavoritesApiGetFavoriteGroupRequest {
+    /**
+     * The type of group to fetch, must be a valid FavoriteType.
+     * @type {'world' | 'friend' | 'avatar'}
+     * @memberof FavoritesApiGetFavoriteGroup
+     */
+    readonly favoriteGroupType: GetFavoriteGroupFavoriteGroupTypeEnum
+
+    /**
+     * The name of the group to fetch, must be a name of a FavoriteGroup.
+     * @type {string}
+     * @memberof FavoritesApiGetFavoriteGroup
+     */
+    readonly favoriteGroupName: string
+
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof FavoritesApiGetFavoriteGroup
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for getFavoriteGroups operation in FavoritesApi.
+ * @export
+ * @interface FavoritesApiGetFavoriteGroupsRequest
+ */
+export interface FavoritesApiGetFavoriteGroupsRequest {
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof FavoritesApiGetFavoriteGroups
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof FavoritesApiGetFavoriteGroups
+     */
+    readonly offset?: number
+
+    /**
+     * Target user to see information on, admin-only.
+     * @type {string}
+     * @memberof FavoritesApiGetFavoriteGroups
+     */
+    readonly userId?: string
+
+    /**
+     * The owner of whoms favorite groups to return. Must be a UserID.
+     * @type {string}
+     * @memberof FavoritesApiGetFavoriteGroups
+     */
+    readonly ownerId?: string
+}
+
+/**
+ * Request parameters for getFavorites operation in FavoritesApi.
+ * @export
+ * @interface FavoritesApiGetFavoritesRequest
+ */
+export interface FavoritesApiGetFavoritesRequest {
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof FavoritesApiGetFavorites
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof FavoritesApiGetFavorites
+     */
+    readonly offset?: number
+
+    /**
+     * The type of favorites to return, FavoriteType.
+     * @type {string}
+     * @memberof FavoritesApiGetFavorites
+     */
+    readonly type?: string
+
+    /**
+     * Tags to include (comma-separated). Any of the tags needs to be present.
+     * @type {string}
+     * @memberof FavoritesApiGetFavorites
+     */
+    readonly tag?: string
+}
+
+/**
+ * Request parameters for removeFavorite operation in FavoritesApi.
+ * @export
+ * @interface FavoritesApiRemoveFavoriteRequest
+ */
+export interface FavoritesApiRemoveFavoriteRequest {
+    /**
+     * Must be a valid favorite ID.
+     * @type {string}
+     * @memberof FavoritesApiRemoveFavorite
+     */
+    readonly favoriteId: string
+}
+
+/**
+ * Request parameters for updateFavoriteGroup operation in FavoritesApi.
+ * @export
+ * @interface FavoritesApiUpdateFavoriteGroupRequest
+ */
+export interface FavoritesApiUpdateFavoriteGroupRequest {
+    /**
+     * The type of group to fetch, must be a valid FavoriteType.
+     * @type {'world' | 'friend' | 'avatar'}
+     * @memberof FavoritesApiUpdateFavoriteGroup
+     */
+    readonly favoriteGroupType: UpdateFavoriteGroupFavoriteGroupTypeEnum
+
+    /**
+     * The name of the group to fetch, must be a name of a FavoriteGroup.
+     * @type {string}
+     * @memberof FavoritesApiUpdateFavoriteGroup
+     */
+    readonly favoriteGroupName: string
+
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof FavoritesApiUpdateFavoriteGroup
+     */
+    readonly userId: string
+
+    /**
+     * 
+     * @type {UpdateFavoriteGroupRequest}
+     * @memberof FavoritesApiUpdateFavoriteGroup
+     */
+    readonly updateFavoriteGroupRequest?: UpdateFavoriteGroupRequest
+}
 
 /**
  * FavoritesApi - object-oriented interface
@@ -16929,56 +17893,49 @@ export class FavoritesApi extends BaseAPI {
     /**
      * Add a new favorite.  Friend groups are named `group_0` through `group_3`. Avatar and World groups are named `avatars1` to `avatars4` and `worlds1` to `worlds4`.  You cannot add people whom you are not friends with to your friends list. Destroying a friendship removes the person as favorite on both sides.
      * @summary Add Favorite
-     * @param {AddFavoriteRequest} [addFavoriteRequest] 
+     * @param {FavoritesApiAddFavoriteRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FavoritesApi
      */
-    public addFavorite(addFavoriteRequest?: AddFavoriteRequest, options?: RawAxiosRequestConfig) {
-        return FavoritesApiFp(this.configuration).addFavorite(addFavoriteRequest, options).then((request) => request(this.axios, this.basePath));
+    public addFavorite(requestParameters: FavoritesApiAddFavoriteRequest = {}, options?: RawAxiosRequestConfig) {
+        return FavoritesApiFp(this.configuration).addFavorite(requestParameters.addFavoriteRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Clear ALL contents of a specific favorite group.
      * @summary Clear Favorite Group
-     * @param {ClearFavoriteGroupFavoriteGroupTypeEnum} favoriteGroupType The type of group to fetch, must be a valid FavoriteType.
-     * @param {string} favoriteGroupName The name of the group to fetch, must be a name of a FavoriteGroup.
-     * @param {string} userId Must be a valid user ID.
+     * @param {FavoritesApiClearFavoriteGroupRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FavoritesApi
      */
-    public clearFavoriteGroup(favoriteGroupType: ClearFavoriteGroupFavoriteGroupTypeEnum, favoriteGroupName: string, userId: string, options?: RawAxiosRequestConfig) {
-        return FavoritesApiFp(this.configuration).clearFavoriteGroup(favoriteGroupType, favoriteGroupName, userId, options).then((request) => request(this.axios, this.basePath));
+    public clearFavoriteGroup(requestParameters: FavoritesApiClearFavoriteGroupRequest, options?: RawAxiosRequestConfig) {
+        return FavoritesApiFp(this.configuration).clearFavoriteGroup(requestParameters.favoriteGroupType, requestParameters.favoriteGroupName, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Fetch information about a specific favorite group.
      * @summary Show Favorite Group
-     * @param {GetFavoriteGroupFavoriteGroupTypeEnum} favoriteGroupType The type of group to fetch, must be a valid FavoriteType.
-     * @param {string} favoriteGroupName The name of the group to fetch, must be a name of a FavoriteGroup.
-     * @param {string} userId Must be a valid user ID.
+     * @param {FavoritesApiGetFavoriteGroupRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FavoritesApi
      */
-    public getFavoriteGroup(favoriteGroupType: GetFavoriteGroupFavoriteGroupTypeEnum, favoriteGroupName: string, userId: string, options?: RawAxiosRequestConfig) {
-        return FavoritesApiFp(this.configuration).getFavoriteGroup(favoriteGroupType, favoriteGroupName, userId, options).then((request) => request(this.axios, this.basePath));
+    public getFavoriteGroup(requestParameters: FavoritesApiGetFavoriteGroupRequest, options?: RawAxiosRequestConfig) {
+        return FavoritesApiFp(this.configuration).getFavoriteGroup(requestParameters.favoriteGroupType, requestParameters.favoriteGroupName, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Return a list of favorite groups owned by a user. Returns the same information as `getFavoriteGroups`.
      * @summary List Favorite Groups
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {string} [userId] Target user to see information on, admin-only.
-     * @param {string} [ownerId] The owner of whoms favorite groups to return. Must be a UserID.
+     * @param {FavoritesApiGetFavoriteGroupsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FavoritesApi
      */
-    public getFavoriteGroups(n?: number, offset?: number, userId?: string, ownerId?: string, options?: RawAxiosRequestConfig) {
-        return FavoritesApiFp(this.configuration).getFavoriteGroups(n, offset, userId, ownerId, options).then((request) => request(this.axios, this.basePath));
+    public getFavoriteGroups(requestParameters: FavoritesApiGetFavoriteGroupsRequest = {}, options?: RawAxiosRequestConfig) {
+        return FavoritesApiFp(this.configuration).getFavoriteGroups(requestParameters.n, requestParameters.offset, requestParameters.userId, requestParameters.ownerId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -16995,43 +17952,37 @@ export class FavoritesApi extends BaseAPI {
     /**
      * Returns a list of favorites.
      * @summary List Favorites
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {string} [type] The type of favorites to return, FavoriteType.
-     * @param {string} [tag] Tags to include (comma-separated). Any of the tags needs to be present.
+     * @param {FavoritesApiGetFavoritesRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FavoritesApi
      */
-    public getFavorites(n?: number, offset?: number, type?: string, tag?: string, options?: RawAxiosRequestConfig) {
-        return FavoritesApiFp(this.configuration).getFavorites(n, offset, type, tag, options).then((request) => request(this.axios, this.basePath));
+    public getFavorites(requestParameters: FavoritesApiGetFavoritesRequest = {}, options?: RawAxiosRequestConfig) {
+        return FavoritesApiFp(this.configuration).getFavorites(requestParameters.n, requestParameters.offset, requestParameters.type, requestParameters.tag, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Remove a favorite from your favorites list.
      * @summary Remove Favorite
-     * @param {string} favoriteId Must be a valid favorite ID.
+     * @param {FavoritesApiRemoveFavoriteRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FavoritesApi
      */
-    public removeFavorite(favoriteId: string, options?: RawAxiosRequestConfig) {
-        return FavoritesApiFp(this.configuration).removeFavorite(favoriteId, options).then((request) => request(this.axios, this.basePath));
+    public removeFavorite(requestParameters: FavoritesApiRemoveFavoriteRequest, options?: RawAxiosRequestConfig) {
+        return FavoritesApiFp(this.configuration).removeFavorite(requestParameters.favoriteId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Update information about a specific favorite group.
      * @summary Update Favorite Group
-     * @param {UpdateFavoriteGroupFavoriteGroupTypeEnum} favoriteGroupType The type of group to fetch, must be a valid FavoriteType.
-     * @param {string} favoriteGroupName The name of the group to fetch, must be a name of a FavoriteGroup.
-     * @param {string} userId Must be a valid user ID.
-     * @param {UpdateFavoriteGroupRequest} [updateFavoriteGroupRequest] 
+     * @param {FavoritesApiUpdateFavoriteGroupRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FavoritesApi
      */
-    public updateFavoriteGroup(favoriteGroupType: UpdateFavoriteGroupFavoriteGroupTypeEnum, favoriteGroupName: string, userId: string, updateFavoriteGroupRequest?: UpdateFavoriteGroupRequest, options?: RawAxiosRequestConfig) {
-        return FavoritesApiFp(this.configuration).updateFavoriteGroup(favoriteGroupType, favoriteGroupName, userId, updateFavoriteGroupRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateFavoriteGroup(requestParameters: FavoritesApiUpdateFavoriteGroupRequest, options?: RawAxiosRequestConfig) {
+        return FavoritesApiFp(this.configuration).updateFavoriteGroup(requestParameters.favoriteGroupType, requestParameters.favoriteGroupName, requestParameters.userId, requestParameters.updateFavoriteGroupRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -18069,197 +19020,567 @@ export const FilesApiFactory = function (configuration?: Configuration, basePath
         /**
          * Creates a new File object
          * @summary Create File
-         * @param {CreateFileRequest} [createFileRequest] 
+         * @param {FilesApiCreateFileRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createFile(createFileRequest?: CreateFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.createFile(createFileRequest, options).then((request) => request(axios, basePath));
+        createFile(requestParameters: FilesApiCreateFileRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.createFile(requestParameters.createFileRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Creates a new FileVersion. Once a Version has been created, proceed to the `/file/{fileId}/{versionId}/file/start` endpoint to start a file upload.
          * @summary Create File Version
-         * @param {string} fileId Must be a valid file ID.
-         * @param {CreateFileVersionRequest} [createFileVersionRequest] 
+         * @param {FilesApiCreateFileVersionRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createFileVersion(fileId: string, createFileVersionRequest?: CreateFileVersionRequest, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.createFileVersion(fileId, createFileVersionRequest, options).then((request) => request(axios, basePath));
+        createFileVersion(requestParameters: FilesApiCreateFileVersionRequest, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.createFileVersion(requestParameters.fileId, requestParameters.createFileVersionRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Deletes a File object.
          * @summary Delete File
-         * @param {string} fileId Must be a valid file ID.
+         * @param {FilesApiDeleteFileRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteFile(fileId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.deleteFile(fileId, options).then((request) => request(axios, basePath));
+        deleteFile(requestParameters: FilesApiDeleteFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.deleteFile(requestParameters.fileId, options).then((request) => request(axios, basePath));
         },
         /**
          * Delete a specific version of a file. You can only delete the latest version.
          * @summary Delete File Version
-         * @param {string} fileId Must be a valid file ID.
-         * @param {number} versionId Version ID of the asset.
+         * @param {FilesApiDeleteFileVersionRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteFileVersion(fileId: string, versionId: number, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.deleteFileVersion(fileId, versionId, options).then((request) => request(axios, basePath));
+        deleteFileVersion(requestParameters: FilesApiDeleteFileVersionRequest, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.deleteFileVersion(requestParameters.fileId, requestParameters.versionId, options).then((request) => request(axios, basePath));
         },
         /**
          * Downloads the file with the provided version number.  **Version Note:** Version 0 is always when the file was created. The real data is usually always located in version 1 and up.  **Extension Note:** Files are not guaranteed to have a file extensions. UnityPackage files tends to have it, images through this endpoint do not. You are responsible for appending file extension from the `extension` field when neccesary.
          * @summary Download File Version
-         * @param {string} fileId Must be a valid file ID.
-         * @param {number} versionId Version ID of the asset.
+         * @param {FilesApiDownloadFileVersionRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        downloadFileVersion(fileId: string, versionId: number, options?: RawAxiosRequestConfig): AxiosPromise<File> {
-            return localVarFp.downloadFileVersion(fileId, versionId, options).then((request) => request(axios, basePath));
+        downloadFileVersion(requestParameters: FilesApiDownloadFileVersionRequest, options?: RawAxiosRequestConfig): AxiosPromise<File> {
+            return localVarFp.downloadFileVersion(requestParameters.fileId, requestParameters.versionId, options).then((request) => request(axios, basePath));
         },
         /**
          * Finish an upload of a FileData. This will mark it as \"complete\". After uploading the `file` for Avatars and Worlds you then have to upload a `signature` file.
          * @summary Finish FileData Upload
-         * @param {string} fileId Must be a valid file ID.
-         * @param {number} versionId Version ID of the asset.
-         * @param {FinishFileDataUploadFileTypeEnum} fileType Type of file.
-         * @param {FinishFileDataUploadRequest} [finishFileDataUploadRequest] Please see documentation on ETag\&#39;s: [https://teppen.io/2018/06/23/aws_s3_etags/](https://teppen.io/2018/06/23/aws_s3_etags/)  ETag\&#39;s should NOT be present when uploading a &#x60;signature&#x60;.
+         * @param {FilesApiFinishFileDataUploadRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        finishFileDataUpload(fileId: string, versionId: number, fileType: FinishFileDataUploadFileTypeEnum, finishFileDataUploadRequest?: FinishFileDataUploadRequest, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.finishFileDataUpload(fileId, versionId, fileType, finishFileDataUploadRequest, options).then((request) => request(axios, basePath));
+        finishFileDataUpload(requestParameters: FilesApiFinishFileDataUploadRequest, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.finishFileDataUpload(requestParameters.fileId, requestParameters.versionId, requestParameters.fileType, requestParameters.finishFileDataUploadRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns an AdminAssetBundle
          * @summary Get AdminAssetBundle
-         * @param {string} adminAssetBundleId Must be a valid admin asset bundle ID.
+         * @param {FilesApiGetAdminAssetBundleRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAdminAssetBundle(adminAssetBundleId: string, options?: RawAxiosRequestConfig): AxiosPromise<AdminAssetBundle> {
-            return localVarFp.getAdminAssetBundle(adminAssetBundleId, options).then((request) => request(axios, basePath));
+        getAdminAssetBundle(requestParameters: FilesApiGetAdminAssetBundleRequest, options?: RawAxiosRequestConfig): AxiosPromise<AdminAssetBundle> {
+            return localVarFp.getAdminAssetBundle(requestParameters.adminAssetBundleId, options).then((request) => request(axios, basePath));
         },
         /**
          * Shows general information about the \"File\" object. Each File can have several \"Version\"\'s, and each Version can have multiple real files or \"Data\" blobs.
          * @summary Show File
-         * @param {string} fileId Must be a valid file ID.
+         * @param {FilesApiGetFileRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFile(fileId: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.getFile(fileId, options).then((request) => request(axios, basePath));
+        getFile(requestParameters: FilesApiGetFileRequest, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.getFile(requestParameters.fileId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get the performance analysis for the uploaded assets of an avatar
          * @summary Get File Version Analysis
-         * @param {string} fileId Must be a valid file ID.
-         * @param {number} versionId Version ID of the asset.
+         * @param {FilesApiGetFileAnalysisRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFileAnalysis(fileId: string, versionId: number, options?: RawAxiosRequestConfig): AxiosPromise<FileAnalysis> {
-            return localVarFp.getFileAnalysis(fileId, versionId, options).then((request) => request(axios, basePath));
+        getFileAnalysis(requestParameters: FilesApiGetFileAnalysisRequest, options?: RawAxiosRequestConfig): AxiosPromise<FileAnalysis> {
+            return localVarFp.getFileAnalysis(requestParameters.fileId, requestParameters.versionId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get the security performance analysis for the uploaded assets of an avatar
          * @summary Get File Version Analysis Security
-         * @param {string} fileId Must be a valid file ID.
-         * @param {number} versionId Version ID of the asset.
+         * @param {FilesApiGetFileAnalysisSecurityRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFileAnalysisSecurity(fileId: string, versionId: number, options?: RawAxiosRequestConfig): AxiosPromise<FileAnalysis> {
-            return localVarFp.getFileAnalysisSecurity(fileId, versionId, options).then((request) => request(axios, basePath));
+        getFileAnalysisSecurity(requestParameters: FilesApiGetFileAnalysisSecurityRequest, options?: RawAxiosRequestConfig): AxiosPromise<FileAnalysis> {
+            return localVarFp.getFileAnalysisSecurity(requestParameters.fileId, requestParameters.versionId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get the standard performance analysis for the uploaded assets of an avatar
          * @summary Get File Version Analysis Standard
-         * @param {string} fileId Must be a valid file ID.
-         * @param {number} versionId Version ID of the asset.
+         * @param {FilesApiGetFileAnalysisStandardRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFileAnalysisStandard(fileId: string, versionId: number, options?: RawAxiosRequestConfig): AxiosPromise<FileAnalysis> {
-            return localVarFp.getFileAnalysisStandard(fileId, versionId, options).then((request) => request(axios, basePath));
+        getFileAnalysisStandard(requestParameters: FilesApiGetFileAnalysisStandardRequest, options?: RawAxiosRequestConfig): AxiosPromise<FileAnalysis> {
+            return localVarFp.getFileAnalysisStandard(requestParameters.fileId, requestParameters.versionId, options).then((request) => request(axios, basePath));
         },
         /**
          * Retrieves the upload status for file upload. Can currently only be accessed when `status` is `waiting`. Trying to access it on a file version already uploaded currently times out.
          * @summary Check FileData Upload Status
-         * @param {string} fileId Must be a valid file ID.
-         * @param {number} versionId Version ID of the asset.
-         * @param {GetFileDataUploadStatusFileTypeEnum} fileType Type of file.
+         * @param {FilesApiGetFileDataUploadStatusRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFileDataUploadStatus(fileId: string, versionId: number, fileType: GetFileDataUploadStatusFileTypeEnum, options?: RawAxiosRequestConfig): AxiosPromise<FileVersionUploadStatus> {
-            return localVarFp.getFileDataUploadStatus(fileId, versionId, fileType, options).then((request) => request(axios, basePath));
+        getFileDataUploadStatus(requestParameters: FilesApiGetFileDataUploadStatusRequest, options?: RawAxiosRequestConfig): AxiosPromise<FileVersionUploadStatus> {
+            return localVarFp.getFileDataUploadStatus(requestParameters.fileId, requestParameters.versionId, requestParameters.fileType, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a list of files
          * @summary List Files
-         * @param {string} [tag] Tag, for example \&quot;icon\&quot; or \&quot;gallery\&quot;, not included by default.
-         * @param {string} [userId] UserID, will always generate a 500 permission error.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+         * @param {FilesApiGetFilesRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFiles(tag?: string, userId?: string, n?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<any>> {
-            return localVarFp.getFiles(tag, userId, n, offset, options).then((request) => request(axios, basePath));
+        getFiles(requestParameters: FilesApiGetFilesRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<any>> {
+            return localVarFp.getFiles(requestParameters.tag, requestParameters.userId, requestParameters.n, requestParameters.offset, options).then((request) => request(axios, basePath));
         },
         /**
          * Starts an upload of a specific FilePart. This endpoint will return an AWS URL which you can PUT data to. You need to call this and receive a new AWS API URL for each `partNumber`. Please see AWS\'s REST documentation on \"PUT Object to S3\" on how to upload. Once all parts has been uploaded, proceed to `/finish` endpoint.  **Note:** `nextPartNumber` seems like it is always ignored. Despite it returning 0, first partNumber is always 1.
          * @summary Start FileData Upload
-         * @param {string} fileId Must be a valid file ID.
-         * @param {number} versionId Version ID of the asset.
-         * @param {StartFileDataUploadFileTypeEnum} fileType Type of file.
-         * @param {number} [partNumber] The part number to start uploading. If not provided, the first part will be started.
+         * @param {FilesApiStartFileDataUploadRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        startFileDataUpload(fileId: string, versionId: number, fileType: StartFileDataUploadFileTypeEnum, partNumber?: number, options?: RawAxiosRequestConfig): AxiosPromise<FileUploadURL> {
-            return localVarFp.startFileDataUpload(fileId, versionId, fileType, partNumber, options).then((request) => request(axios, basePath));
+        startFileDataUpload(requestParameters: FilesApiStartFileDataUploadRequest, options?: RawAxiosRequestConfig): AxiosPromise<FileUploadURL> {
+            return localVarFp.startFileDataUpload(requestParameters.fileId, requestParameters.versionId, requestParameters.fileType, requestParameters.partNumber, options).then((request) => request(axios, basePath));
         },
         /**
          * Upload a gallery image
          * @summary Upload gallery image
-         * @param {File} file The binary blob of the png file.
+         * @param {FilesApiUploadGalleryImageRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        uploadGalleryImage(file: File, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.uploadGalleryImage(file, options).then((request) => request(axios, basePath));
+        uploadGalleryImage(requestParameters: FilesApiUploadGalleryImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.uploadGalleryImage(requestParameters.file, options).then((request) => request(axios, basePath));
         },
         /**
          * Upload an icon
          * @summary Upload icon
-         * @param {File} file The binary blob of the png file.
+         * @param {FilesApiUploadIconRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        uploadIcon(file: File, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.uploadIcon(file, options).then((request) => request(axios, basePath));
+        uploadIcon(requestParameters: FilesApiUploadIconRequest, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.uploadIcon(requestParameters.file, options).then((request) => request(axios, basePath));
         },
         /**
          * Upload an image, which can be an icon, gallery image, sticker or emoji
          * @summary Upload gallery image, icon, emoji or sticker
-         * @param {File} file The binary blob of the png file.
-         * @param {string} tag Needs to be either icon, gallery, sticker, emoji, or emojianimated
-         * @param {number} [frames] Required for emojianimated. Total number of frames to be animated (2-64)
-         * @param {number} [framesOverTime] Required for emojianimated. Animation frames per second (1-64)
-         * @param {string} [animationStyle] Animation style for sticker, required for emoji.
-         * @param {string} [maskTag] Mask of the sticker, optional for emoji.
+         * @param {FilesApiUploadImageRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        uploadImage(file: File, tag: string, frames?: number, framesOverTime?: number, animationStyle?: string, maskTag?: string, options?: RawAxiosRequestConfig): AxiosPromise<any> {
-            return localVarFp.uploadImage(file, tag, frames, framesOverTime, animationStyle, maskTag, options).then((request) => request(axios, basePath));
+        uploadImage(requestParameters: FilesApiUploadImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<any> {
+            return localVarFp.uploadImage(requestParameters.file, requestParameters.tag, requestParameters.frames, requestParameters.framesOverTime, requestParameters.animationStyle, requestParameters.maskTag, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for createFile operation in FilesApi.
+ * @export
+ * @interface FilesApiCreateFileRequest
+ */
+export interface FilesApiCreateFileRequest {
+    /**
+     * 
+     * @type {CreateFileRequest}
+     * @memberof FilesApiCreateFile
+     */
+    readonly createFileRequest?: CreateFileRequest
+}
+
+/**
+ * Request parameters for createFileVersion operation in FilesApi.
+ * @export
+ * @interface FilesApiCreateFileVersionRequest
+ */
+export interface FilesApiCreateFileVersionRequest {
+    /**
+     * Must be a valid file ID.
+     * @type {string}
+     * @memberof FilesApiCreateFileVersion
+     */
+    readonly fileId: string
+
+    /**
+     * 
+     * @type {CreateFileVersionRequest}
+     * @memberof FilesApiCreateFileVersion
+     */
+    readonly createFileVersionRequest?: CreateFileVersionRequest
+}
+
+/**
+ * Request parameters for deleteFile operation in FilesApi.
+ * @export
+ * @interface FilesApiDeleteFileRequest
+ */
+export interface FilesApiDeleteFileRequest {
+    /**
+     * Must be a valid file ID.
+     * @type {string}
+     * @memberof FilesApiDeleteFile
+     */
+    readonly fileId: string
+}
+
+/**
+ * Request parameters for deleteFileVersion operation in FilesApi.
+ * @export
+ * @interface FilesApiDeleteFileVersionRequest
+ */
+export interface FilesApiDeleteFileVersionRequest {
+    /**
+     * Must be a valid file ID.
+     * @type {string}
+     * @memberof FilesApiDeleteFileVersion
+     */
+    readonly fileId: string
+
+    /**
+     * Version ID of the asset.
+     * @type {number}
+     * @memberof FilesApiDeleteFileVersion
+     */
+    readonly versionId: number
+}
+
+/**
+ * Request parameters for downloadFileVersion operation in FilesApi.
+ * @export
+ * @interface FilesApiDownloadFileVersionRequest
+ */
+export interface FilesApiDownloadFileVersionRequest {
+    /**
+     * Must be a valid file ID.
+     * @type {string}
+     * @memberof FilesApiDownloadFileVersion
+     */
+    readonly fileId: string
+
+    /**
+     * Version ID of the asset.
+     * @type {number}
+     * @memberof FilesApiDownloadFileVersion
+     */
+    readonly versionId: number
+}
+
+/**
+ * Request parameters for finishFileDataUpload operation in FilesApi.
+ * @export
+ * @interface FilesApiFinishFileDataUploadRequest
+ */
+export interface FilesApiFinishFileDataUploadRequest {
+    /**
+     * Must be a valid file ID.
+     * @type {string}
+     * @memberof FilesApiFinishFileDataUpload
+     */
+    readonly fileId: string
+
+    /**
+     * Version ID of the asset.
+     * @type {number}
+     * @memberof FilesApiFinishFileDataUpload
+     */
+    readonly versionId: number
+
+    /**
+     * Type of file.
+     * @type {'file' | 'signature' | 'delta'}
+     * @memberof FilesApiFinishFileDataUpload
+     */
+    readonly fileType: FinishFileDataUploadFileTypeEnum
+
+    /**
+     * Please see documentation on ETag\&#39;s: [https://teppen.io/2018/06/23/aws_s3_etags/](https://teppen.io/2018/06/23/aws_s3_etags/)  ETag\&#39;s should NOT be present when uploading a &#x60;signature&#x60;.
+     * @type {FinishFileDataUploadRequest}
+     * @memberof FilesApiFinishFileDataUpload
+     */
+    readonly finishFileDataUploadRequest?: FinishFileDataUploadRequest
+}
+
+/**
+ * Request parameters for getAdminAssetBundle operation in FilesApi.
+ * @export
+ * @interface FilesApiGetAdminAssetBundleRequest
+ */
+export interface FilesApiGetAdminAssetBundleRequest {
+    /**
+     * Must be a valid admin asset bundle ID.
+     * @type {string}
+     * @memberof FilesApiGetAdminAssetBundle
+     */
+    readonly adminAssetBundleId: string
+}
+
+/**
+ * Request parameters for getFile operation in FilesApi.
+ * @export
+ * @interface FilesApiGetFileRequest
+ */
+export interface FilesApiGetFileRequest {
+    /**
+     * Must be a valid file ID.
+     * @type {string}
+     * @memberof FilesApiGetFile
+     */
+    readonly fileId: string
+}
+
+/**
+ * Request parameters for getFileAnalysis operation in FilesApi.
+ * @export
+ * @interface FilesApiGetFileAnalysisRequest
+ */
+export interface FilesApiGetFileAnalysisRequest {
+    /**
+     * Must be a valid file ID.
+     * @type {string}
+     * @memberof FilesApiGetFileAnalysis
+     */
+    readonly fileId: string
+
+    /**
+     * Version ID of the asset.
+     * @type {number}
+     * @memberof FilesApiGetFileAnalysis
+     */
+    readonly versionId: number
+}
+
+/**
+ * Request parameters for getFileAnalysisSecurity operation in FilesApi.
+ * @export
+ * @interface FilesApiGetFileAnalysisSecurityRequest
+ */
+export interface FilesApiGetFileAnalysisSecurityRequest {
+    /**
+     * Must be a valid file ID.
+     * @type {string}
+     * @memberof FilesApiGetFileAnalysisSecurity
+     */
+    readonly fileId: string
+
+    /**
+     * Version ID of the asset.
+     * @type {number}
+     * @memberof FilesApiGetFileAnalysisSecurity
+     */
+    readonly versionId: number
+}
+
+/**
+ * Request parameters for getFileAnalysisStandard operation in FilesApi.
+ * @export
+ * @interface FilesApiGetFileAnalysisStandardRequest
+ */
+export interface FilesApiGetFileAnalysisStandardRequest {
+    /**
+     * Must be a valid file ID.
+     * @type {string}
+     * @memberof FilesApiGetFileAnalysisStandard
+     */
+    readonly fileId: string
+
+    /**
+     * Version ID of the asset.
+     * @type {number}
+     * @memberof FilesApiGetFileAnalysisStandard
+     */
+    readonly versionId: number
+}
+
+/**
+ * Request parameters for getFileDataUploadStatus operation in FilesApi.
+ * @export
+ * @interface FilesApiGetFileDataUploadStatusRequest
+ */
+export interface FilesApiGetFileDataUploadStatusRequest {
+    /**
+     * Must be a valid file ID.
+     * @type {string}
+     * @memberof FilesApiGetFileDataUploadStatus
+     */
+    readonly fileId: string
+
+    /**
+     * Version ID of the asset.
+     * @type {number}
+     * @memberof FilesApiGetFileDataUploadStatus
+     */
+    readonly versionId: number
+
+    /**
+     * Type of file.
+     * @type {'file' | 'signature' | 'delta'}
+     * @memberof FilesApiGetFileDataUploadStatus
+     */
+    readonly fileType: GetFileDataUploadStatusFileTypeEnum
+}
+
+/**
+ * Request parameters for getFiles operation in FilesApi.
+ * @export
+ * @interface FilesApiGetFilesRequest
+ */
+export interface FilesApiGetFilesRequest {
+    /**
+     * Tag, for example \&quot;icon\&quot; or \&quot;gallery\&quot;, not included by default.
+     * @type {string}
+     * @memberof FilesApiGetFiles
+     */
+    readonly tag?: string
+
+    /**
+     * UserID, will always generate a 500 permission error.
+     * @type {string}
+     * @memberof FilesApiGetFiles
+     */
+    readonly userId?: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof FilesApiGetFiles
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof FilesApiGetFiles
+     */
+    readonly offset?: number
+}
+
+/**
+ * Request parameters for startFileDataUpload operation in FilesApi.
+ * @export
+ * @interface FilesApiStartFileDataUploadRequest
+ */
+export interface FilesApiStartFileDataUploadRequest {
+    /**
+     * Must be a valid file ID.
+     * @type {string}
+     * @memberof FilesApiStartFileDataUpload
+     */
+    readonly fileId: string
+
+    /**
+     * Version ID of the asset.
+     * @type {number}
+     * @memberof FilesApiStartFileDataUpload
+     */
+    readonly versionId: number
+
+    /**
+     * Type of file.
+     * @type {'file' | 'signature' | 'delta'}
+     * @memberof FilesApiStartFileDataUpload
+     */
+    readonly fileType: StartFileDataUploadFileTypeEnum
+
+    /**
+     * The part number to start uploading. If not provided, the first part will be started.
+     * @type {number}
+     * @memberof FilesApiStartFileDataUpload
+     */
+    readonly partNumber?: number
+}
+
+/**
+ * Request parameters for uploadGalleryImage operation in FilesApi.
+ * @export
+ * @interface FilesApiUploadGalleryImageRequest
+ */
+export interface FilesApiUploadGalleryImageRequest {
+    /**
+     * The binary blob of the png file.
+     * @type {File}
+     * @memberof FilesApiUploadGalleryImage
+     */
+    readonly file: File
+}
+
+/**
+ * Request parameters for uploadIcon operation in FilesApi.
+ * @export
+ * @interface FilesApiUploadIconRequest
+ */
+export interface FilesApiUploadIconRequest {
+    /**
+     * The binary blob of the png file.
+     * @type {File}
+     * @memberof FilesApiUploadIcon
+     */
+    readonly file: File
+}
+
+/**
+ * Request parameters for uploadImage operation in FilesApi.
+ * @export
+ * @interface FilesApiUploadImageRequest
+ */
+export interface FilesApiUploadImageRequest {
+    /**
+     * The binary blob of the png file.
+     * @type {File}
+     * @memberof FilesApiUploadImage
+     */
+    readonly file: File
+
+    /**
+     * Needs to be either icon, gallery, sticker, emoji, or emojianimated
+     * @type {string}
+     * @memberof FilesApiUploadImage
+     */
+    readonly tag: string
+
+    /**
+     * Required for emojianimated. Total number of frames to be animated (2-64)
+     * @type {number}
+     * @memberof FilesApiUploadImage
+     */
+    readonly frames?: number
+
+    /**
+     * Required for emojianimated. Animation frames per second (1-64)
+     * @type {number}
+     * @memberof FilesApiUploadImage
+     */
+    readonly framesOverTime?: number
+
+    /**
+     * Animation style for sticker, required for emoji.
+     * @type {string}
+     * @memberof FilesApiUploadImage
+     */
+    readonly animationStyle?: string
+
+    /**
+     * Mask of the sticker, optional for emoji.
+     * @type {string}
+     * @memberof FilesApiUploadImage
+     */
+    readonly maskTag?: string
+}
 
 /**
  * FilesApi - object-oriented interface
@@ -18271,227 +19592,205 @@ export class FilesApi extends BaseAPI {
     /**
      * Creates a new File object
      * @summary Create File
-     * @param {CreateFileRequest} [createFileRequest] 
+     * @param {FilesApiCreateFileRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public createFile(createFileRequest?: CreateFileRequest, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).createFile(createFileRequest, options).then((request) => request(this.axios, this.basePath));
+    public createFile(requestParameters: FilesApiCreateFileRequest = {}, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).createFile(requestParameters.createFileRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Creates a new FileVersion. Once a Version has been created, proceed to the `/file/{fileId}/{versionId}/file/start` endpoint to start a file upload.
      * @summary Create File Version
-     * @param {string} fileId Must be a valid file ID.
-     * @param {CreateFileVersionRequest} [createFileVersionRequest] 
+     * @param {FilesApiCreateFileVersionRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public createFileVersion(fileId: string, createFileVersionRequest?: CreateFileVersionRequest, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).createFileVersion(fileId, createFileVersionRequest, options).then((request) => request(this.axios, this.basePath));
+    public createFileVersion(requestParameters: FilesApiCreateFileVersionRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).createFileVersion(requestParameters.fileId, requestParameters.createFileVersionRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Deletes a File object.
      * @summary Delete File
-     * @param {string} fileId Must be a valid file ID.
+     * @param {FilesApiDeleteFileRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public deleteFile(fileId: string, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).deleteFile(fileId, options).then((request) => request(this.axios, this.basePath));
+    public deleteFile(requestParameters: FilesApiDeleteFileRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).deleteFile(requestParameters.fileId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Delete a specific version of a file. You can only delete the latest version.
      * @summary Delete File Version
-     * @param {string} fileId Must be a valid file ID.
-     * @param {number} versionId Version ID of the asset.
+     * @param {FilesApiDeleteFileVersionRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public deleteFileVersion(fileId: string, versionId: number, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).deleteFileVersion(fileId, versionId, options).then((request) => request(this.axios, this.basePath));
+    public deleteFileVersion(requestParameters: FilesApiDeleteFileVersionRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).deleteFileVersion(requestParameters.fileId, requestParameters.versionId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Downloads the file with the provided version number.  **Version Note:** Version 0 is always when the file was created. The real data is usually always located in version 1 and up.  **Extension Note:** Files are not guaranteed to have a file extensions. UnityPackage files tends to have it, images through this endpoint do not. You are responsible for appending file extension from the `extension` field when neccesary.
      * @summary Download File Version
-     * @param {string} fileId Must be a valid file ID.
-     * @param {number} versionId Version ID of the asset.
+     * @param {FilesApiDownloadFileVersionRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public downloadFileVersion(fileId: string, versionId: number, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).downloadFileVersion(fileId, versionId, options).then((request) => request(this.axios, this.basePath));
+    public downloadFileVersion(requestParameters: FilesApiDownloadFileVersionRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).downloadFileVersion(requestParameters.fileId, requestParameters.versionId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Finish an upload of a FileData. This will mark it as \"complete\". After uploading the `file` for Avatars and Worlds you then have to upload a `signature` file.
      * @summary Finish FileData Upload
-     * @param {string} fileId Must be a valid file ID.
-     * @param {number} versionId Version ID of the asset.
-     * @param {FinishFileDataUploadFileTypeEnum} fileType Type of file.
-     * @param {FinishFileDataUploadRequest} [finishFileDataUploadRequest] Please see documentation on ETag\&#39;s: [https://teppen.io/2018/06/23/aws_s3_etags/](https://teppen.io/2018/06/23/aws_s3_etags/)  ETag\&#39;s should NOT be present when uploading a &#x60;signature&#x60;.
+     * @param {FilesApiFinishFileDataUploadRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public finishFileDataUpload(fileId: string, versionId: number, fileType: FinishFileDataUploadFileTypeEnum, finishFileDataUploadRequest?: FinishFileDataUploadRequest, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).finishFileDataUpload(fileId, versionId, fileType, finishFileDataUploadRequest, options).then((request) => request(this.axios, this.basePath));
+    public finishFileDataUpload(requestParameters: FilesApiFinishFileDataUploadRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).finishFileDataUpload(requestParameters.fileId, requestParameters.versionId, requestParameters.fileType, requestParameters.finishFileDataUploadRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns an AdminAssetBundle
      * @summary Get AdminAssetBundle
-     * @param {string} adminAssetBundleId Must be a valid admin asset bundle ID.
+     * @param {FilesApiGetAdminAssetBundleRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public getAdminAssetBundle(adminAssetBundleId: string, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).getAdminAssetBundle(adminAssetBundleId, options).then((request) => request(this.axios, this.basePath));
+    public getAdminAssetBundle(requestParameters: FilesApiGetAdminAssetBundleRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).getAdminAssetBundle(requestParameters.adminAssetBundleId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Shows general information about the \"File\" object. Each File can have several \"Version\"\'s, and each Version can have multiple real files or \"Data\" blobs.
      * @summary Show File
-     * @param {string} fileId Must be a valid file ID.
+     * @param {FilesApiGetFileRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public getFile(fileId: string, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).getFile(fileId, options).then((request) => request(this.axios, this.basePath));
+    public getFile(requestParameters: FilesApiGetFileRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).getFile(requestParameters.fileId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get the performance analysis for the uploaded assets of an avatar
      * @summary Get File Version Analysis
-     * @param {string} fileId Must be a valid file ID.
-     * @param {number} versionId Version ID of the asset.
+     * @param {FilesApiGetFileAnalysisRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public getFileAnalysis(fileId: string, versionId: number, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).getFileAnalysis(fileId, versionId, options).then((request) => request(this.axios, this.basePath));
+    public getFileAnalysis(requestParameters: FilesApiGetFileAnalysisRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).getFileAnalysis(requestParameters.fileId, requestParameters.versionId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get the security performance analysis for the uploaded assets of an avatar
      * @summary Get File Version Analysis Security
-     * @param {string} fileId Must be a valid file ID.
-     * @param {number} versionId Version ID of the asset.
+     * @param {FilesApiGetFileAnalysisSecurityRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public getFileAnalysisSecurity(fileId: string, versionId: number, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).getFileAnalysisSecurity(fileId, versionId, options).then((request) => request(this.axios, this.basePath));
+    public getFileAnalysisSecurity(requestParameters: FilesApiGetFileAnalysisSecurityRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).getFileAnalysisSecurity(requestParameters.fileId, requestParameters.versionId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get the standard performance analysis for the uploaded assets of an avatar
      * @summary Get File Version Analysis Standard
-     * @param {string} fileId Must be a valid file ID.
-     * @param {number} versionId Version ID of the asset.
+     * @param {FilesApiGetFileAnalysisStandardRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public getFileAnalysisStandard(fileId: string, versionId: number, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).getFileAnalysisStandard(fileId, versionId, options).then((request) => request(this.axios, this.basePath));
+    public getFileAnalysisStandard(requestParameters: FilesApiGetFileAnalysisStandardRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).getFileAnalysisStandard(requestParameters.fileId, requestParameters.versionId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Retrieves the upload status for file upload. Can currently only be accessed when `status` is `waiting`. Trying to access it on a file version already uploaded currently times out.
      * @summary Check FileData Upload Status
-     * @param {string} fileId Must be a valid file ID.
-     * @param {number} versionId Version ID of the asset.
-     * @param {GetFileDataUploadStatusFileTypeEnum} fileType Type of file.
+     * @param {FilesApiGetFileDataUploadStatusRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public getFileDataUploadStatus(fileId: string, versionId: number, fileType: GetFileDataUploadStatusFileTypeEnum, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).getFileDataUploadStatus(fileId, versionId, fileType, options).then((request) => request(this.axios, this.basePath));
+    public getFileDataUploadStatus(requestParameters: FilesApiGetFileDataUploadStatusRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).getFileDataUploadStatus(requestParameters.fileId, requestParameters.versionId, requestParameters.fileType, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a list of files
      * @summary List Files
-     * @param {string} [tag] Tag, for example \&quot;icon\&quot; or \&quot;gallery\&quot;, not included by default.
-     * @param {string} [userId] UserID, will always generate a 500 permission error.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+     * @param {FilesApiGetFilesRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public getFiles(tag?: string, userId?: string, n?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).getFiles(tag, userId, n, offset, options).then((request) => request(this.axios, this.basePath));
+    public getFiles(requestParameters: FilesApiGetFilesRequest = {}, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).getFiles(requestParameters.tag, requestParameters.userId, requestParameters.n, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Starts an upload of a specific FilePart. This endpoint will return an AWS URL which you can PUT data to. You need to call this and receive a new AWS API URL for each `partNumber`. Please see AWS\'s REST documentation on \"PUT Object to S3\" on how to upload. Once all parts has been uploaded, proceed to `/finish` endpoint.  **Note:** `nextPartNumber` seems like it is always ignored. Despite it returning 0, first partNumber is always 1.
      * @summary Start FileData Upload
-     * @param {string} fileId Must be a valid file ID.
-     * @param {number} versionId Version ID of the asset.
-     * @param {StartFileDataUploadFileTypeEnum} fileType Type of file.
-     * @param {number} [partNumber] The part number to start uploading. If not provided, the first part will be started.
+     * @param {FilesApiStartFileDataUploadRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public startFileDataUpload(fileId: string, versionId: number, fileType: StartFileDataUploadFileTypeEnum, partNumber?: number, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).startFileDataUpload(fileId, versionId, fileType, partNumber, options).then((request) => request(this.axios, this.basePath));
+    public startFileDataUpload(requestParameters: FilesApiStartFileDataUploadRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).startFileDataUpload(requestParameters.fileId, requestParameters.versionId, requestParameters.fileType, requestParameters.partNumber, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Upload a gallery image
      * @summary Upload gallery image
-     * @param {File} file The binary blob of the png file.
+     * @param {FilesApiUploadGalleryImageRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public uploadGalleryImage(file: File, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).uploadGalleryImage(file, options).then((request) => request(this.axios, this.basePath));
+    public uploadGalleryImage(requestParameters: FilesApiUploadGalleryImageRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).uploadGalleryImage(requestParameters.file, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Upload an icon
      * @summary Upload icon
-     * @param {File} file The binary blob of the png file.
+     * @param {FilesApiUploadIconRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public uploadIcon(file: File, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).uploadIcon(file, options).then((request) => request(this.axios, this.basePath));
+    public uploadIcon(requestParameters: FilesApiUploadIconRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).uploadIcon(requestParameters.file, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Upload an image, which can be an icon, gallery image, sticker or emoji
      * @summary Upload gallery image, icon, emoji or sticker
-     * @param {File} file The binary blob of the png file.
-     * @param {string} tag Needs to be either icon, gallery, sticker, emoji, or emojianimated
-     * @param {number} [frames] Required for emojianimated. Total number of frames to be animated (2-64)
-     * @param {number} [framesOverTime] Required for emojianimated. Animation frames per second (1-64)
-     * @param {string} [animationStyle] Animation style for sticker, required for emoji.
-     * @param {string} [maskTag] Mask of the sticker, optional for emoji.
+     * @param {FilesApiUploadImageRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FilesApi
      */
-    public uploadImage(file: File, tag: string, frames?: number, framesOverTime?: number, animationStyle?: string, maskTag?: string, options?: RawAxiosRequestConfig) {
-        return FilesApiFp(this.configuration).uploadImage(file, tag, frames, framesOverTime, animationStyle, maskTag, options).then((request) => request(this.axios, this.basePath));
+    public uploadImage(requestParameters: FilesApiUploadImageRequest, options?: RawAxiosRequestConfig) {
+        return FilesApiFp(this.configuration).uploadImage(requestParameters.file, requestParameters.tag, requestParameters.frames, requestParameters.framesOverTime, requestParameters.animationStyle, requestParameters.maskTag, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -18811,57 +20110,139 @@ export const FriendsApiFactory = function (configuration?: Configuration, basePa
         /**
          * Deletes an outgoing pending friend request to another user. To delete an incoming friend request, use the `deleteNotification` endpoint instead.
          * @summary Delete Friend Request
-         * @param {string} userId Must be a valid user ID.
+         * @param {FriendsApiDeleteFriendRequestRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteFriendRequest(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
-            return localVarFp.deleteFriendRequest(userId, options).then((request) => request(axios, basePath));
+        deleteFriendRequest(requestParameters: FriendsApiDeleteFriendRequestRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
+            return localVarFp.deleteFriendRequest(requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Send a friend request to another user.
          * @summary Send Friend Request
-         * @param {string} userId Must be a valid user ID.
+         * @param {FriendsApiFriendRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        friend(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
-            return localVarFp.friend(userId, options).then((request) => request(axios, basePath));
+        friend(requestParameters: FriendsApiFriendRequest, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
+            return localVarFp.friend(requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Retrieve if the user is currently a friend with a given user, if they have an outgoing friend request, and if they have an incoming friend request. The proper way to receive and accept friend request is by checking if the user has an incoming `Notification` of type `friendRequest`, and then accepting that notification.
          * @summary Check Friend Status
-         * @param {string} userId Must be a valid user ID.
+         * @param {FriendsApiGetFriendStatusRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFriendStatus(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<FriendStatus> {
-            return localVarFp.getFriendStatus(userId, options).then((request) => request(axios, basePath));
+        getFriendStatus(requestParameters: FriendsApiGetFriendStatusRequest, options?: RawAxiosRequestConfig): AxiosPromise<FriendStatus> {
+            return localVarFp.getFriendStatus(requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * List information about friends.
          * @summary List Friends
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {number} [n] The number of objects to return.
-         * @param {boolean} [offline] Returns *only* offline users if true, returns only online and active users if false
+         * @param {FriendsApiGetFriendsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFriends(offset?: number, n?: number, offline?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<LimitedUserFriend>> {
-            return localVarFp.getFriends(offset, n, offline, options).then((request) => request(axios, basePath));
+        getFriends(requestParameters: FriendsApiGetFriendsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<LimitedUserFriend>> {
+            return localVarFp.getFriends(requestParameters.offset, requestParameters.n, requestParameters.offline, options).then((request) => request(axios, basePath));
         },
         /**
          * Unfriend a user by ID.
          * @summary Unfriend
-         * @param {string} userId Must be a valid user ID.
+         * @param {FriendsApiUnfriendRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        unfriend(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
-            return localVarFp.unfriend(userId, options).then((request) => request(axios, basePath));
+        unfriend(requestParameters: FriendsApiUnfriendRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
+            return localVarFp.unfriend(requestParameters.userId, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for deleteFriendRequest operation in FriendsApi.
+ * @export
+ * @interface FriendsApiDeleteFriendRequestRequest
+ */
+export interface FriendsApiDeleteFriendRequestRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof FriendsApiDeleteFriendRequest
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for friend operation in FriendsApi.
+ * @export
+ * @interface FriendsApiFriendRequest
+ */
+export interface FriendsApiFriendRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof FriendsApiFriend
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for getFriendStatus operation in FriendsApi.
+ * @export
+ * @interface FriendsApiGetFriendStatusRequest
+ */
+export interface FriendsApiGetFriendStatusRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof FriendsApiGetFriendStatus
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for getFriends operation in FriendsApi.
+ * @export
+ * @interface FriendsApiGetFriendsRequest
+ */
+export interface FriendsApiGetFriendsRequest {
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof FriendsApiGetFriends
+     */
+    readonly offset?: number
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof FriendsApiGetFriends
+     */
+    readonly n?: number
+
+    /**
+     * Returns *only* offline users if true, returns only online and active users if false
+     * @type {boolean}
+     * @memberof FriendsApiGetFriends
+     */
+    readonly offline?: boolean
+}
+
+/**
+ * Request parameters for unfriend operation in FriendsApi.
+ * @export
+ * @interface FriendsApiUnfriendRequest
+ */
+export interface FriendsApiUnfriendRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof FriendsApiUnfriend
+     */
+    readonly userId: string
+}
 
 /**
  * FriendsApi - object-oriented interface
@@ -18873,63 +20254,61 @@ export class FriendsApi extends BaseAPI {
     /**
      * Deletes an outgoing pending friend request to another user. To delete an incoming friend request, use the `deleteNotification` endpoint instead.
      * @summary Delete Friend Request
-     * @param {string} userId Must be a valid user ID.
+     * @param {FriendsApiDeleteFriendRequestRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FriendsApi
      */
-    public deleteFriendRequest(userId: string, options?: RawAxiosRequestConfig) {
-        return FriendsApiFp(this.configuration).deleteFriendRequest(userId, options).then((request) => request(this.axios, this.basePath));
+    public deleteFriendRequest(requestParameters: FriendsApiDeleteFriendRequestRequest, options?: RawAxiosRequestConfig) {
+        return FriendsApiFp(this.configuration).deleteFriendRequest(requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Send a friend request to another user.
      * @summary Send Friend Request
-     * @param {string} userId Must be a valid user ID.
+     * @param {FriendsApiFriendRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FriendsApi
      */
-    public friend(userId: string, options?: RawAxiosRequestConfig) {
-        return FriendsApiFp(this.configuration).friend(userId, options).then((request) => request(this.axios, this.basePath));
+    public friend(requestParameters: FriendsApiFriendRequest, options?: RawAxiosRequestConfig) {
+        return FriendsApiFp(this.configuration).friend(requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Retrieve if the user is currently a friend with a given user, if they have an outgoing friend request, and if they have an incoming friend request. The proper way to receive and accept friend request is by checking if the user has an incoming `Notification` of type `friendRequest`, and then accepting that notification.
      * @summary Check Friend Status
-     * @param {string} userId Must be a valid user ID.
+     * @param {FriendsApiGetFriendStatusRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FriendsApi
      */
-    public getFriendStatus(userId: string, options?: RawAxiosRequestConfig) {
-        return FriendsApiFp(this.configuration).getFriendStatus(userId, options).then((request) => request(this.axios, this.basePath));
+    public getFriendStatus(requestParameters: FriendsApiGetFriendStatusRequest, options?: RawAxiosRequestConfig) {
+        return FriendsApiFp(this.configuration).getFriendStatus(requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * List information about friends.
      * @summary List Friends
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {number} [n] The number of objects to return.
-     * @param {boolean} [offline] Returns *only* offline users if true, returns only online and active users if false
+     * @param {FriendsApiGetFriendsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FriendsApi
      */
-    public getFriends(offset?: number, n?: number, offline?: boolean, options?: RawAxiosRequestConfig) {
-        return FriendsApiFp(this.configuration).getFriends(offset, n, offline, options).then((request) => request(this.axios, this.basePath));
+    public getFriends(requestParameters: FriendsApiGetFriendsRequest = {}, options?: RawAxiosRequestConfig) {
+        return FriendsApiFp(this.configuration).getFriends(requestParameters.offset, requestParameters.n, requestParameters.offline, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Unfriend a user by ID.
      * @summary Unfriend
-     * @param {string} userId Must be a valid user ID.
+     * @param {FriendsApiUnfriendRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof FriendsApi
      */
-    public unfriend(userId: string, options?: RawAxiosRequestConfig) {
-        return FriendsApiFp(this.configuration).unfriend(userId, options).then((request) => request(this.axios, this.basePath));
+    public unfriend(requestParameters: FriendsApiUnfriendRequest, options?: RawAxiosRequestConfig) {
+        return FriendsApiFp(this.configuration).unfriend(requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -21472,335 +22851,292 @@ export const GroupsApiFactory = function (configuration?: Configuration, basePat
         /**
          * Adds an image to a Group gallery.
          * @summary Add Group Gallery Image
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} groupGalleryId Must be a valid group gallery ID.
-         * @param {AddGroupGalleryImageRequest} addGroupGalleryImageRequest 
+         * @param {GroupsApiAddGroupGalleryImageRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addGroupGalleryImage(groupId: string, groupGalleryId: string, addGroupGalleryImageRequest: AddGroupGalleryImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupGalleryImage> {
-            return localVarFp.addGroupGalleryImage(groupId, groupGalleryId, addGroupGalleryImageRequest, options).then((request) => request(axios, basePath));
+        addGroupGalleryImage(requestParameters: GroupsApiAddGroupGalleryImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupGalleryImage> {
+            return localVarFp.addGroupGalleryImage(requestParameters.groupId, requestParameters.groupGalleryId, requestParameters.addGroupGalleryImageRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Adds a Role to a Group Member
          * @summary Add Role to GroupMember
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} userId Must be a valid user ID.
-         * @param {string} groupRoleId Must be a valid group role ID.
+         * @param {GroupsApiAddGroupMemberRoleRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addGroupMemberRole(groupId: string, userId: string, groupRoleId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
-            return localVarFp.addGroupMemberRole(groupId, userId, groupRoleId, options).then((request) => request(axios, basePath));
+        addGroupMemberRole(requestParameters: GroupsApiAddGroupMemberRoleRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
+            return localVarFp.addGroupMemberRole(requestParameters.groupId, requestParameters.userId, requestParameters.groupRoleId, options).then((request) => request(axios, basePath));
         },
         /**
          * Create a post in a Group.
          * @summary Create a post in a Group
-         * @param {string} groupId Must be a valid group ID.
-         * @param {CreateGroupPostRequest} createGroupPostRequest 
+         * @param {GroupsApiAddGroupPostRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addGroupPost(groupId: string, createGroupPostRequest: CreateGroupPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupPost> {
-            return localVarFp.addGroupPost(groupId, createGroupPostRequest, options).then((request) => request(axios, basePath));
+        addGroupPost(requestParameters: GroupsApiAddGroupPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupPost> {
+            return localVarFp.addGroupPost(requestParameters.groupId, requestParameters.createGroupPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Bans a user from a Group.
          * @summary Ban Group Member
-         * @param {string} groupId Must be a valid group ID.
-         * @param {BanGroupMemberRequest} banGroupMemberRequest 
+         * @param {GroupsApiBanGroupMemberRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        banGroupMember(groupId: string, banGroupMemberRequest: BanGroupMemberRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupMember> {
-            return localVarFp.banGroupMember(groupId, banGroupMemberRequest, options).then((request) => request(axios, basePath));
+        banGroupMember(requestParameters: GroupsApiBanGroupMemberRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupMember> {
+            return localVarFp.banGroupMember(requestParameters.groupId, requestParameters.banGroupMemberRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Cancels a request sent to join the group.
          * @summary Cancel Group Join Request
-         * @param {string} groupId Must be a valid group ID.
+         * @param {GroupsApiCancelGroupRequestRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        cancelGroupRequest(groupId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.cancelGroupRequest(groupId, options).then((request) => request(axios, basePath));
+        cancelGroupRequest(requestParameters: GroupsApiCancelGroupRequestRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.cancelGroupRequest(requestParameters.groupId, options).then((request) => request(axios, basePath));
         },
         /**
          * Creates a Group and returns a Group object. **Requires VRC+ Subscription.**
          * @summary Create Group
-         * @param {CreateGroupRequest} createGroupRequest 
+         * @param {GroupsApiCreateGroupRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createGroup(createGroupRequest: CreateGroupRequest, options?: RawAxiosRequestConfig): AxiosPromise<Group> {
-            return localVarFp.createGroup(createGroupRequest, options).then((request) => request(axios, basePath));
+        createGroup(requestParameters: GroupsApiCreateGroupRequest, options?: RawAxiosRequestConfig): AxiosPromise<Group> {
+            return localVarFp.createGroup(requestParameters.createGroupRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Creates an Announcement for a Group. Warning: This will also remove all announcements. To make proper announcements, use the posts endpoint instead
          * @summary Create Group Announcement
-         * @param {string} groupId Must be a valid group ID.
-         * @param {CreateGroupAnnouncementRequest} createGroupAnnouncementRequest 
+         * @param {GroupsApiCreateGroupAnnouncementRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createGroupAnnouncement(groupId: string, createGroupAnnouncementRequest: CreateGroupAnnouncementRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupAnnouncement> {
-            return localVarFp.createGroupAnnouncement(groupId, createGroupAnnouncementRequest, options).then((request) => request(axios, basePath));
+        createGroupAnnouncement(requestParameters: GroupsApiCreateGroupAnnouncementRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupAnnouncement> {
+            return localVarFp.createGroupAnnouncement(requestParameters.groupId, requestParameters.createGroupAnnouncementRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Creates a gallery for a Group.
          * @summary Create Group Gallery
-         * @param {string} groupId Must be a valid group ID.
-         * @param {CreateGroupGalleryRequest} createGroupGalleryRequest 
+         * @param {GroupsApiCreateGroupGalleryRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createGroupGallery(groupId: string, createGroupGalleryRequest: CreateGroupGalleryRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupGallery> {
-            return localVarFp.createGroupGallery(groupId, createGroupGalleryRequest, options).then((request) => request(axios, basePath));
+        createGroupGallery(requestParameters: GroupsApiCreateGroupGalleryRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupGallery> {
+            return localVarFp.createGroupGallery(requestParameters.groupId, requestParameters.createGroupGalleryRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Sends an invite to a user to join the group.
          * @summary Invite User to Group
-         * @param {string} groupId Must be a valid group ID.
-         * @param {CreateGroupInviteRequest} createGroupInviteRequest 
+         * @param {GroupsApiCreateGroupInviteRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createGroupInvite(groupId: string, createGroupInviteRequest: CreateGroupInviteRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.createGroupInvite(groupId, createGroupInviteRequest, options).then((request) => request(axios, basePath));
+        createGroupInvite(requestParameters: GroupsApiCreateGroupInviteRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.createGroupInvite(requestParameters.groupId, requestParameters.createGroupInviteRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Create a Group role.
          * @summary Create GroupRole
-         * @param {string} groupId Must be a valid group ID.
-         * @param {CreateGroupRoleRequest} createGroupRoleRequest 
+         * @param {GroupsApiCreateGroupRoleRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createGroupRole(groupId: string, createGroupRoleRequest: CreateGroupRoleRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupRole> {
-            return localVarFp.createGroupRole(groupId, createGroupRoleRequest, options).then((request) => request(axios, basePath));
+        createGroupRole(requestParameters: GroupsApiCreateGroupRoleRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupRole> {
+            return localVarFp.createGroupRole(requestParameters.groupId, requestParameters.createGroupRoleRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Deletes a Group.
          * @summary Delete Group
-         * @param {string} groupId Must be a valid group ID.
+         * @param {GroupsApiDeleteGroupRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteGroup(groupId: string, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
-            return localVarFp.deleteGroup(groupId, options).then((request) => request(axios, basePath));
+        deleteGroup(requestParameters: GroupsApiDeleteGroupRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
+            return localVarFp.deleteGroup(requestParameters.groupId, options).then((request) => request(axios, basePath));
         },
         /**
          * Deletes the announcement for a Group.
          * @summary Delete Group Announcement
-         * @param {string} groupId Must be a valid group ID.
+         * @param {GroupsApiDeleteGroupAnnouncementRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteGroupAnnouncement(groupId: string, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
-            return localVarFp.deleteGroupAnnouncement(groupId, options).then((request) => request(axios, basePath));
+        deleteGroupAnnouncement(requestParameters: GroupsApiDeleteGroupAnnouncementRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
+            return localVarFp.deleteGroupAnnouncement(requestParameters.groupId, options).then((request) => request(axios, basePath));
         },
         /**
          * Deletes a gallery for a Group.
          * @summary Delete Group Gallery
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} groupGalleryId Must be a valid group gallery ID.
+         * @param {GroupsApiDeleteGroupGalleryRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteGroupGallery(groupId: string, groupGalleryId: string, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
-            return localVarFp.deleteGroupGallery(groupId, groupGalleryId, options).then((request) => request(axios, basePath));
+        deleteGroupGallery(requestParameters: GroupsApiDeleteGroupGalleryRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
+            return localVarFp.deleteGroupGallery(requestParameters.groupId, requestParameters.groupGalleryId, options).then((request) => request(axios, basePath));
         },
         /**
          * Deletes an image from a Group gallery.
          * @summary Delete Group Gallery Image
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} groupGalleryId Must be a valid group gallery ID.
-         * @param {string} groupGalleryImageId Must be a valid group gallery image ID.
+         * @param {GroupsApiDeleteGroupGalleryImageRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteGroupGalleryImage(groupId: string, groupGalleryId: string, groupGalleryImageId: string, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
-            return localVarFp.deleteGroupGalleryImage(groupId, groupGalleryId, groupGalleryImageId, options).then((request) => request(axios, basePath));
+        deleteGroupGalleryImage(requestParameters: GroupsApiDeleteGroupGalleryImageRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
+            return localVarFp.deleteGroupGalleryImage(requestParameters.groupId, requestParameters.groupGalleryId, requestParameters.groupGalleryImageId, options).then((request) => request(axios, basePath));
         },
         /**
          * Deletes an Group invite sent to a User
          * @summary Delete User Invite
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} userId Must be a valid user ID.
+         * @param {GroupsApiDeleteGroupInviteRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteGroupInvite(groupId: string, userId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteGroupInvite(groupId, userId, options).then((request) => request(axios, basePath));
+        deleteGroupInvite(requestParameters: GroupsApiDeleteGroupInviteRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteGroupInvite(requestParameters.groupId, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Delete a Group post
          * @summary Delete a Group post
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} notificationId Must be a valid notification ID.
+         * @param {GroupsApiDeleteGroupPostRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteGroupPost(groupId: string, notificationId: string, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
-            return localVarFp.deleteGroupPost(groupId, notificationId, options).then((request) => request(axios, basePath));
+        deleteGroupPost(requestParameters: GroupsApiDeleteGroupPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
+            return localVarFp.deleteGroupPost(requestParameters.groupId, requestParameters.notificationId, options).then((request) => request(axios, basePath));
         },
         /**
          * Deletes a Group Role by ID and returns the remaining roles.
          * @summary Delete Group Role
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} groupRoleId Must be a valid group role ID.
+         * @param {GroupsApiDeleteGroupRoleRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteGroupRole(groupId: string, groupRoleId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupRole>> {
-            return localVarFp.deleteGroupRole(groupId, groupRoleId, options).then((request) => request(axios, basePath));
+        deleteGroupRole(requestParameters: GroupsApiDeleteGroupRoleRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupRole>> {
+            return localVarFp.deleteGroupRole(requestParameters.groupId, requestParameters.groupRoleId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a single Group by ID.
          * @summary Get Group by ID
-         * @param {string} groupId Must be a valid group ID.
-         * @param {boolean} [includeRoles] Include roles for the Group object. Defaults to false.
+         * @param {GroupsApiGetGroupRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroup(groupId: string, includeRoles?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Group> {
-            return localVarFp.getGroup(groupId, includeRoles, options).then((request) => request(axios, basePath));
+        getGroup(requestParameters: GroupsApiGetGroupRequest, options?: RawAxiosRequestConfig): AxiosPromise<Group> {
+            return localVarFp.getGroup(requestParameters.groupId, requestParameters.includeRoles, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns the announcement for a Group. If no announcement has been made, then it returns **empty object**.  If an announcement exists, then it will always return all fields except `imageId` and `imageUrl` which may be null.
          * @summary Get Group Announcement
-         * @param {string} groupId Must be a valid group ID.
+         * @param {GroupsApiGetGroupAnnouncementsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupAnnouncements(groupId: string, options?: RawAxiosRequestConfig): AxiosPromise<GroupAnnouncement> {
-            return localVarFp.getGroupAnnouncements(groupId, options).then((request) => request(axios, basePath));
+        getGroupAnnouncements(requestParameters: GroupsApiGetGroupAnnouncementsRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupAnnouncement> {
+            return localVarFp.getGroupAnnouncements(requestParameters.groupId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a list of audit logs for a Group.
          * @summary Get Group Audit Logs
-         * @param {string} groupId Must be a valid group ID.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {string} [startDate] The start date of the search range.
-         * @param {string} [endDate] The end date of the search range.
-         * @param {string} [actorIds] The comma-separated actor ids to search for.
-         * @param {string} [eventTypes] The comma-separated event types to search for.
-         * @param {string} [targetIds] The comma-separated target ids to search for.
+         * @param {GroupsApiGetGroupAuditLogsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupAuditLogs(groupId: string, n?: number, offset?: number, startDate?: string, endDate?: string, actorIds?: string, eventTypes?: string, targetIds?: string, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedGroupAuditLogEntryList> {
-            return localVarFp.getGroupAuditLogs(groupId, n, offset, startDate, endDate, actorIds, eventTypes, targetIds, options).then((request) => request(axios, basePath));
+        getGroupAuditLogs(requestParameters: GroupsApiGetGroupAuditLogsRequest, options?: RawAxiosRequestConfig): AxiosPromise<PaginatedGroupAuditLogEntryList> {
+            return localVarFp.getGroupAuditLogs(requestParameters.groupId, requestParameters.n, requestParameters.offset, requestParameters.startDate, requestParameters.endDate, requestParameters.actorIds, requestParameters.eventTypes, requestParameters.targetIds, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a list of banned users for a Group.
          * @summary Get Group Bans
-         * @param {string} groupId Must be a valid group ID.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+         * @param {GroupsApiGetGroupBansRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupBans(groupId: string, n?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupMember>> {
-            return localVarFp.getGroupBans(groupId, n, offset, options).then((request) => request(axios, basePath));
+        getGroupBans(requestParameters: GroupsApiGetGroupBansRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupMember>> {
+            return localVarFp.getGroupBans(requestParameters.groupId, requestParameters.n, requestParameters.offset, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a list of images for a Group gallery.
          * @summary Get Group Gallery Images
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} groupGalleryId Must be a valid group gallery ID.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {boolean} [approved] If specified, only returns images that have been approved or not approved.
+         * @param {GroupsApiGetGroupGalleryImagesRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupGalleryImages(groupId: string, groupGalleryId: string, n?: number, offset?: number, approved?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupGalleryImage>> {
-            return localVarFp.getGroupGalleryImages(groupId, groupGalleryId, n, offset, approved, options).then((request) => request(axios, basePath));
+        getGroupGalleryImages(requestParameters: GroupsApiGetGroupGalleryImagesRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupGalleryImage>> {
+            return localVarFp.getGroupGalleryImages(requestParameters.groupId, requestParameters.groupGalleryId, requestParameters.n, requestParameters.offset, requestParameters.approved, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a list of group instances
          * @summary Get Group Instances
-         * @param {string} groupId Must be a valid group ID.
+         * @param {GroupsApiGetGroupInstancesRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupInstances(groupId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupInstance>> {
-            return localVarFp.getGroupInstances(groupId, options).then((request) => request(axios, basePath));
+        getGroupInstances(requestParameters: GroupsApiGetGroupInstancesRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupInstance>> {
+            return localVarFp.getGroupInstances(requestParameters.groupId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a list of members that have been invited to the Group.
          * @summary Get Group Invites Sent
-         * @param {string} groupId Must be a valid group ID.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+         * @param {GroupsApiGetGroupInvitesRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupInvites(groupId: string, n?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupMember>> {
-            return localVarFp.getGroupInvites(groupId, n, offset, options).then((request) => request(axios, basePath));
+        getGroupInvites(requestParameters: GroupsApiGetGroupInvitesRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupMember>> {
+            return localVarFp.getGroupInvites(requestParameters.groupId, requestParameters.n, requestParameters.offset, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a LimitedGroup Member.
          * @summary Get Group Member
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} userId Must be a valid user ID.
+         * @param {GroupsApiGetGroupMemberRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupMember(groupId: string, userId: string, options?: RawAxiosRequestConfig): AxiosPromise<GroupLimitedMember> {
-            return localVarFp.getGroupMember(groupId, userId, options).then((request) => request(axios, basePath));
+        getGroupMember(requestParameters: GroupsApiGetGroupMemberRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupLimitedMember> {
+            return localVarFp.getGroupMember(requestParameters.groupId, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a List of all **other** Group Members. This endpoint will never return the user calling the endpoint. Information about the user calling the endpoint must be found in the `myMember` field of the Group object.
          * @summary List Group Members
-         * @param {string} groupId Must be a valid group ID.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {GroupSearchSort} [sort] The sort order of Group Member results
-         * @param {string} [roleId] Only returns members with a specific groupRoleId
+         * @param {GroupsApiGetGroupMembersRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupMembers(groupId: string, n?: number, offset?: number, sort?: GroupSearchSort, roleId?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupMember>> {
-            return localVarFp.getGroupMembers(groupId, n, offset, sort, roleId, options).then((request) => request(axios, basePath));
+        getGroupMembers(requestParameters: GroupsApiGetGroupMembersRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupMember>> {
+            return localVarFp.getGroupMembers(requestParameters.groupId, requestParameters.n, requestParameters.offset, requestParameters.sort, requestParameters.roleId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a List of all possible/available permissions for a Group.
          * @summary List Group Permissions
-         * @param {string} groupId Must be a valid group ID.
+         * @param {GroupsApiGetGroupPermissionsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupPermissions(groupId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupPermission>> {
-            return localVarFp.getGroupPermissions(groupId, options).then((request) => request(axios, basePath));
+        getGroupPermissions(requestParameters: GroupsApiGetGroupPermissionsRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupPermission>> {
+            return localVarFp.getGroupPermissions(requestParameters.groupId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get posts from a Group
          * @summary Get posts from a Group
-         * @param {string} groupId Must be a valid group ID.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {boolean} [publicOnly] See public posts only.
+         * @param {GroupsApiGetGroupPostsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupPosts(groupId: string, n?: number, offset?: number, publicOnly?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<InlineObject> {
-            return localVarFp.getGroupPosts(groupId, n, offset, publicOnly, options).then((request) => request(axios, basePath));
+        getGroupPosts(requestParameters: GroupsApiGetGroupPostsRequest, options?: RawAxiosRequestConfig): AxiosPromise<InlineObject> {
+            return localVarFp.getGroupPosts(requestParameters.groupId, requestParameters.n, requestParameters.offset, requestParameters.publicOnly, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a list of members that have requested to join the Group.
          * @summary Get Group Join Requests
-         * @param {string} groupId Must be a valid group ID.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {boolean} [blocked] See blocked join requests
+         * @param {GroupsApiGetGroupRequestsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupRequests(groupId: string, n?: number, offset?: number, blocked?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupMember>> {
-            return localVarFp.getGroupRequests(groupId, n, offset, blocked, options).then((request) => request(axios, basePath));
+        getGroupRequests(requestParameters: GroupsApiGetGroupRequestsRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupMember>> {
+            return localVarFp.getGroupRequests(requestParameters.groupId, requestParameters.n, requestParameters.offset, requestParameters.blocked, options).then((request) => request(axios, basePath));
         },
         /**
          * Obtain predefined templates for group roles
@@ -21814,163 +23150,1174 @@ export const GroupsApiFactory = function (configuration?: Configuration, basePat
         /**
          * Returns a Group Role by ID.
          * @summary Get Group Roles
-         * @param {string} groupId Must be a valid group ID.
+         * @param {GroupsApiGetGroupRolesRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupRoles(groupId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupRole>> {
-            return localVarFp.getGroupRoles(groupId, options).then((request) => request(axios, basePath));
+        getGroupRoles(requestParameters: GroupsApiGetGroupRolesRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupRole>> {
+            return localVarFp.getGroupRoles(requestParameters.groupId, options).then((request) => request(axios, basePath));
         },
         /**
          * Join a Group by ID and returns the member object.
          * @summary Join Group
-         * @param {string} groupId Must be a valid group ID.
+         * @param {GroupsApiJoinGroupRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        joinGroup(groupId: string, options?: RawAxiosRequestConfig): AxiosPromise<GroupMember> {
-            return localVarFp.joinGroup(groupId, options).then((request) => request(axios, basePath));
+        joinGroup(requestParameters: GroupsApiJoinGroupRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupMember> {
+            return localVarFp.joinGroup(requestParameters.groupId, options).then((request) => request(axios, basePath));
         },
         /**
          * Kicks a Group Member from the Group. The current user must have the \"Remove Group Members\" permission.
          * @summary Kick Group Member
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} userId Must be a valid user ID.
+         * @param {GroupsApiKickGroupMemberRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        kickGroupMember(groupId: string, userId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.kickGroupMember(groupId, userId, options).then((request) => request(axios, basePath));
+        kickGroupMember(requestParameters: GroupsApiKickGroupMemberRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.kickGroupMember(requestParameters.groupId, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Leave a group by ID.
          * @summary Leave Group
-         * @param {string} groupId Must be a valid group ID.
+         * @param {GroupsApiLeaveGroupRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        leaveGroup(groupId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.leaveGroup(groupId, options).then((request) => request(axios, basePath));
+        leaveGroup(requestParameters: GroupsApiLeaveGroupRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.leaveGroup(requestParameters.groupId, options).then((request) => request(axios, basePath));
         },
         /**
          * Removes a Role from a Group Member
          * @summary Remove Role from GroupMember
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} userId Must be a valid user ID.
-         * @param {string} groupRoleId Must be a valid group role ID.
+         * @param {GroupsApiRemoveGroupMemberRoleRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        removeGroupMemberRole(groupId: string, userId: string, groupRoleId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
-            return localVarFp.removeGroupMemberRole(groupId, userId, groupRoleId, options).then((request) => request(axios, basePath));
+        removeGroupMemberRole(requestParameters: GroupsApiRemoveGroupMemberRoleRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<string>> {
+            return localVarFp.removeGroupMemberRole(requestParameters.groupId, requestParameters.userId, requestParameters.groupRoleId, options).then((request) => request(axios, basePath));
         },
         /**
          * Responds to a Group Join Request with Accept/Deny
          * @summary Respond Group Join request
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} userId Must be a valid user ID.
-         * @param {RespondGroupJoinRequest} respondGroupJoinRequest 
+         * @param {GroupsApiRespondGroupJoinRequestRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        respondGroupJoinRequest(groupId: string, userId: string, respondGroupJoinRequest: RespondGroupJoinRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.respondGroupJoinRequest(groupId, userId, respondGroupJoinRequest, options).then((request) => request(axios, basePath));
+        respondGroupJoinRequest(requestParameters: GroupsApiRespondGroupJoinRequestRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.respondGroupJoinRequest(requestParameters.groupId, requestParameters.userId, requestParameters.respondGroupJoinRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Searches Groups by name or shortCode
          * @summary Search Group
-         * @param {string} [query] Query to search for, can be either Group Name or Group shortCode
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {number} [n] The number of objects to return.
+         * @param {GroupsApiSearchGroupsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchGroups(query?: string, offset?: number, n?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<LimitedGroup>> {
-            return localVarFp.searchGroups(query, offset, n, options).then((request) => request(axios, basePath));
+        searchGroups(requestParameters: GroupsApiSearchGroupsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<LimitedGroup>> {
+            return localVarFp.searchGroups(requestParameters.query, requestParameters.offset, requestParameters.n, options).then((request) => request(axios, basePath));
         },
         /**
          * Unbans a user from a Group.
          * @summary Unban Group Member
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} userId Must be a valid user ID.
+         * @param {GroupsApiUnbanGroupMemberRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        unbanGroupMember(groupId: string, userId: string, options?: RawAxiosRequestConfig): AxiosPromise<GroupMember> {
-            return localVarFp.unbanGroupMember(groupId, userId, options).then((request) => request(axios, basePath));
+        unbanGroupMember(requestParameters: GroupsApiUnbanGroupMemberRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupMember> {
+            return localVarFp.unbanGroupMember(requestParameters.groupId, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Updates a Group and returns it.
          * @summary Update Group
-         * @param {string} groupId Must be a valid group ID.
-         * @param {UpdateGroupRequest} [updateGroupRequest] 
+         * @param {GroupsApiUpdateGroupRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateGroup(groupId: string, updateGroupRequest?: UpdateGroupRequest, options?: RawAxiosRequestConfig): AxiosPromise<Group> {
-            return localVarFp.updateGroup(groupId, updateGroupRequest, options).then((request) => request(axios, basePath));
+        updateGroup(requestParameters: GroupsApiUpdateGroupRequest, options?: RawAxiosRequestConfig): AxiosPromise<Group> {
+            return localVarFp.updateGroup(requestParameters.groupId, requestParameters.updateGroupRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Updates a gallery for a Group.
          * @summary Update Group Gallery
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} groupGalleryId Must be a valid group gallery ID.
-         * @param {UpdateGroupGalleryRequest} [updateGroupGalleryRequest] 
+         * @param {GroupsApiUpdateGroupGalleryRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateGroupGallery(groupId: string, groupGalleryId: string, updateGroupGalleryRequest?: UpdateGroupGalleryRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupGallery> {
-            return localVarFp.updateGroupGallery(groupId, groupGalleryId, updateGroupGalleryRequest, options).then((request) => request(axios, basePath));
+        updateGroupGallery(requestParameters: GroupsApiUpdateGroupGalleryRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupGallery> {
+            return localVarFp.updateGroupGallery(requestParameters.groupId, requestParameters.groupGalleryId, requestParameters.updateGroupGalleryRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Updates a Group Member
          * @summary Update Group Member
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} userId Must be a valid user ID.
-         * @param {UpdateGroupMemberRequest} [updateGroupMemberRequest] 
+         * @param {GroupsApiUpdateGroupMemberRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateGroupMember(groupId: string, userId: string, updateGroupMemberRequest?: UpdateGroupMemberRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupLimitedMember> {
-            return localVarFp.updateGroupMember(groupId, userId, updateGroupMemberRequest, options).then((request) => request(axios, basePath));
+        updateGroupMember(requestParameters: GroupsApiUpdateGroupMemberRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupLimitedMember> {
+            return localVarFp.updateGroupMember(requestParameters.groupId, requestParameters.userId, requestParameters.updateGroupMemberRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Edits a Group post
          * @summary Edits a Group post
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} notificationId Must be a valid notification ID.
-         * @param {CreateGroupPostRequest} createGroupPostRequest 
+         * @param {GroupsApiUpdateGroupPostRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateGroupPost(groupId: string, notificationId: string, createGroupPostRequest: CreateGroupPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupPost> {
-            return localVarFp.updateGroupPost(groupId, notificationId, createGroupPostRequest, options).then((request) => request(axios, basePath));
+        updateGroupPost(requestParameters: GroupsApiUpdateGroupPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupPost> {
+            return localVarFp.updateGroupPost(requestParameters.groupId, requestParameters.notificationId, requestParameters.createGroupPostRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Updates whether the user is representing the group.  When `isRepresenting` is set to `true`, this flag will be set to `false` for all other groups
          * @summary Update Group Representation
-         * @param {string} groupId Must be a valid group ID.
-         * @param {UpdateGroupRepresentationRequest} updateGroupRepresentationRequest 
+         * @param {GroupsApiUpdateGroupRepresentationRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateGroupRepresentation(groupId: string, updateGroupRepresentationRequest: UpdateGroupRepresentationRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
-            return localVarFp.updateGroupRepresentation(groupId, updateGroupRepresentationRequest, options).then((request) => request(axios, basePath));
+        updateGroupRepresentation(requestParameters: GroupsApiUpdateGroupRepresentationRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
+            return localVarFp.updateGroupRepresentation(requestParameters.groupId, requestParameters.updateGroupRepresentationRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Updates a group role by ID.
          * @summary Update Group Role
-         * @param {string} groupId Must be a valid group ID.
-         * @param {string} groupRoleId Must be a valid group role ID.
-         * @param {UpdateGroupRoleRequest} [updateGroupRoleRequest] 
+         * @param {GroupsApiUpdateGroupRoleRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateGroupRole(groupId: string, groupRoleId: string, updateGroupRoleRequest?: UpdateGroupRoleRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupRole>> {
-            return localVarFp.updateGroupRole(groupId, groupRoleId, updateGroupRoleRequest, options).then((request) => request(axios, basePath));
+        updateGroupRole(requestParameters: GroupsApiUpdateGroupRoleRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<GroupRole>> {
+            return localVarFp.updateGroupRole(requestParameters.groupId, requestParameters.groupRoleId, requestParameters.updateGroupRoleRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for addGroupGalleryImage operation in GroupsApi.
+ * @export
+ * @interface GroupsApiAddGroupGalleryImageRequest
+ */
+export interface GroupsApiAddGroupGalleryImageRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiAddGroupGalleryImage
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid group gallery ID.
+     * @type {string}
+     * @memberof GroupsApiAddGroupGalleryImage
+     */
+    readonly groupGalleryId: string
+
+    /**
+     * 
+     * @type {AddGroupGalleryImageRequest}
+     * @memberof GroupsApiAddGroupGalleryImage
+     */
+    readonly addGroupGalleryImageRequest: AddGroupGalleryImageRequest
+}
+
+/**
+ * Request parameters for addGroupMemberRole operation in GroupsApi.
+ * @export
+ * @interface GroupsApiAddGroupMemberRoleRequest
+ */
+export interface GroupsApiAddGroupMemberRoleRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiAddGroupMemberRole
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof GroupsApiAddGroupMemberRole
+     */
+    readonly userId: string
+
+    /**
+     * Must be a valid group role ID.
+     * @type {string}
+     * @memberof GroupsApiAddGroupMemberRole
+     */
+    readonly groupRoleId: string
+}
+
+/**
+ * Request parameters for addGroupPost operation in GroupsApi.
+ * @export
+ * @interface GroupsApiAddGroupPostRequest
+ */
+export interface GroupsApiAddGroupPostRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiAddGroupPost
+     */
+    readonly groupId: string
+
+    /**
+     * 
+     * @type {CreateGroupPostRequest}
+     * @memberof GroupsApiAddGroupPost
+     */
+    readonly createGroupPostRequest: CreateGroupPostRequest
+}
+
+/**
+ * Request parameters for banGroupMember operation in GroupsApi.
+ * @export
+ * @interface GroupsApiBanGroupMemberRequest
+ */
+export interface GroupsApiBanGroupMemberRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiBanGroupMember
+     */
+    readonly groupId: string
+
+    /**
+     * 
+     * @type {BanGroupMemberRequest}
+     * @memberof GroupsApiBanGroupMember
+     */
+    readonly banGroupMemberRequest: BanGroupMemberRequest
+}
+
+/**
+ * Request parameters for cancelGroupRequest operation in GroupsApi.
+ * @export
+ * @interface GroupsApiCancelGroupRequestRequest
+ */
+export interface GroupsApiCancelGroupRequestRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiCancelGroupRequest
+     */
+    readonly groupId: string
+}
+
+/**
+ * Request parameters for createGroup operation in GroupsApi.
+ * @export
+ * @interface GroupsApiCreateGroupRequest
+ */
+export interface GroupsApiCreateGroupRequest {
+    /**
+     * 
+     * @type {CreateGroupRequest}
+     * @memberof GroupsApiCreateGroup
+     */
+    readonly createGroupRequest: CreateGroupRequest
+}
+
+/**
+ * Request parameters for createGroupAnnouncement operation in GroupsApi.
+ * @export
+ * @interface GroupsApiCreateGroupAnnouncementRequest
+ */
+export interface GroupsApiCreateGroupAnnouncementRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiCreateGroupAnnouncement
+     */
+    readonly groupId: string
+
+    /**
+     * 
+     * @type {CreateGroupAnnouncementRequest}
+     * @memberof GroupsApiCreateGroupAnnouncement
+     */
+    readonly createGroupAnnouncementRequest: CreateGroupAnnouncementRequest
+}
+
+/**
+ * Request parameters for createGroupGallery operation in GroupsApi.
+ * @export
+ * @interface GroupsApiCreateGroupGalleryRequest
+ */
+export interface GroupsApiCreateGroupGalleryRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiCreateGroupGallery
+     */
+    readonly groupId: string
+
+    /**
+     * 
+     * @type {CreateGroupGalleryRequest}
+     * @memberof GroupsApiCreateGroupGallery
+     */
+    readonly createGroupGalleryRequest: CreateGroupGalleryRequest
+}
+
+/**
+ * Request parameters for createGroupInvite operation in GroupsApi.
+ * @export
+ * @interface GroupsApiCreateGroupInviteRequest
+ */
+export interface GroupsApiCreateGroupInviteRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiCreateGroupInvite
+     */
+    readonly groupId: string
+
+    /**
+     * 
+     * @type {CreateGroupInviteRequest}
+     * @memberof GroupsApiCreateGroupInvite
+     */
+    readonly createGroupInviteRequest: CreateGroupInviteRequest
+}
+
+/**
+ * Request parameters for createGroupRole operation in GroupsApi.
+ * @export
+ * @interface GroupsApiCreateGroupRoleRequest
+ */
+export interface GroupsApiCreateGroupRoleRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiCreateGroupRole
+     */
+    readonly groupId: string
+
+    /**
+     * 
+     * @type {CreateGroupRoleRequest}
+     * @memberof GroupsApiCreateGroupRole
+     */
+    readonly createGroupRoleRequest: CreateGroupRoleRequest
+}
+
+/**
+ * Request parameters for deleteGroup operation in GroupsApi.
+ * @export
+ * @interface GroupsApiDeleteGroupRequest
+ */
+export interface GroupsApiDeleteGroupRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiDeleteGroup
+     */
+    readonly groupId: string
+}
+
+/**
+ * Request parameters for deleteGroupAnnouncement operation in GroupsApi.
+ * @export
+ * @interface GroupsApiDeleteGroupAnnouncementRequest
+ */
+export interface GroupsApiDeleteGroupAnnouncementRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiDeleteGroupAnnouncement
+     */
+    readonly groupId: string
+}
+
+/**
+ * Request parameters for deleteGroupGallery operation in GroupsApi.
+ * @export
+ * @interface GroupsApiDeleteGroupGalleryRequest
+ */
+export interface GroupsApiDeleteGroupGalleryRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiDeleteGroupGallery
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid group gallery ID.
+     * @type {string}
+     * @memberof GroupsApiDeleteGroupGallery
+     */
+    readonly groupGalleryId: string
+}
+
+/**
+ * Request parameters for deleteGroupGalleryImage operation in GroupsApi.
+ * @export
+ * @interface GroupsApiDeleteGroupGalleryImageRequest
+ */
+export interface GroupsApiDeleteGroupGalleryImageRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiDeleteGroupGalleryImage
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid group gallery ID.
+     * @type {string}
+     * @memberof GroupsApiDeleteGroupGalleryImage
+     */
+    readonly groupGalleryId: string
+
+    /**
+     * Must be a valid group gallery image ID.
+     * @type {string}
+     * @memberof GroupsApiDeleteGroupGalleryImage
+     */
+    readonly groupGalleryImageId: string
+}
+
+/**
+ * Request parameters for deleteGroupInvite operation in GroupsApi.
+ * @export
+ * @interface GroupsApiDeleteGroupInviteRequest
+ */
+export interface GroupsApiDeleteGroupInviteRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiDeleteGroupInvite
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof GroupsApiDeleteGroupInvite
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for deleteGroupPost operation in GroupsApi.
+ * @export
+ * @interface GroupsApiDeleteGroupPostRequest
+ */
+export interface GroupsApiDeleteGroupPostRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiDeleteGroupPost
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid notification ID.
+     * @type {string}
+     * @memberof GroupsApiDeleteGroupPost
+     */
+    readonly notificationId: string
+}
+
+/**
+ * Request parameters for deleteGroupRole operation in GroupsApi.
+ * @export
+ * @interface GroupsApiDeleteGroupRoleRequest
+ */
+export interface GroupsApiDeleteGroupRoleRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiDeleteGroupRole
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid group role ID.
+     * @type {string}
+     * @memberof GroupsApiDeleteGroupRole
+     */
+    readonly groupRoleId: string
+}
+
+/**
+ * Request parameters for getGroup operation in GroupsApi.
+ * @export
+ * @interface GroupsApiGetGroupRequest
+ */
+export interface GroupsApiGetGroupRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroup
+     */
+    readonly groupId: string
+
+    /**
+     * Include roles for the Group object. Defaults to false.
+     * @type {boolean}
+     * @memberof GroupsApiGetGroup
+     */
+    readonly includeRoles?: boolean
+}
+
+/**
+ * Request parameters for getGroupAnnouncements operation in GroupsApi.
+ * @export
+ * @interface GroupsApiGetGroupAnnouncementsRequest
+ */
+export interface GroupsApiGetGroupAnnouncementsRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroupAnnouncements
+     */
+    readonly groupId: string
+}
+
+/**
+ * Request parameters for getGroupAuditLogs operation in GroupsApi.
+ * @export
+ * @interface GroupsApiGetGroupAuditLogsRequest
+ */
+export interface GroupsApiGetGroupAuditLogsRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroupAuditLogs
+     */
+    readonly groupId: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof GroupsApiGetGroupAuditLogs
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof GroupsApiGetGroupAuditLogs
+     */
+    readonly offset?: number
+
+    /**
+     * The start date of the search range.
+     * @type {string}
+     * @memberof GroupsApiGetGroupAuditLogs
+     */
+    readonly startDate?: string
+
+    /**
+     * The end date of the search range.
+     * @type {string}
+     * @memberof GroupsApiGetGroupAuditLogs
+     */
+    readonly endDate?: string
+
+    /**
+     * The comma-separated actor ids to search for.
+     * @type {string}
+     * @memberof GroupsApiGetGroupAuditLogs
+     */
+    readonly actorIds?: string
+
+    /**
+     * The comma-separated event types to search for.
+     * @type {string}
+     * @memberof GroupsApiGetGroupAuditLogs
+     */
+    readonly eventTypes?: string
+
+    /**
+     * The comma-separated target ids to search for.
+     * @type {string}
+     * @memberof GroupsApiGetGroupAuditLogs
+     */
+    readonly targetIds?: string
+}
+
+/**
+ * Request parameters for getGroupBans operation in GroupsApi.
+ * @export
+ * @interface GroupsApiGetGroupBansRequest
+ */
+export interface GroupsApiGetGroupBansRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroupBans
+     */
+    readonly groupId: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof GroupsApiGetGroupBans
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof GroupsApiGetGroupBans
+     */
+    readonly offset?: number
+}
+
+/**
+ * Request parameters for getGroupGalleryImages operation in GroupsApi.
+ * @export
+ * @interface GroupsApiGetGroupGalleryImagesRequest
+ */
+export interface GroupsApiGetGroupGalleryImagesRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroupGalleryImages
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid group gallery ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroupGalleryImages
+     */
+    readonly groupGalleryId: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof GroupsApiGetGroupGalleryImages
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof GroupsApiGetGroupGalleryImages
+     */
+    readonly offset?: number
+
+    /**
+     * If specified, only returns images that have been approved or not approved.
+     * @type {boolean}
+     * @memberof GroupsApiGetGroupGalleryImages
+     */
+    readonly approved?: boolean
+}
+
+/**
+ * Request parameters for getGroupInstances operation in GroupsApi.
+ * @export
+ * @interface GroupsApiGetGroupInstancesRequest
+ */
+export interface GroupsApiGetGroupInstancesRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroupInstances
+     */
+    readonly groupId: string
+}
+
+/**
+ * Request parameters for getGroupInvites operation in GroupsApi.
+ * @export
+ * @interface GroupsApiGetGroupInvitesRequest
+ */
+export interface GroupsApiGetGroupInvitesRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroupInvites
+     */
+    readonly groupId: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof GroupsApiGetGroupInvites
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof GroupsApiGetGroupInvites
+     */
+    readonly offset?: number
+}
+
+/**
+ * Request parameters for getGroupMember operation in GroupsApi.
+ * @export
+ * @interface GroupsApiGetGroupMemberRequest
+ */
+export interface GroupsApiGetGroupMemberRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroupMember
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroupMember
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for getGroupMembers operation in GroupsApi.
+ * @export
+ * @interface GroupsApiGetGroupMembersRequest
+ */
+export interface GroupsApiGetGroupMembersRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroupMembers
+     */
+    readonly groupId: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof GroupsApiGetGroupMembers
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof GroupsApiGetGroupMembers
+     */
+    readonly offset?: number
+
+    /**
+     * The sort order of Group Member results
+     * @type {GroupSearchSort}
+     * @memberof GroupsApiGetGroupMembers
+     */
+    readonly sort?: GroupSearchSort
+
+    /**
+     * Only returns members with a specific groupRoleId
+     * @type {string}
+     * @memberof GroupsApiGetGroupMembers
+     */
+    readonly roleId?: string
+}
+
+/**
+ * Request parameters for getGroupPermissions operation in GroupsApi.
+ * @export
+ * @interface GroupsApiGetGroupPermissionsRequest
+ */
+export interface GroupsApiGetGroupPermissionsRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroupPermissions
+     */
+    readonly groupId: string
+}
+
+/**
+ * Request parameters for getGroupPosts operation in GroupsApi.
+ * @export
+ * @interface GroupsApiGetGroupPostsRequest
+ */
+export interface GroupsApiGetGroupPostsRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroupPosts
+     */
+    readonly groupId: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof GroupsApiGetGroupPosts
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof GroupsApiGetGroupPosts
+     */
+    readonly offset?: number
+
+    /**
+     * See public posts only.
+     * @type {boolean}
+     * @memberof GroupsApiGetGroupPosts
+     */
+    readonly publicOnly?: boolean
+}
+
+/**
+ * Request parameters for getGroupRequests operation in GroupsApi.
+ * @export
+ * @interface GroupsApiGetGroupRequestsRequest
+ */
+export interface GroupsApiGetGroupRequestsRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroupRequests
+     */
+    readonly groupId: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof GroupsApiGetGroupRequests
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof GroupsApiGetGroupRequests
+     */
+    readonly offset?: number
+
+    /**
+     * See blocked join requests
+     * @type {boolean}
+     * @memberof GroupsApiGetGroupRequests
+     */
+    readonly blocked?: boolean
+}
+
+/**
+ * Request parameters for getGroupRoles operation in GroupsApi.
+ * @export
+ * @interface GroupsApiGetGroupRolesRequest
+ */
+export interface GroupsApiGetGroupRolesRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiGetGroupRoles
+     */
+    readonly groupId: string
+}
+
+/**
+ * Request parameters for joinGroup operation in GroupsApi.
+ * @export
+ * @interface GroupsApiJoinGroupRequest
+ */
+export interface GroupsApiJoinGroupRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiJoinGroup
+     */
+    readonly groupId: string
+}
+
+/**
+ * Request parameters for kickGroupMember operation in GroupsApi.
+ * @export
+ * @interface GroupsApiKickGroupMemberRequest
+ */
+export interface GroupsApiKickGroupMemberRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiKickGroupMember
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof GroupsApiKickGroupMember
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for leaveGroup operation in GroupsApi.
+ * @export
+ * @interface GroupsApiLeaveGroupRequest
+ */
+export interface GroupsApiLeaveGroupRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiLeaveGroup
+     */
+    readonly groupId: string
+}
+
+/**
+ * Request parameters for removeGroupMemberRole operation in GroupsApi.
+ * @export
+ * @interface GroupsApiRemoveGroupMemberRoleRequest
+ */
+export interface GroupsApiRemoveGroupMemberRoleRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiRemoveGroupMemberRole
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof GroupsApiRemoveGroupMemberRole
+     */
+    readonly userId: string
+
+    /**
+     * Must be a valid group role ID.
+     * @type {string}
+     * @memberof GroupsApiRemoveGroupMemberRole
+     */
+    readonly groupRoleId: string
+}
+
+/**
+ * Request parameters for respondGroupJoinRequest operation in GroupsApi.
+ * @export
+ * @interface GroupsApiRespondGroupJoinRequestRequest
+ */
+export interface GroupsApiRespondGroupJoinRequestRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiRespondGroupJoinRequest
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof GroupsApiRespondGroupJoinRequest
+     */
+    readonly userId: string
+
+    /**
+     * 
+     * @type {RespondGroupJoinRequest}
+     * @memberof GroupsApiRespondGroupJoinRequest
+     */
+    readonly respondGroupJoinRequest: RespondGroupJoinRequest
+}
+
+/**
+ * Request parameters for searchGroups operation in GroupsApi.
+ * @export
+ * @interface GroupsApiSearchGroupsRequest
+ */
+export interface GroupsApiSearchGroupsRequest {
+    /**
+     * Query to search for, can be either Group Name or Group shortCode
+     * @type {string}
+     * @memberof GroupsApiSearchGroups
+     */
+    readonly query?: string
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof GroupsApiSearchGroups
+     */
+    readonly offset?: number
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof GroupsApiSearchGroups
+     */
+    readonly n?: number
+}
+
+/**
+ * Request parameters for unbanGroupMember operation in GroupsApi.
+ * @export
+ * @interface GroupsApiUnbanGroupMemberRequest
+ */
+export interface GroupsApiUnbanGroupMemberRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiUnbanGroupMember
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof GroupsApiUnbanGroupMember
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for updateGroup operation in GroupsApi.
+ * @export
+ * @interface GroupsApiUpdateGroupRequest
+ */
+export interface GroupsApiUpdateGroupRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiUpdateGroup
+     */
+    readonly groupId: string
+
+    /**
+     * 
+     * @type {UpdateGroupRequest}
+     * @memberof GroupsApiUpdateGroup
+     */
+    readonly updateGroupRequest?: UpdateGroupRequest
+}
+
+/**
+ * Request parameters for updateGroupGallery operation in GroupsApi.
+ * @export
+ * @interface GroupsApiUpdateGroupGalleryRequest
+ */
+export interface GroupsApiUpdateGroupGalleryRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiUpdateGroupGallery
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid group gallery ID.
+     * @type {string}
+     * @memberof GroupsApiUpdateGroupGallery
+     */
+    readonly groupGalleryId: string
+
+    /**
+     * 
+     * @type {UpdateGroupGalleryRequest}
+     * @memberof GroupsApiUpdateGroupGallery
+     */
+    readonly updateGroupGalleryRequest?: UpdateGroupGalleryRequest
+}
+
+/**
+ * Request parameters for updateGroupMember operation in GroupsApi.
+ * @export
+ * @interface GroupsApiUpdateGroupMemberRequest
+ */
+export interface GroupsApiUpdateGroupMemberRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiUpdateGroupMember
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof GroupsApiUpdateGroupMember
+     */
+    readonly userId: string
+
+    /**
+     * 
+     * @type {UpdateGroupMemberRequest}
+     * @memberof GroupsApiUpdateGroupMember
+     */
+    readonly updateGroupMemberRequest?: UpdateGroupMemberRequest
+}
+
+/**
+ * Request parameters for updateGroupPost operation in GroupsApi.
+ * @export
+ * @interface GroupsApiUpdateGroupPostRequest
+ */
+export interface GroupsApiUpdateGroupPostRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiUpdateGroupPost
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid notification ID.
+     * @type {string}
+     * @memberof GroupsApiUpdateGroupPost
+     */
+    readonly notificationId: string
+
+    /**
+     * 
+     * @type {CreateGroupPostRequest}
+     * @memberof GroupsApiUpdateGroupPost
+     */
+    readonly createGroupPostRequest: CreateGroupPostRequest
+}
+
+/**
+ * Request parameters for updateGroupRepresentation operation in GroupsApi.
+ * @export
+ * @interface GroupsApiUpdateGroupRepresentationRequest
+ */
+export interface GroupsApiUpdateGroupRepresentationRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiUpdateGroupRepresentation
+     */
+    readonly groupId: string
+
+    /**
+     * 
+     * @type {UpdateGroupRepresentationRequest}
+     * @memberof GroupsApiUpdateGroupRepresentation
+     */
+    readonly updateGroupRepresentationRequest: UpdateGroupRepresentationRequest
+}
+
+/**
+ * Request parameters for updateGroupRole operation in GroupsApi.
+ * @export
+ * @interface GroupsApiUpdateGroupRoleRequest
+ */
+export interface GroupsApiUpdateGroupRoleRequest {
+    /**
+     * Must be a valid group ID.
+     * @type {string}
+     * @memberof GroupsApiUpdateGroupRole
+     */
+    readonly groupId: string
+
+    /**
+     * Must be a valid group role ID.
+     * @type {string}
+     * @memberof GroupsApiUpdateGroupRole
+     */
+    readonly groupRoleId: string
+
+    /**
+     * 
+     * @type {UpdateGroupRoleRequest}
+     * @memberof GroupsApiUpdateGroupRole
+     */
+    readonly updateGroupRoleRequest?: UpdateGroupRoleRequest
+}
 
 /**
  * GroupsApi - object-oriented interface
@@ -21982,392 +24329,349 @@ export class GroupsApi extends BaseAPI {
     /**
      * Adds an image to a Group gallery.
      * @summary Add Group Gallery Image
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} groupGalleryId Must be a valid group gallery ID.
-     * @param {AddGroupGalleryImageRequest} addGroupGalleryImageRequest 
+     * @param {GroupsApiAddGroupGalleryImageRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public addGroupGalleryImage(groupId: string, groupGalleryId: string, addGroupGalleryImageRequest: AddGroupGalleryImageRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).addGroupGalleryImage(groupId, groupGalleryId, addGroupGalleryImageRequest, options).then((request) => request(this.axios, this.basePath));
+    public addGroupGalleryImage(requestParameters: GroupsApiAddGroupGalleryImageRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).addGroupGalleryImage(requestParameters.groupId, requestParameters.groupGalleryId, requestParameters.addGroupGalleryImageRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Adds a Role to a Group Member
      * @summary Add Role to GroupMember
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} userId Must be a valid user ID.
-     * @param {string} groupRoleId Must be a valid group role ID.
+     * @param {GroupsApiAddGroupMemberRoleRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public addGroupMemberRole(groupId: string, userId: string, groupRoleId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).addGroupMemberRole(groupId, userId, groupRoleId, options).then((request) => request(this.axios, this.basePath));
+    public addGroupMemberRole(requestParameters: GroupsApiAddGroupMemberRoleRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).addGroupMemberRole(requestParameters.groupId, requestParameters.userId, requestParameters.groupRoleId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Create a post in a Group.
      * @summary Create a post in a Group
-     * @param {string} groupId Must be a valid group ID.
-     * @param {CreateGroupPostRequest} createGroupPostRequest 
+     * @param {GroupsApiAddGroupPostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public addGroupPost(groupId: string, createGroupPostRequest: CreateGroupPostRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).addGroupPost(groupId, createGroupPostRequest, options).then((request) => request(this.axios, this.basePath));
+    public addGroupPost(requestParameters: GroupsApiAddGroupPostRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).addGroupPost(requestParameters.groupId, requestParameters.createGroupPostRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Bans a user from a Group.
      * @summary Ban Group Member
-     * @param {string} groupId Must be a valid group ID.
-     * @param {BanGroupMemberRequest} banGroupMemberRequest 
+     * @param {GroupsApiBanGroupMemberRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public banGroupMember(groupId: string, banGroupMemberRequest: BanGroupMemberRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).banGroupMember(groupId, banGroupMemberRequest, options).then((request) => request(this.axios, this.basePath));
+    public banGroupMember(requestParameters: GroupsApiBanGroupMemberRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).banGroupMember(requestParameters.groupId, requestParameters.banGroupMemberRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Cancels a request sent to join the group.
      * @summary Cancel Group Join Request
-     * @param {string} groupId Must be a valid group ID.
+     * @param {GroupsApiCancelGroupRequestRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public cancelGroupRequest(groupId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).cancelGroupRequest(groupId, options).then((request) => request(this.axios, this.basePath));
+    public cancelGroupRequest(requestParameters: GroupsApiCancelGroupRequestRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).cancelGroupRequest(requestParameters.groupId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Creates a Group and returns a Group object. **Requires VRC+ Subscription.**
      * @summary Create Group
-     * @param {CreateGroupRequest} createGroupRequest 
+     * @param {GroupsApiCreateGroupRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public createGroup(createGroupRequest: CreateGroupRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).createGroup(createGroupRequest, options).then((request) => request(this.axios, this.basePath));
+    public createGroup(requestParameters: GroupsApiCreateGroupRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).createGroup(requestParameters.createGroupRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Creates an Announcement for a Group. Warning: This will also remove all announcements. To make proper announcements, use the posts endpoint instead
      * @summary Create Group Announcement
-     * @param {string} groupId Must be a valid group ID.
-     * @param {CreateGroupAnnouncementRequest} createGroupAnnouncementRequest 
+     * @param {GroupsApiCreateGroupAnnouncementRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public createGroupAnnouncement(groupId: string, createGroupAnnouncementRequest: CreateGroupAnnouncementRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).createGroupAnnouncement(groupId, createGroupAnnouncementRequest, options).then((request) => request(this.axios, this.basePath));
+    public createGroupAnnouncement(requestParameters: GroupsApiCreateGroupAnnouncementRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).createGroupAnnouncement(requestParameters.groupId, requestParameters.createGroupAnnouncementRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Creates a gallery for a Group.
      * @summary Create Group Gallery
-     * @param {string} groupId Must be a valid group ID.
-     * @param {CreateGroupGalleryRequest} createGroupGalleryRequest 
+     * @param {GroupsApiCreateGroupGalleryRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public createGroupGallery(groupId: string, createGroupGalleryRequest: CreateGroupGalleryRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).createGroupGallery(groupId, createGroupGalleryRequest, options).then((request) => request(this.axios, this.basePath));
+    public createGroupGallery(requestParameters: GroupsApiCreateGroupGalleryRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).createGroupGallery(requestParameters.groupId, requestParameters.createGroupGalleryRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Sends an invite to a user to join the group.
      * @summary Invite User to Group
-     * @param {string} groupId Must be a valid group ID.
-     * @param {CreateGroupInviteRequest} createGroupInviteRequest 
+     * @param {GroupsApiCreateGroupInviteRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public createGroupInvite(groupId: string, createGroupInviteRequest: CreateGroupInviteRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).createGroupInvite(groupId, createGroupInviteRequest, options).then((request) => request(this.axios, this.basePath));
+    public createGroupInvite(requestParameters: GroupsApiCreateGroupInviteRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).createGroupInvite(requestParameters.groupId, requestParameters.createGroupInviteRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Create a Group role.
      * @summary Create GroupRole
-     * @param {string} groupId Must be a valid group ID.
-     * @param {CreateGroupRoleRequest} createGroupRoleRequest 
+     * @param {GroupsApiCreateGroupRoleRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public createGroupRole(groupId: string, createGroupRoleRequest: CreateGroupRoleRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).createGroupRole(groupId, createGroupRoleRequest, options).then((request) => request(this.axios, this.basePath));
+    public createGroupRole(requestParameters: GroupsApiCreateGroupRoleRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).createGroupRole(requestParameters.groupId, requestParameters.createGroupRoleRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Deletes a Group.
      * @summary Delete Group
-     * @param {string} groupId Must be a valid group ID.
+     * @param {GroupsApiDeleteGroupRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public deleteGroup(groupId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).deleteGroup(groupId, options).then((request) => request(this.axios, this.basePath));
+    public deleteGroup(requestParameters: GroupsApiDeleteGroupRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).deleteGroup(requestParameters.groupId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Deletes the announcement for a Group.
      * @summary Delete Group Announcement
-     * @param {string} groupId Must be a valid group ID.
+     * @param {GroupsApiDeleteGroupAnnouncementRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public deleteGroupAnnouncement(groupId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).deleteGroupAnnouncement(groupId, options).then((request) => request(this.axios, this.basePath));
+    public deleteGroupAnnouncement(requestParameters: GroupsApiDeleteGroupAnnouncementRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).deleteGroupAnnouncement(requestParameters.groupId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Deletes a gallery for a Group.
      * @summary Delete Group Gallery
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} groupGalleryId Must be a valid group gallery ID.
+     * @param {GroupsApiDeleteGroupGalleryRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public deleteGroupGallery(groupId: string, groupGalleryId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).deleteGroupGallery(groupId, groupGalleryId, options).then((request) => request(this.axios, this.basePath));
+    public deleteGroupGallery(requestParameters: GroupsApiDeleteGroupGalleryRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).deleteGroupGallery(requestParameters.groupId, requestParameters.groupGalleryId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Deletes an image from a Group gallery.
      * @summary Delete Group Gallery Image
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} groupGalleryId Must be a valid group gallery ID.
-     * @param {string} groupGalleryImageId Must be a valid group gallery image ID.
+     * @param {GroupsApiDeleteGroupGalleryImageRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public deleteGroupGalleryImage(groupId: string, groupGalleryId: string, groupGalleryImageId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).deleteGroupGalleryImage(groupId, groupGalleryId, groupGalleryImageId, options).then((request) => request(this.axios, this.basePath));
+    public deleteGroupGalleryImage(requestParameters: GroupsApiDeleteGroupGalleryImageRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).deleteGroupGalleryImage(requestParameters.groupId, requestParameters.groupGalleryId, requestParameters.groupGalleryImageId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Deletes an Group invite sent to a User
      * @summary Delete User Invite
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} userId Must be a valid user ID.
+     * @param {GroupsApiDeleteGroupInviteRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public deleteGroupInvite(groupId: string, userId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).deleteGroupInvite(groupId, userId, options).then((request) => request(this.axios, this.basePath));
+    public deleteGroupInvite(requestParameters: GroupsApiDeleteGroupInviteRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).deleteGroupInvite(requestParameters.groupId, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Delete a Group post
      * @summary Delete a Group post
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} notificationId Must be a valid notification ID.
+     * @param {GroupsApiDeleteGroupPostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public deleteGroupPost(groupId: string, notificationId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).deleteGroupPost(groupId, notificationId, options).then((request) => request(this.axios, this.basePath));
+    public deleteGroupPost(requestParameters: GroupsApiDeleteGroupPostRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).deleteGroupPost(requestParameters.groupId, requestParameters.notificationId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Deletes a Group Role by ID and returns the remaining roles.
      * @summary Delete Group Role
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} groupRoleId Must be a valid group role ID.
+     * @param {GroupsApiDeleteGroupRoleRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public deleteGroupRole(groupId: string, groupRoleId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).deleteGroupRole(groupId, groupRoleId, options).then((request) => request(this.axios, this.basePath));
+    public deleteGroupRole(requestParameters: GroupsApiDeleteGroupRoleRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).deleteGroupRole(requestParameters.groupId, requestParameters.groupRoleId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a single Group by ID.
      * @summary Get Group by ID
-     * @param {string} groupId Must be a valid group ID.
-     * @param {boolean} [includeRoles] Include roles for the Group object. Defaults to false.
+     * @param {GroupsApiGetGroupRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public getGroup(groupId: string, includeRoles?: boolean, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).getGroup(groupId, includeRoles, options).then((request) => request(this.axios, this.basePath));
+    public getGroup(requestParameters: GroupsApiGetGroupRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).getGroup(requestParameters.groupId, requestParameters.includeRoles, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns the announcement for a Group. If no announcement has been made, then it returns **empty object**.  If an announcement exists, then it will always return all fields except `imageId` and `imageUrl` which may be null.
      * @summary Get Group Announcement
-     * @param {string} groupId Must be a valid group ID.
+     * @param {GroupsApiGetGroupAnnouncementsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public getGroupAnnouncements(groupId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).getGroupAnnouncements(groupId, options).then((request) => request(this.axios, this.basePath));
+    public getGroupAnnouncements(requestParameters: GroupsApiGetGroupAnnouncementsRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).getGroupAnnouncements(requestParameters.groupId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a list of audit logs for a Group.
      * @summary Get Group Audit Logs
-     * @param {string} groupId Must be a valid group ID.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {string} [startDate] The start date of the search range.
-     * @param {string} [endDate] The end date of the search range.
-     * @param {string} [actorIds] The comma-separated actor ids to search for.
-     * @param {string} [eventTypes] The comma-separated event types to search for.
-     * @param {string} [targetIds] The comma-separated target ids to search for.
+     * @param {GroupsApiGetGroupAuditLogsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public getGroupAuditLogs(groupId: string, n?: number, offset?: number, startDate?: string, endDate?: string, actorIds?: string, eventTypes?: string, targetIds?: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).getGroupAuditLogs(groupId, n, offset, startDate, endDate, actorIds, eventTypes, targetIds, options).then((request) => request(this.axios, this.basePath));
+    public getGroupAuditLogs(requestParameters: GroupsApiGetGroupAuditLogsRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).getGroupAuditLogs(requestParameters.groupId, requestParameters.n, requestParameters.offset, requestParameters.startDate, requestParameters.endDate, requestParameters.actorIds, requestParameters.eventTypes, requestParameters.targetIds, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a list of banned users for a Group.
      * @summary Get Group Bans
-     * @param {string} groupId Must be a valid group ID.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+     * @param {GroupsApiGetGroupBansRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public getGroupBans(groupId: string, n?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).getGroupBans(groupId, n, offset, options).then((request) => request(this.axios, this.basePath));
+    public getGroupBans(requestParameters: GroupsApiGetGroupBansRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).getGroupBans(requestParameters.groupId, requestParameters.n, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a list of images for a Group gallery.
      * @summary Get Group Gallery Images
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} groupGalleryId Must be a valid group gallery ID.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {boolean} [approved] If specified, only returns images that have been approved or not approved.
+     * @param {GroupsApiGetGroupGalleryImagesRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public getGroupGalleryImages(groupId: string, groupGalleryId: string, n?: number, offset?: number, approved?: boolean, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).getGroupGalleryImages(groupId, groupGalleryId, n, offset, approved, options).then((request) => request(this.axios, this.basePath));
+    public getGroupGalleryImages(requestParameters: GroupsApiGetGroupGalleryImagesRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).getGroupGalleryImages(requestParameters.groupId, requestParameters.groupGalleryId, requestParameters.n, requestParameters.offset, requestParameters.approved, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a list of group instances
      * @summary Get Group Instances
-     * @param {string} groupId Must be a valid group ID.
+     * @param {GroupsApiGetGroupInstancesRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public getGroupInstances(groupId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).getGroupInstances(groupId, options).then((request) => request(this.axios, this.basePath));
+    public getGroupInstances(requestParameters: GroupsApiGetGroupInstancesRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).getGroupInstances(requestParameters.groupId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a list of members that have been invited to the Group.
      * @summary Get Group Invites Sent
-     * @param {string} groupId Must be a valid group ID.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+     * @param {GroupsApiGetGroupInvitesRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public getGroupInvites(groupId: string, n?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).getGroupInvites(groupId, n, offset, options).then((request) => request(this.axios, this.basePath));
+    public getGroupInvites(requestParameters: GroupsApiGetGroupInvitesRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).getGroupInvites(requestParameters.groupId, requestParameters.n, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a LimitedGroup Member.
      * @summary Get Group Member
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} userId Must be a valid user ID.
+     * @param {GroupsApiGetGroupMemberRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public getGroupMember(groupId: string, userId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).getGroupMember(groupId, userId, options).then((request) => request(this.axios, this.basePath));
+    public getGroupMember(requestParameters: GroupsApiGetGroupMemberRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).getGroupMember(requestParameters.groupId, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a List of all **other** Group Members. This endpoint will never return the user calling the endpoint. Information about the user calling the endpoint must be found in the `myMember` field of the Group object.
      * @summary List Group Members
-     * @param {string} groupId Must be a valid group ID.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {GroupSearchSort} [sort] The sort order of Group Member results
-     * @param {string} [roleId] Only returns members with a specific groupRoleId
+     * @param {GroupsApiGetGroupMembersRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public getGroupMembers(groupId: string, n?: number, offset?: number, sort?: GroupSearchSort, roleId?: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).getGroupMembers(groupId, n, offset, sort, roleId, options).then((request) => request(this.axios, this.basePath));
+    public getGroupMembers(requestParameters: GroupsApiGetGroupMembersRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).getGroupMembers(requestParameters.groupId, requestParameters.n, requestParameters.offset, requestParameters.sort, requestParameters.roleId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a List of all possible/available permissions for a Group.
      * @summary List Group Permissions
-     * @param {string} groupId Must be a valid group ID.
+     * @param {GroupsApiGetGroupPermissionsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public getGroupPermissions(groupId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).getGroupPermissions(groupId, options).then((request) => request(this.axios, this.basePath));
+    public getGroupPermissions(requestParameters: GroupsApiGetGroupPermissionsRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).getGroupPermissions(requestParameters.groupId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get posts from a Group
      * @summary Get posts from a Group
-     * @param {string} groupId Must be a valid group ID.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {boolean} [publicOnly] See public posts only.
+     * @param {GroupsApiGetGroupPostsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public getGroupPosts(groupId: string, n?: number, offset?: number, publicOnly?: boolean, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).getGroupPosts(groupId, n, offset, publicOnly, options).then((request) => request(this.axios, this.basePath));
+    public getGroupPosts(requestParameters: GroupsApiGetGroupPostsRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).getGroupPosts(requestParameters.groupId, requestParameters.n, requestParameters.offset, requestParameters.publicOnly, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a list of members that have requested to join the Group.
      * @summary Get Group Join Requests
-     * @param {string} groupId Must be a valid group ID.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {boolean} [blocked] See blocked join requests
+     * @param {GroupsApiGetGroupRequestsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public getGroupRequests(groupId: string, n?: number, offset?: number, blocked?: boolean, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).getGroupRequests(groupId, n, offset, blocked, options).then((request) => request(this.axios, this.basePath));
+    public getGroupRequests(requestParameters: GroupsApiGetGroupRequestsRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).getGroupRequests(requestParameters.groupId, requestParameters.n, requestParameters.offset, requestParameters.blocked, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -22384,187 +24688,169 @@ export class GroupsApi extends BaseAPI {
     /**
      * Returns a Group Role by ID.
      * @summary Get Group Roles
-     * @param {string} groupId Must be a valid group ID.
+     * @param {GroupsApiGetGroupRolesRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public getGroupRoles(groupId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).getGroupRoles(groupId, options).then((request) => request(this.axios, this.basePath));
+    public getGroupRoles(requestParameters: GroupsApiGetGroupRolesRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).getGroupRoles(requestParameters.groupId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Join a Group by ID and returns the member object.
      * @summary Join Group
-     * @param {string} groupId Must be a valid group ID.
+     * @param {GroupsApiJoinGroupRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public joinGroup(groupId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).joinGroup(groupId, options).then((request) => request(this.axios, this.basePath));
+    public joinGroup(requestParameters: GroupsApiJoinGroupRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).joinGroup(requestParameters.groupId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Kicks a Group Member from the Group. The current user must have the \"Remove Group Members\" permission.
      * @summary Kick Group Member
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} userId Must be a valid user ID.
+     * @param {GroupsApiKickGroupMemberRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public kickGroupMember(groupId: string, userId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).kickGroupMember(groupId, userId, options).then((request) => request(this.axios, this.basePath));
+    public kickGroupMember(requestParameters: GroupsApiKickGroupMemberRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).kickGroupMember(requestParameters.groupId, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Leave a group by ID.
      * @summary Leave Group
-     * @param {string} groupId Must be a valid group ID.
+     * @param {GroupsApiLeaveGroupRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public leaveGroup(groupId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).leaveGroup(groupId, options).then((request) => request(this.axios, this.basePath));
+    public leaveGroup(requestParameters: GroupsApiLeaveGroupRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).leaveGroup(requestParameters.groupId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Removes a Role from a Group Member
      * @summary Remove Role from GroupMember
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} userId Must be a valid user ID.
-     * @param {string} groupRoleId Must be a valid group role ID.
+     * @param {GroupsApiRemoveGroupMemberRoleRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public removeGroupMemberRole(groupId: string, userId: string, groupRoleId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).removeGroupMemberRole(groupId, userId, groupRoleId, options).then((request) => request(this.axios, this.basePath));
+    public removeGroupMemberRole(requestParameters: GroupsApiRemoveGroupMemberRoleRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).removeGroupMemberRole(requestParameters.groupId, requestParameters.userId, requestParameters.groupRoleId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Responds to a Group Join Request with Accept/Deny
      * @summary Respond Group Join request
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} userId Must be a valid user ID.
-     * @param {RespondGroupJoinRequest} respondGroupJoinRequest 
+     * @param {GroupsApiRespondGroupJoinRequestRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public respondGroupJoinRequest(groupId: string, userId: string, respondGroupJoinRequest: RespondGroupJoinRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).respondGroupJoinRequest(groupId, userId, respondGroupJoinRequest, options).then((request) => request(this.axios, this.basePath));
+    public respondGroupJoinRequest(requestParameters: GroupsApiRespondGroupJoinRequestRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).respondGroupJoinRequest(requestParameters.groupId, requestParameters.userId, requestParameters.respondGroupJoinRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Searches Groups by name or shortCode
      * @summary Search Group
-     * @param {string} [query] Query to search for, can be either Group Name or Group shortCode
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {number} [n] The number of objects to return.
+     * @param {GroupsApiSearchGroupsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public searchGroups(query?: string, offset?: number, n?: number, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).searchGroups(query, offset, n, options).then((request) => request(this.axios, this.basePath));
+    public searchGroups(requestParameters: GroupsApiSearchGroupsRequest = {}, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).searchGroups(requestParameters.query, requestParameters.offset, requestParameters.n, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Unbans a user from a Group.
      * @summary Unban Group Member
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} userId Must be a valid user ID.
+     * @param {GroupsApiUnbanGroupMemberRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public unbanGroupMember(groupId: string, userId: string, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).unbanGroupMember(groupId, userId, options).then((request) => request(this.axios, this.basePath));
+    public unbanGroupMember(requestParameters: GroupsApiUnbanGroupMemberRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).unbanGroupMember(requestParameters.groupId, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Updates a Group and returns it.
      * @summary Update Group
-     * @param {string} groupId Must be a valid group ID.
-     * @param {UpdateGroupRequest} [updateGroupRequest] 
+     * @param {GroupsApiUpdateGroupRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public updateGroup(groupId: string, updateGroupRequest?: UpdateGroupRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).updateGroup(groupId, updateGroupRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateGroup(requestParameters: GroupsApiUpdateGroupRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).updateGroup(requestParameters.groupId, requestParameters.updateGroupRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Updates a gallery for a Group.
      * @summary Update Group Gallery
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} groupGalleryId Must be a valid group gallery ID.
-     * @param {UpdateGroupGalleryRequest} [updateGroupGalleryRequest] 
+     * @param {GroupsApiUpdateGroupGalleryRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public updateGroupGallery(groupId: string, groupGalleryId: string, updateGroupGalleryRequest?: UpdateGroupGalleryRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).updateGroupGallery(groupId, groupGalleryId, updateGroupGalleryRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateGroupGallery(requestParameters: GroupsApiUpdateGroupGalleryRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).updateGroupGallery(requestParameters.groupId, requestParameters.groupGalleryId, requestParameters.updateGroupGalleryRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Updates a Group Member
      * @summary Update Group Member
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} userId Must be a valid user ID.
-     * @param {UpdateGroupMemberRequest} [updateGroupMemberRequest] 
+     * @param {GroupsApiUpdateGroupMemberRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public updateGroupMember(groupId: string, userId: string, updateGroupMemberRequest?: UpdateGroupMemberRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).updateGroupMember(groupId, userId, updateGroupMemberRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateGroupMember(requestParameters: GroupsApiUpdateGroupMemberRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).updateGroupMember(requestParameters.groupId, requestParameters.userId, requestParameters.updateGroupMemberRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Edits a Group post
      * @summary Edits a Group post
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} notificationId Must be a valid notification ID.
-     * @param {CreateGroupPostRequest} createGroupPostRequest 
+     * @param {GroupsApiUpdateGroupPostRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public updateGroupPost(groupId: string, notificationId: string, createGroupPostRequest: CreateGroupPostRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).updateGroupPost(groupId, notificationId, createGroupPostRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateGroupPost(requestParameters: GroupsApiUpdateGroupPostRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).updateGroupPost(requestParameters.groupId, requestParameters.notificationId, requestParameters.createGroupPostRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Updates whether the user is representing the group.  When `isRepresenting` is set to `true`, this flag will be set to `false` for all other groups
      * @summary Update Group Representation
-     * @param {string} groupId Must be a valid group ID.
-     * @param {UpdateGroupRepresentationRequest} updateGroupRepresentationRequest 
+     * @param {GroupsApiUpdateGroupRepresentationRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public updateGroupRepresentation(groupId: string, updateGroupRepresentationRequest: UpdateGroupRepresentationRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).updateGroupRepresentation(groupId, updateGroupRepresentationRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateGroupRepresentation(requestParameters: GroupsApiUpdateGroupRepresentationRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).updateGroupRepresentation(requestParameters.groupId, requestParameters.updateGroupRepresentationRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Updates a group role by ID.
      * @summary Update Group Role
-     * @param {string} groupId Must be a valid group ID.
-     * @param {string} groupRoleId Must be a valid group role ID.
-     * @param {UpdateGroupRoleRequest} [updateGroupRoleRequest] 
+     * @param {GroupsApiUpdateGroupRoleRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof GroupsApi
      */
-    public updateGroupRole(groupId: string, groupRoleId: string, updateGroupRoleRequest?: UpdateGroupRoleRequest, options?: RawAxiosRequestConfig) {
-        return GroupsApiFp(this.configuration).updateGroupRole(groupId, groupRoleId, updateGroupRoleRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateGroupRole(requestParameters: GroupsApiUpdateGroupRoleRequest, options?: RawAxiosRequestConfig) {
+        return GroupsApiFp(this.configuration).updateGroupRole(requestParameters.groupId, requestParameters.groupRoleId, requestParameters.updateGroupRoleRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -22875,60 +25161,160 @@ export const InstancesApiFactory = function (configuration?: Configuration, base
         /**
          * Close an instance or update the closedAt time when it will be closed.  You can only close an instance if the ownerId is yourself or if the instance owner is a group and you have the `group-instance-manage` permission.
          * @summary Close Instance
-         * @param {string} worldId Must be a valid world ID.
-         * @param {string} instanceId Must be a valid instance ID.
-         * @param {boolean} [hardClose] Whether to hard close the instance. Defaults to false.
-         * @param {string} [closedAt] The time after which users won\&#39;t be allowed to join the instances. If omitted, the instance will be closed immediately.
+         * @param {InstancesApiCloseInstanceRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        closeInstance(worldId: string, instanceId: string, hardClose?: boolean, closedAt?: string, options?: RawAxiosRequestConfig): AxiosPromise<Instance> {
-            return localVarFp.closeInstance(worldId, instanceId, hardClose, closedAt, options).then((request) => request(axios, basePath));
+        closeInstance(requestParameters: InstancesApiCloseInstanceRequest, options?: RawAxiosRequestConfig): AxiosPromise<Instance> {
+            return localVarFp.closeInstance(requestParameters.worldId, requestParameters.instanceId, requestParameters.hardClose, requestParameters.closedAt, options).then((request) => request(axios, basePath));
         },
         /**
          * Create an instance
          * @summary Create Instance
-         * @param {CreateInstanceRequest} createInstanceRequest 
+         * @param {InstancesApiCreateInstanceRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createInstance(createInstanceRequest: CreateInstanceRequest, options?: RawAxiosRequestConfig): AxiosPromise<Instance> {
-            return localVarFp.createInstance(createInstanceRequest, options).then((request) => request(axios, basePath));
+        createInstance(requestParameters: InstancesApiCreateInstanceRequest, options?: RawAxiosRequestConfig): AxiosPromise<Instance> {
+            return localVarFp.createInstance(requestParameters.createInstanceRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns an instance. Please read [Instances Tutorial](https://vrchatapi.github.io/tutorials/instances/) for more information on Instances.  If an invalid instanceId is provided, this endpoint will simply return \"null\"!
          * @summary Get Instance
-         * @param {string} worldId Must be a valid world ID.
-         * @param {string} instanceId Must be a valid instance ID.
+         * @param {InstancesApiGetInstanceRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getInstance(worldId: string, instanceId: string, options?: RawAxiosRequestConfig): AxiosPromise<Instance> {
-            return localVarFp.getInstance(worldId, instanceId, options).then((request) => request(axios, basePath));
+        getInstance(requestParameters: InstancesApiGetInstanceRequest, options?: RawAxiosRequestConfig): AxiosPromise<Instance> {
+            return localVarFp.getInstance(requestParameters.worldId, requestParameters.instanceId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns an instance. Please read [Instances Tutorial](https://vrchatapi.github.io/tutorials/instances/) for more information on Instances.
          * @summary Get Instance By Short Name
-         * @param {string} shortName Must be a valid instance short name.
+         * @param {InstancesApiGetInstanceByShortNameRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getInstanceByShortName(shortName: string, options?: RawAxiosRequestConfig): AxiosPromise<Instance> {
-            return localVarFp.getInstanceByShortName(shortName, options).then((request) => request(axios, basePath));
+        getInstanceByShortName(requestParameters: InstancesApiGetInstanceByShortNameRequest, options?: RawAxiosRequestConfig): AxiosPromise<Instance> {
+            return localVarFp.getInstanceByShortName(requestParameters.shortName, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns an instance short name.
          * @summary Get Instance Short Name
-         * @param {string} worldId Must be a valid world ID.
-         * @param {string} instanceId Must be a valid instance ID.
+         * @param {InstancesApiGetShortNameRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getShortName(worldId: string, instanceId: string, options?: RawAxiosRequestConfig): AxiosPromise<InstanceShortNameResponse> {
-            return localVarFp.getShortName(worldId, instanceId, options).then((request) => request(axios, basePath));
+        getShortName(requestParameters: InstancesApiGetShortNameRequest, options?: RawAxiosRequestConfig): AxiosPromise<InstanceShortNameResponse> {
+            return localVarFp.getShortName(requestParameters.worldId, requestParameters.instanceId, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for closeInstance operation in InstancesApi.
+ * @export
+ * @interface InstancesApiCloseInstanceRequest
+ */
+export interface InstancesApiCloseInstanceRequest {
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof InstancesApiCloseInstance
+     */
+    readonly worldId: string
+
+    /**
+     * Must be a valid instance ID.
+     * @type {string}
+     * @memberof InstancesApiCloseInstance
+     */
+    readonly instanceId: string
+
+    /**
+     * Whether to hard close the instance. Defaults to false.
+     * @type {boolean}
+     * @memberof InstancesApiCloseInstance
+     */
+    readonly hardClose?: boolean
+
+    /**
+     * The time after which users won\&#39;t be allowed to join the instances. If omitted, the instance will be closed immediately.
+     * @type {string}
+     * @memberof InstancesApiCloseInstance
+     */
+    readonly closedAt?: string
+}
+
+/**
+ * Request parameters for createInstance operation in InstancesApi.
+ * @export
+ * @interface InstancesApiCreateInstanceRequest
+ */
+export interface InstancesApiCreateInstanceRequest {
+    /**
+     * 
+     * @type {CreateInstanceRequest}
+     * @memberof InstancesApiCreateInstance
+     */
+    readonly createInstanceRequest: CreateInstanceRequest
+}
+
+/**
+ * Request parameters for getInstance operation in InstancesApi.
+ * @export
+ * @interface InstancesApiGetInstanceRequest
+ */
+export interface InstancesApiGetInstanceRequest {
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof InstancesApiGetInstance
+     */
+    readonly worldId: string
+
+    /**
+     * Must be a valid instance ID.
+     * @type {string}
+     * @memberof InstancesApiGetInstance
+     */
+    readonly instanceId: string
+}
+
+/**
+ * Request parameters for getInstanceByShortName operation in InstancesApi.
+ * @export
+ * @interface InstancesApiGetInstanceByShortNameRequest
+ */
+export interface InstancesApiGetInstanceByShortNameRequest {
+    /**
+     * Must be a valid instance short name.
+     * @type {string}
+     * @memberof InstancesApiGetInstanceByShortName
+     */
+    readonly shortName: string
+}
+
+/**
+ * Request parameters for getShortName operation in InstancesApi.
+ * @export
+ * @interface InstancesApiGetShortNameRequest
+ */
+export interface InstancesApiGetShortNameRequest {
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof InstancesApiGetShortName
+     */
+    readonly worldId: string
+
+    /**
+     * Must be a valid instance ID.
+     * @type {string}
+     * @memberof InstancesApiGetShortName
+     */
+    readonly instanceId: string
+}
 
 /**
  * InstancesApi - object-oriented interface
@@ -22940,66 +25326,61 @@ export class InstancesApi extends BaseAPI {
     /**
      * Close an instance or update the closedAt time when it will be closed.  You can only close an instance if the ownerId is yourself or if the instance owner is a group and you have the `group-instance-manage` permission.
      * @summary Close Instance
-     * @param {string} worldId Must be a valid world ID.
-     * @param {string} instanceId Must be a valid instance ID.
-     * @param {boolean} [hardClose] Whether to hard close the instance. Defaults to false.
-     * @param {string} [closedAt] The time after which users won\&#39;t be allowed to join the instances. If omitted, the instance will be closed immediately.
+     * @param {InstancesApiCloseInstanceRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InstancesApi
      */
-    public closeInstance(worldId: string, instanceId: string, hardClose?: boolean, closedAt?: string, options?: RawAxiosRequestConfig) {
-        return InstancesApiFp(this.configuration).closeInstance(worldId, instanceId, hardClose, closedAt, options).then((request) => request(this.axios, this.basePath));
+    public closeInstance(requestParameters: InstancesApiCloseInstanceRequest, options?: RawAxiosRequestConfig) {
+        return InstancesApiFp(this.configuration).closeInstance(requestParameters.worldId, requestParameters.instanceId, requestParameters.hardClose, requestParameters.closedAt, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Create an instance
      * @summary Create Instance
-     * @param {CreateInstanceRequest} createInstanceRequest 
+     * @param {InstancesApiCreateInstanceRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InstancesApi
      */
-    public createInstance(createInstanceRequest: CreateInstanceRequest, options?: RawAxiosRequestConfig) {
-        return InstancesApiFp(this.configuration).createInstance(createInstanceRequest, options).then((request) => request(this.axios, this.basePath));
+    public createInstance(requestParameters: InstancesApiCreateInstanceRequest, options?: RawAxiosRequestConfig) {
+        return InstancesApiFp(this.configuration).createInstance(requestParameters.createInstanceRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns an instance. Please read [Instances Tutorial](https://vrchatapi.github.io/tutorials/instances/) for more information on Instances.  If an invalid instanceId is provided, this endpoint will simply return \"null\"!
      * @summary Get Instance
-     * @param {string} worldId Must be a valid world ID.
-     * @param {string} instanceId Must be a valid instance ID.
+     * @param {InstancesApiGetInstanceRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InstancesApi
      */
-    public getInstance(worldId: string, instanceId: string, options?: RawAxiosRequestConfig) {
-        return InstancesApiFp(this.configuration).getInstance(worldId, instanceId, options).then((request) => request(this.axios, this.basePath));
+    public getInstance(requestParameters: InstancesApiGetInstanceRequest, options?: RawAxiosRequestConfig) {
+        return InstancesApiFp(this.configuration).getInstance(requestParameters.worldId, requestParameters.instanceId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns an instance. Please read [Instances Tutorial](https://vrchatapi.github.io/tutorials/instances/) for more information on Instances.
      * @summary Get Instance By Short Name
-     * @param {string} shortName Must be a valid instance short name.
+     * @param {InstancesApiGetInstanceByShortNameRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InstancesApi
      */
-    public getInstanceByShortName(shortName: string, options?: RawAxiosRequestConfig) {
-        return InstancesApiFp(this.configuration).getInstanceByShortName(shortName, options).then((request) => request(this.axios, this.basePath));
+    public getInstanceByShortName(requestParameters: InstancesApiGetInstanceByShortNameRequest, options?: RawAxiosRequestConfig) {
+        return InstancesApiFp(this.configuration).getInstanceByShortName(requestParameters.shortName, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns an instance short name.
      * @summary Get Instance Short Name
-     * @param {string} worldId Must be a valid world ID.
-     * @param {string} instanceId Must be a valid instance ID.
+     * @param {InstancesApiGetShortNameRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InstancesApi
      */
-    public getShortName(worldId: string, instanceId: string, options?: RawAxiosRequestConfig) {
-        return InstancesApiFp(this.configuration).getShortName(worldId, instanceId, options).then((request) => request(this.axios, this.basePath));
+    public getShortName(requestParameters: InstancesApiGetShortNameRequest, options?: RawAxiosRequestConfig) {
+        return InstancesApiFp(this.configuration).getShortName(requestParameters.worldId, requestParameters.instanceId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -23302,58 +25683,146 @@ export const InventoryApiFactory = function (configuration?: Configuration, base
         /**
          * Returns an Inventory object.
          * @summary Get Inventory
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {GetInventoryInventorySortOrderEnum} [inventorySortOrder] Sort order for inventory retrieval.
-         * @param {InventoryItemType} [inventoryItemType] Filter for inventory retrieval.
+         * @param {InventoryApiGetInventoryRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getInventory(n?: number, offset?: number, inventorySortOrder?: GetInventoryInventorySortOrderEnum, inventoryItemType?: InventoryItemType, options?: RawAxiosRequestConfig): AxiosPromise<Inventory> {
-            return localVarFp.getInventory(n, offset, inventorySortOrder, inventoryItemType, options).then((request) => request(axios, basePath));
+        getInventory(requestParameters: InventoryApiGetInventoryRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Inventory> {
+            return localVarFp.getInventory(requestParameters.n, requestParameters.offset, requestParameters.inventorySortOrder, requestParameters.inventoryItemType, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a list of InventoryDrop objects.
          * @summary List Inventory Drops
-         * @param {boolean} [active] Filter for users\&#39; listings and inventory bundles.
+         * @param {InventoryApiGetInventoryDropsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getInventoryDrops(active?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<InventoryDrop>> {
-            return localVarFp.getInventoryDrops(active, options).then((request) => request(axios, basePath));
+        getInventoryDrops(requestParameters: InventoryApiGetInventoryDropsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<InventoryDrop>> {
+            return localVarFp.getInventoryDrops(requestParameters.active, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns an InventoryTemplate object.
          * @summary Get Inventory Template
-         * @param {string} inventoryTemplateId Must be a valid inventory template ID.
+         * @param {InventoryApiGetInventoryTemplateRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getInventoryTemplate(inventoryTemplateId: string, options?: RawAxiosRequestConfig): AxiosPromise<InventoryTemplate> {
-            return localVarFp.getInventoryTemplate(inventoryTemplateId, options).then((request) => request(axios, basePath));
+        getInventoryTemplate(requestParameters: InventoryApiGetInventoryTemplateRequest, options?: RawAxiosRequestConfig): AxiosPromise<InventoryTemplate> {
+            return localVarFp.getInventoryTemplate(requestParameters.inventoryTemplateId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns an InventoryItem object held by the currently logged in user.
          * @summary Get Own Inventory Item
-         * @param {string} inventoryItemId Must be a valid inventory item ID.
+         * @param {InventoryApiGetOwnInventoryItemRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getOwnInventoryItem(inventoryItemId: string, options?: RawAxiosRequestConfig): AxiosPromise<InventoryItem> {
-            return localVarFp.getOwnInventoryItem(inventoryItemId, options).then((request) => request(axios, basePath));
+        getOwnInventoryItem(requestParameters: InventoryApiGetOwnInventoryItemRequest, options?: RawAxiosRequestConfig): AxiosPromise<InventoryItem> {
+            return localVarFp.getOwnInventoryItem(requestParameters.inventoryItemId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns an InventorySpawn object.
          * @summary Spawn Inventory Item
-         * @param {string} id Id for inventory item spawning.
+         * @param {InventoryApiSpawnInventoryItemRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        spawnInventoryItem(id: string, options?: RawAxiosRequestConfig): AxiosPromise<InventorySpawn> {
-            return localVarFp.spawnInventoryItem(id, options).then((request) => request(axios, basePath));
+        spawnInventoryItem(requestParameters: InventoryApiSpawnInventoryItemRequest, options?: RawAxiosRequestConfig): AxiosPromise<InventorySpawn> {
+            return localVarFp.spawnInventoryItem(requestParameters.id, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for getInventory operation in InventoryApi.
+ * @export
+ * @interface InventoryApiGetInventoryRequest
+ */
+export interface InventoryApiGetInventoryRequest {
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof InventoryApiGetInventory
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof InventoryApiGetInventory
+     */
+    readonly offset?: number
+
+    /**
+     * Sort order for inventory retrieval.
+     * @type {'newest' | 'oldest'}
+     * @memberof InventoryApiGetInventory
+     */
+    readonly inventorySortOrder?: GetInventoryInventorySortOrderEnum
+
+    /**
+     * Filter for inventory retrieval.
+     * @type {InventoryItemType}
+     * @memberof InventoryApiGetInventory
+     */
+    readonly inventoryItemType?: InventoryItemType
+}
+
+/**
+ * Request parameters for getInventoryDrops operation in InventoryApi.
+ * @export
+ * @interface InventoryApiGetInventoryDropsRequest
+ */
+export interface InventoryApiGetInventoryDropsRequest {
+    /**
+     * Filter for users\&#39; listings and inventory bundles.
+     * @type {boolean}
+     * @memberof InventoryApiGetInventoryDrops
+     */
+    readonly active?: boolean
+}
+
+/**
+ * Request parameters for getInventoryTemplate operation in InventoryApi.
+ * @export
+ * @interface InventoryApiGetInventoryTemplateRequest
+ */
+export interface InventoryApiGetInventoryTemplateRequest {
+    /**
+     * Must be a valid inventory template ID.
+     * @type {string}
+     * @memberof InventoryApiGetInventoryTemplate
+     */
+    readonly inventoryTemplateId: string
+}
+
+/**
+ * Request parameters for getOwnInventoryItem operation in InventoryApi.
+ * @export
+ * @interface InventoryApiGetOwnInventoryItemRequest
+ */
+export interface InventoryApiGetOwnInventoryItemRequest {
+    /**
+     * Must be a valid inventory item ID.
+     * @type {string}
+     * @memberof InventoryApiGetOwnInventoryItem
+     */
+    readonly inventoryItemId: string
+}
+
+/**
+ * Request parameters for spawnInventoryItem operation in InventoryApi.
+ * @export
+ * @interface InventoryApiSpawnInventoryItemRequest
+ */
+export interface InventoryApiSpawnInventoryItemRequest {
+    /**
+     * Id for inventory item spawning.
+     * @type {string}
+     * @memberof InventoryApiSpawnInventoryItem
+     */
+    readonly id: string
+}
 
 /**
  * InventoryApi - object-oriented interface
@@ -23365,64 +25834,61 @@ export class InventoryApi extends BaseAPI {
     /**
      * Returns an Inventory object.
      * @summary Get Inventory
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {GetInventoryInventorySortOrderEnum} [inventorySortOrder] Sort order for inventory retrieval.
-     * @param {InventoryItemType} [inventoryItemType] Filter for inventory retrieval.
+     * @param {InventoryApiGetInventoryRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InventoryApi
      */
-    public getInventory(n?: number, offset?: number, inventorySortOrder?: GetInventoryInventorySortOrderEnum, inventoryItemType?: InventoryItemType, options?: RawAxiosRequestConfig) {
-        return InventoryApiFp(this.configuration).getInventory(n, offset, inventorySortOrder, inventoryItemType, options).then((request) => request(this.axios, this.basePath));
+    public getInventory(requestParameters: InventoryApiGetInventoryRequest = {}, options?: RawAxiosRequestConfig) {
+        return InventoryApiFp(this.configuration).getInventory(requestParameters.n, requestParameters.offset, requestParameters.inventorySortOrder, requestParameters.inventoryItemType, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a list of InventoryDrop objects.
      * @summary List Inventory Drops
-     * @param {boolean} [active] Filter for users\&#39; listings and inventory bundles.
+     * @param {InventoryApiGetInventoryDropsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InventoryApi
      */
-    public getInventoryDrops(active?: boolean, options?: RawAxiosRequestConfig) {
-        return InventoryApiFp(this.configuration).getInventoryDrops(active, options).then((request) => request(this.axios, this.basePath));
+    public getInventoryDrops(requestParameters: InventoryApiGetInventoryDropsRequest = {}, options?: RawAxiosRequestConfig) {
+        return InventoryApiFp(this.configuration).getInventoryDrops(requestParameters.active, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns an InventoryTemplate object.
      * @summary Get Inventory Template
-     * @param {string} inventoryTemplateId Must be a valid inventory template ID.
+     * @param {InventoryApiGetInventoryTemplateRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InventoryApi
      */
-    public getInventoryTemplate(inventoryTemplateId: string, options?: RawAxiosRequestConfig) {
-        return InventoryApiFp(this.configuration).getInventoryTemplate(inventoryTemplateId, options).then((request) => request(this.axios, this.basePath));
+    public getInventoryTemplate(requestParameters: InventoryApiGetInventoryTemplateRequest, options?: RawAxiosRequestConfig) {
+        return InventoryApiFp(this.configuration).getInventoryTemplate(requestParameters.inventoryTemplateId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns an InventoryItem object held by the currently logged in user.
      * @summary Get Own Inventory Item
-     * @param {string} inventoryItemId Must be a valid inventory item ID.
+     * @param {InventoryApiGetOwnInventoryItemRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InventoryApi
      */
-    public getOwnInventoryItem(inventoryItemId: string, options?: RawAxiosRequestConfig) {
-        return InventoryApiFp(this.configuration).getOwnInventoryItem(inventoryItemId, options).then((request) => request(this.axios, this.basePath));
+    public getOwnInventoryItem(requestParameters: InventoryApiGetOwnInventoryItemRequest, options?: RawAxiosRequestConfig) {
+        return InventoryApiFp(this.configuration).getOwnInventoryItem(requestParameters.inventoryItemId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns an InventorySpawn object.
      * @summary Spawn Inventory Item
-     * @param {string} id Id for inventory item spawning.
+     * @param {InventoryApiSpawnInventoryItemRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InventoryApi
      */
-    public spawnInventoryItem(id: string, options?: RawAxiosRequestConfig) {
-        return InventoryApiFp(this.configuration).spawnInventoryItem(id, options).then((request) => request(this.axios, this.basePath));
+    public spawnInventoryItem(requestParameters: InventoryApiSpawnInventoryItemRequest, options?: RawAxiosRequestConfig) {
+        return InventoryApiFp(this.configuration).spawnInventoryItem(requestParameters.id, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -24128,133 +26594,395 @@ export const InviteApiFactory = function (configuration?: Configuration, basePat
         /**
          * Returns a single Invite Message. This returns the exact same information but less than `getInviteMessages`. Admin Credentials are required to view messages of other users!  Message type refers to a different collection of messages, used during different types of responses.  * `message` = Message during a normal invite * `response` = Message when replying to a message * `request` = Message when requesting an invite * `requestResponse` = Message when replying to a request for invite
          * @summary Get Invite Message
-         * @param {string} userId Must be a valid user ID.
-         * @param {InviteMessageType} messageType The type of message to fetch, must be a valid InviteMessageType.
-         * @param {number} slot The message slot to fetch of a given message type.
+         * @param {InviteApiGetInviteMessageRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getInviteMessage(userId: string, messageType: InviteMessageType, slot: number, options?: RawAxiosRequestConfig): AxiosPromise<InviteMessage> {
-            return localVarFp.getInviteMessage(userId, messageType, slot, options).then((request) => request(axios, basePath));
+        getInviteMessage(requestParameters: InviteApiGetInviteMessageRequest, options?: RawAxiosRequestConfig): AxiosPromise<InviteMessage> {
+            return localVarFp.getInviteMessage(requestParameters.userId, requestParameters.messageType, requestParameters.slot, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a list of all the users Invite Messages. Admin Credentials are required to view messages of other users!  Message type refers to a different collection of messages, used during different types of responses.  * `message` = Message during a normal invite * `response` = Message when replying to a message * `request` = Message when requesting an invite * `requestResponse` = Message when replying to a request for invite
          * @summary List Invite Messages
-         * @param {string} userId Must be a valid user ID.
-         * @param {InviteMessageType} messageType The type of message to fetch, must be a valid InviteMessageType.
+         * @param {InviteApiGetInviteMessagesRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getInviteMessages(userId: string, messageType: InviteMessageType, options?: RawAxiosRequestConfig): AxiosPromise<Array<InviteMessage>> {
-            return localVarFp.getInviteMessages(userId, messageType, options).then((request) => request(axios, basePath));
+        getInviteMessages(requestParameters: InviteApiGetInviteMessagesRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<InviteMessage>> {
+            return localVarFp.getInviteMessages(requestParameters.userId, requestParameters.messageType, options).then((request) => request(axios, basePath));
         },
         /**
          * Sends self an invite to an instance
          * @summary Invite Myself To Instance
-         * @param {string} worldId Must be a valid world ID.
-         * @param {string} instanceId Must be a valid instance ID.
+         * @param {InviteApiInviteMyselfToRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        inviteMyselfTo(worldId: string, instanceId: string, options?: RawAxiosRequestConfig): AxiosPromise<SentNotification> {
-            return localVarFp.inviteMyselfTo(worldId, instanceId, options).then((request) => request(axios, basePath));
+        inviteMyselfTo(requestParameters: InviteApiInviteMyselfToRequest, options?: RawAxiosRequestConfig): AxiosPromise<SentNotification> {
+            return localVarFp.inviteMyselfTo(requestParameters.worldId, requestParameters.instanceId, options).then((request) => request(axios, basePath));
         },
         /**
          * Sends an invite to a user. Returns the Notification of type `invite` that was sent.
          * @summary Invite User
-         * @param {string} userId Must be a valid user ID.
-         * @param {InviteRequest} inviteRequest Slot number of the Invite Message to use when inviting a user.
+         * @param {InviteApiInviteUserRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        inviteUser(userId: string, inviteRequest: InviteRequest, options?: RawAxiosRequestConfig): AxiosPromise<SentNotification> {
-            return localVarFp.inviteUser(userId, inviteRequest, options).then((request) => request(axios, basePath));
+        inviteUser(requestParameters: InviteApiInviteUserRequest, options?: RawAxiosRequestConfig): AxiosPromise<SentNotification> {
+            return localVarFp.inviteUser(requestParameters.userId, requestParameters.inviteRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Sends an photo invite to a user. Returns the Notification of type `invite` that was sent.
          * @summary Invite User with photo
-         * @param {string} userId Must be a valid user ID.
-         * @param {File} image The binary blob of the png file.
-         * @param {InviteRequest} data 
+         * @param {InviteApiInviteUserWithPhotoRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        inviteUserWithPhoto(userId: string, image: File, data: InviteRequest, options?: RawAxiosRequestConfig): AxiosPromise<SentNotification> {
-            return localVarFp.inviteUserWithPhoto(userId, image, data, options).then((request) => request(axios, basePath));
+        inviteUserWithPhoto(requestParameters: InviteApiInviteUserWithPhotoRequest, options?: RawAxiosRequestConfig): AxiosPromise<SentNotification> {
+            return localVarFp.inviteUserWithPhoto(requestParameters.userId, requestParameters.image, requestParameters.data, options).then((request) => request(axios, basePath));
         },
         /**
          * Requests an invite from a user. Returns the Notification of type `requestInvite` that was sent.
          * @summary Request Invite
-         * @param {string} userId Must be a valid user ID.
-         * @param {RequestInviteRequest} [requestInviteRequest] Slot number of the Request Message to use when request an invite.
+         * @param {InviteApiRequestInviteRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        requestInvite(userId: string, requestInviteRequest?: RequestInviteRequest, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
-            return localVarFp.requestInvite(userId, requestInviteRequest, options).then((request) => request(axios, basePath));
+        requestInvite(requestParameters: InviteApiRequestInviteRequest, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
+            return localVarFp.requestInvite(requestParameters.userId, requestParameters.requestInviteRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Requests with photo an invite from a user. Returns the Notification of type `requestInvite` that was sent.
          * @summary Request Invite with photo
-         * @param {string} userId Must be a valid user ID.
-         * @param {File} image The binary blob of the png file.
-         * @param {RequestInviteRequest} data 
+         * @param {InviteApiRequestInviteWithPhotoRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        requestInviteWithPhoto(userId: string, image: File, data: RequestInviteRequest, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
-            return localVarFp.requestInviteWithPhoto(userId, image, data, options).then((request) => request(axios, basePath));
+        requestInviteWithPhoto(requestParameters: InviteApiRequestInviteWithPhotoRequest, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
+            return localVarFp.requestInviteWithPhoto(requestParameters.userId, requestParameters.image, requestParameters.data, options).then((request) => request(axios, basePath));
         },
         /**
          * Resets a single Invite Message back to its original message, and then returns a list of all of them. Admin Credentials are required to update messages of other users!  Resetting a message respects the rate-limit, so it is not possible to reset within the 60 minutes countdown. Resetting it does however not set the rate-limit to 60 like when editing it. It is possible to edit it right after resetting it. Trying to edit a message before the cooldown timer expires results in a 429 \"Too Fast Error\".  Message type refers to a different collection of messages, used during different types of responses.  * `message` = Message during a normal invite * `response` = Message when replying to a message * `request` = Message when requesting an invite * `requestResponse` = Message when replying to a request for invite  The DELETE endpoint does not have/require any request body.
          * @summary Reset Invite Message
-         * @param {string} userId Must be a valid user ID.
-         * @param {InviteMessageType} messageType The type of message to fetch, must be a valid InviteMessageType.
-         * @param {number} slot The message slot to fetch of a given message type.
+         * @param {InviteApiResetInviteMessageRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        resetInviteMessage(userId: string, messageType: InviteMessageType, slot: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<InviteMessage>> {
-            return localVarFp.resetInviteMessage(userId, messageType, slot, options).then((request) => request(axios, basePath));
+        resetInviteMessage(requestParameters: InviteApiResetInviteMessageRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<InviteMessage>> {
+            return localVarFp.resetInviteMessage(requestParameters.userId, requestParameters.messageType, requestParameters.slot, options).then((request) => request(axios, basePath));
         },
         /**
          * Respond to an invite or invite request without accepting it. `:notificationId` is the ID of the requesting notification.  In case the notification being replied to is an invite, the `responseSlot` refers to a response message from the the `message` collection. In case the notification is an invite request, it will refer to one from the `requestResponse` collection instead.
          * @summary Respond Invite
-         * @param {string} notificationId Must be a valid notification ID.
-         * @param {InviteResponse} inviteResponse Slot number of the Response Message to use when responding to a user.
+         * @param {InviteApiRespondInviteRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        respondInvite(notificationId: string, inviteResponse: InviteResponse, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
-            return localVarFp.respondInvite(notificationId, inviteResponse, options).then((request) => request(axios, basePath));
+        respondInvite(requestParameters: InviteApiRespondInviteRequest, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
+            return localVarFp.respondInvite(requestParameters.notificationId, requestParameters.inviteResponse, options).then((request) => request(axios, basePath));
         },
         /**
          * Respond with photo to an invite or invite request without accepting it. `:notificationId` is the ID of the requesting notification.  In case the notification being replied to is an invite, the `responseSlot` refers to a response message from the the `message` collection. In case the notification is an invite request, it will refer to one from the `requestResponse` collection instead.\'
          * @summary Respond Invite with photo
-         * @param {string} notificationId Must be a valid notification ID.
-         * @param {File} image The binary blob of the png file.
-         * @param {InviteResponse} data 
+         * @param {InviteApiRespondInviteWithPhotoRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        respondInviteWithPhoto(notificationId: string, image: File, data: InviteResponse, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
-            return localVarFp.respondInviteWithPhoto(notificationId, image, data, options).then((request) => request(axios, basePath));
+        respondInviteWithPhoto(requestParameters: InviteApiRespondInviteWithPhotoRequest, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
+            return localVarFp.respondInviteWithPhoto(requestParameters.notificationId, requestParameters.image, requestParameters.data, options).then((request) => request(axios, basePath));
         },
         /**
          * Updates a single Invite Message and then returns a list of all of them. Admin Credentials are required to update messages of other users!  Updating a message automatically sets the cooldown timer to 60 minutes. Trying to edit a message before the cooldown timer expires results in a 429 \"Too Fast Error\".  Message type refers to a different collection of messages, used during different types of responses.  * `message` = Message during a normal invite * `response` = Message when replying to a message * `request` = Message when requesting an invite * `requestResponse` = Message when replying to a request for invite
          * @summary Update Invite Message
-         * @param {string} userId Must be a valid user ID.
-         * @param {InviteMessageType} messageType The type of message to fetch, must be a valid InviteMessageType.
-         * @param {number} slot The message slot to fetch of a given message type.
-         * @param {UpdateInviteMessageRequest} [updateInviteMessageRequest] Message of what to set the invite message to.
+         * @param {InviteApiUpdateInviteMessageRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateInviteMessage(userId: string, messageType: InviteMessageType, slot: number, updateInviteMessageRequest?: UpdateInviteMessageRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<InviteMessage>> {
-            return localVarFp.updateInviteMessage(userId, messageType, slot, updateInviteMessageRequest, options).then((request) => request(axios, basePath));
+        updateInviteMessage(requestParameters: InviteApiUpdateInviteMessageRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<InviteMessage>> {
+            return localVarFp.updateInviteMessage(requestParameters.userId, requestParameters.messageType, requestParameters.slot, requestParameters.updateInviteMessageRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for getInviteMessage operation in InviteApi.
+ * @export
+ * @interface InviteApiGetInviteMessageRequest
+ */
+export interface InviteApiGetInviteMessageRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof InviteApiGetInviteMessage
+     */
+    readonly userId: string
+
+    /**
+     * The type of message to fetch, must be a valid InviteMessageType.
+     * @type {InviteMessageType}
+     * @memberof InviteApiGetInviteMessage
+     */
+    readonly messageType: InviteMessageType
+
+    /**
+     * The message slot to fetch of a given message type.
+     * @type {number}
+     * @memberof InviteApiGetInviteMessage
+     */
+    readonly slot: number
+}
+
+/**
+ * Request parameters for getInviteMessages operation in InviteApi.
+ * @export
+ * @interface InviteApiGetInviteMessagesRequest
+ */
+export interface InviteApiGetInviteMessagesRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof InviteApiGetInviteMessages
+     */
+    readonly userId: string
+
+    /**
+     * The type of message to fetch, must be a valid InviteMessageType.
+     * @type {InviteMessageType}
+     * @memberof InviteApiGetInviteMessages
+     */
+    readonly messageType: InviteMessageType
+}
+
+/**
+ * Request parameters for inviteMyselfTo operation in InviteApi.
+ * @export
+ * @interface InviteApiInviteMyselfToRequest
+ */
+export interface InviteApiInviteMyselfToRequest {
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof InviteApiInviteMyselfTo
+     */
+    readonly worldId: string
+
+    /**
+     * Must be a valid instance ID.
+     * @type {string}
+     * @memberof InviteApiInviteMyselfTo
+     */
+    readonly instanceId: string
+}
+
+/**
+ * Request parameters for inviteUser operation in InviteApi.
+ * @export
+ * @interface InviteApiInviteUserRequest
+ */
+export interface InviteApiInviteUserRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof InviteApiInviteUser
+     */
+    readonly userId: string
+
+    /**
+     * Slot number of the Invite Message to use when inviting a user.
+     * @type {InviteRequest}
+     * @memberof InviteApiInviteUser
+     */
+    readonly inviteRequest: InviteRequest
+}
+
+/**
+ * Request parameters for inviteUserWithPhoto operation in InviteApi.
+ * @export
+ * @interface InviteApiInviteUserWithPhotoRequest
+ */
+export interface InviteApiInviteUserWithPhotoRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof InviteApiInviteUserWithPhoto
+     */
+    readonly userId: string
+
+    /**
+     * The binary blob of the png file.
+     * @type {File}
+     * @memberof InviteApiInviteUserWithPhoto
+     */
+    readonly image: File
+
+    /**
+     * 
+     * @type {InviteRequest}
+     * @memberof InviteApiInviteUserWithPhoto
+     */
+    readonly data: InviteRequest
+}
+
+/**
+ * Request parameters for requestInvite operation in InviteApi.
+ * @export
+ * @interface InviteApiRequestInviteRequest
+ */
+export interface InviteApiRequestInviteRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof InviteApiRequestInvite
+     */
+    readonly userId: string
+
+    /**
+     * Slot number of the Request Message to use when request an invite.
+     * @type {RequestInviteRequest}
+     * @memberof InviteApiRequestInvite
+     */
+    readonly requestInviteRequest?: RequestInviteRequest
+}
+
+/**
+ * Request parameters for requestInviteWithPhoto operation in InviteApi.
+ * @export
+ * @interface InviteApiRequestInviteWithPhotoRequest
+ */
+export interface InviteApiRequestInviteWithPhotoRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof InviteApiRequestInviteWithPhoto
+     */
+    readonly userId: string
+
+    /**
+     * The binary blob of the png file.
+     * @type {File}
+     * @memberof InviteApiRequestInviteWithPhoto
+     */
+    readonly image: File
+
+    /**
+     * 
+     * @type {RequestInviteRequest}
+     * @memberof InviteApiRequestInviteWithPhoto
+     */
+    readonly data: RequestInviteRequest
+}
+
+/**
+ * Request parameters for resetInviteMessage operation in InviteApi.
+ * @export
+ * @interface InviteApiResetInviteMessageRequest
+ */
+export interface InviteApiResetInviteMessageRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof InviteApiResetInviteMessage
+     */
+    readonly userId: string
+
+    /**
+     * The type of message to fetch, must be a valid InviteMessageType.
+     * @type {InviteMessageType}
+     * @memberof InviteApiResetInviteMessage
+     */
+    readonly messageType: InviteMessageType
+
+    /**
+     * The message slot to fetch of a given message type.
+     * @type {number}
+     * @memberof InviteApiResetInviteMessage
+     */
+    readonly slot: number
+}
+
+/**
+ * Request parameters for respondInvite operation in InviteApi.
+ * @export
+ * @interface InviteApiRespondInviteRequest
+ */
+export interface InviteApiRespondInviteRequest {
+    /**
+     * Must be a valid notification ID.
+     * @type {string}
+     * @memberof InviteApiRespondInvite
+     */
+    readonly notificationId: string
+
+    /**
+     * Slot number of the Response Message to use when responding to a user.
+     * @type {InviteResponse}
+     * @memberof InviteApiRespondInvite
+     */
+    readonly inviteResponse: InviteResponse
+}
+
+/**
+ * Request parameters for respondInviteWithPhoto operation in InviteApi.
+ * @export
+ * @interface InviteApiRespondInviteWithPhotoRequest
+ */
+export interface InviteApiRespondInviteWithPhotoRequest {
+    /**
+     * Must be a valid notification ID.
+     * @type {string}
+     * @memberof InviteApiRespondInviteWithPhoto
+     */
+    readonly notificationId: string
+
+    /**
+     * The binary blob of the png file.
+     * @type {File}
+     * @memberof InviteApiRespondInviteWithPhoto
+     */
+    readonly image: File
+
+    /**
+     * 
+     * @type {InviteResponse}
+     * @memberof InviteApiRespondInviteWithPhoto
+     */
+    readonly data: InviteResponse
+}
+
+/**
+ * Request parameters for updateInviteMessage operation in InviteApi.
+ * @export
+ * @interface InviteApiUpdateInviteMessageRequest
+ */
+export interface InviteApiUpdateInviteMessageRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof InviteApiUpdateInviteMessage
+     */
+    readonly userId: string
+
+    /**
+     * The type of message to fetch, must be a valid InviteMessageType.
+     * @type {InviteMessageType}
+     * @memberof InviteApiUpdateInviteMessage
+     */
+    readonly messageType: InviteMessageType
+
+    /**
+     * The message slot to fetch of a given message type.
+     * @type {number}
+     * @memberof InviteApiUpdateInviteMessage
+     */
+    readonly slot: number
+
+    /**
+     * Message of what to set the invite message to.
+     * @type {UpdateInviteMessageRequest}
+     * @memberof InviteApiUpdateInviteMessage
+     */
+    readonly updateInviteMessageRequest?: UpdateInviteMessageRequest
+}
 
 /**
  * InviteApi - object-oriented interface
@@ -24266,151 +26994,133 @@ export class InviteApi extends BaseAPI {
     /**
      * Returns a single Invite Message. This returns the exact same information but less than `getInviteMessages`. Admin Credentials are required to view messages of other users!  Message type refers to a different collection of messages, used during different types of responses.  * `message` = Message during a normal invite * `response` = Message when replying to a message * `request` = Message when requesting an invite * `requestResponse` = Message when replying to a request for invite
      * @summary Get Invite Message
-     * @param {string} userId Must be a valid user ID.
-     * @param {InviteMessageType} messageType The type of message to fetch, must be a valid InviteMessageType.
-     * @param {number} slot The message slot to fetch of a given message type.
+     * @param {InviteApiGetInviteMessageRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InviteApi
      */
-    public getInviteMessage(userId: string, messageType: InviteMessageType, slot: number, options?: RawAxiosRequestConfig) {
-        return InviteApiFp(this.configuration).getInviteMessage(userId, messageType, slot, options).then((request) => request(this.axios, this.basePath));
+    public getInviteMessage(requestParameters: InviteApiGetInviteMessageRequest, options?: RawAxiosRequestConfig) {
+        return InviteApiFp(this.configuration).getInviteMessage(requestParameters.userId, requestParameters.messageType, requestParameters.slot, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a list of all the users Invite Messages. Admin Credentials are required to view messages of other users!  Message type refers to a different collection of messages, used during different types of responses.  * `message` = Message during a normal invite * `response` = Message when replying to a message * `request` = Message when requesting an invite * `requestResponse` = Message when replying to a request for invite
      * @summary List Invite Messages
-     * @param {string} userId Must be a valid user ID.
-     * @param {InviteMessageType} messageType The type of message to fetch, must be a valid InviteMessageType.
+     * @param {InviteApiGetInviteMessagesRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InviteApi
      */
-    public getInviteMessages(userId: string, messageType: InviteMessageType, options?: RawAxiosRequestConfig) {
-        return InviteApiFp(this.configuration).getInviteMessages(userId, messageType, options).then((request) => request(this.axios, this.basePath));
+    public getInviteMessages(requestParameters: InviteApiGetInviteMessagesRequest, options?: RawAxiosRequestConfig) {
+        return InviteApiFp(this.configuration).getInviteMessages(requestParameters.userId, requestParameters.messageType, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Sends self an invite to an instance
      * @summary Invite Myself To Instance
-     * @param {string} worldId Must be a valid world ID.
-     * @param {string} instanceId Must be a valid instance ID.
+     * @param {InviteApiInviteMyselfToRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InviteApi
      */
-    public inviteMyselfTo(worldId: string, instanceId: string, options?: RawAxiosRequestConfig) {
-        return InviteApiFp(this.configuration).inviteMyselfTo(worldId, instanceId, options).then((request) => request(this.axios, this.basePath));
+    public inviteMyselfTo(requestParameters: InviteApiInviteMyselfToRequest, options?: RawAxiosRequestConfig) {
+        return InviteApiFp(this.configuration).inviteMyselfTo(requestParameters.worldId, requestParameters.instanceId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Sends an invite to a user. Returns the Notification of type `invite` that was sent.
      * @summary Invite User
-     * @param {string} userId Must be a valid user ID.
-     * @param {InviteRequest} inviteRequest Slot number of the Invite Message to use when inviting a user.
+     * @param {InviteApiInviteUserRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InviteApi
      */
-    public inviteUser(userId: string, inviteRequest: InviteRequest, options?: RawAxiosRequestConfig) {
-        return InviteApiFp(this.configuration).inviteUser(userId, inviteRequest, options).then((request) => request(this.axios, this.basePath));
+    public inviteUser(requestParameters: InviteApiInviteUserRequest, options?: RawAxiosRequestConfig) {
+        return InviteApiFp(this.configuration).inviteUser(requestParameters.userId, requestParameters.inviteRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Sends an photo invite to a user. Returns the Notification of type `invite` that was sent.
      * @summary Invite User with photo
-     * @param {string} userId Must be a valid user ID.
-     * @param {File} image The binary blob of the png file.
-     * @param {InviteRequest} data 
+     * @param {InviteApiInviteUserWithPhotoRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InviteApi
      */
-    public inviteUserWithPhoto(userId: string, image: File, data: InviteRequest, options?: RawAxiosRequestConfig) {
-        return InviteApiFp(this.configuration).inviteUserWithPhoto(userId, image, data, options).then((request) => request(this.axios, this.basePath));
+    public inviteUserWithPhoto(requestParameters: InviteApiInviteUserWithPhotoRequest, options?: RawAxiosRequestConfig) {
+        return InviteApiFp(this.configuration).inviteUserWithPhoto(requestParameters.userId, requestParameters.image, requestParameters.data, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Requests an invite from a user. Returns the Notification of type `requestInvite` that was sent.
      * @summary Request Invite
-     * @param {string} userId Must be a valid user ID.
-     * @param {RequestInviteRequest} [requestInviteRequest] Slot number of the Request Message to use when request an invite.
+     * @param {InviteApiRequestInviteRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InviteApi
      */
-    public requestInvite(userId: string, requestInviteRequest?: RequestInviteRequest, options?: RawAxiosRequestConfig) {
-        return InviteApiFp(this.configuration).requestInvite(userId, requestInviteRequest, options).then((request) => request(this.axios, this.basePath));
+    public requestInvite(requestParameters: InviteApiRequestInviteRequest, options?: RawAxiosRequestConfig) {
+        return InviteApiFp(this.configuration).requestInvite(requestParameters.userId, requestParameters.requestInviteRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Requests with photo an invite from a user. Returns the Notification of type `requestInvite` that was sent.
      * @summary Request Invite with photo
-     * @param {string} userId Must be a valid user ID.
-     * @param {File} image The binary blob of the png file.
-     * @param {RequestInviteRequest} data 
+     * @param {InviteApiRequestInviteWithPhotoRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InviteApi
      */
-    public requestInviteWithPhoto(userId: string, image: File, data: RequestInviteRequest, options?: RawAxiosRequestConfig) {
-        return InviteApiFp(this.configuration).requestInviteWithPhoto(userId, image, data, options).then((request) => request(this.axios, this.basePath));
+    public requestInviteWithPhoto(requestParameters: InviteApiRequestInviteWithPhotoRequest, options?: RawAxiosRequestConfig) {
+        return InviteApiFp(this.configuration).requestInviteWithPhoto(requestParameters.userId, requestParameters.image, requestParameters.data, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Resets a single Invite Message back to its original message, and then returns a list of all of them. Admin Credentials are required to update messages of other users!  Resetting a message respects the rate-limit, so it is not possible to reset within the 60 minutes countdown. Resetting it does however not set the rate-limit to 60 like when editing it. It is possible to edit it right after resetting it. Trying to edit a message before the cooldown timer expires results in a 429 \"Too Fast Error\".  Message type refers to a different collection of messages, used during different types of responses.  * `message` = Message during a normal invite * `response` = Message when replying to a message * `request` = Message when requesting an invite * `requestResponse` = Message when replying to a request for invite  The DELETE endpoint does not have/require any request body.
      * @summary Reset Invite Message
-     * @param {string} userId Must be a valid user ID.
-     * @param {InviteMessageType} messageType The type of message to fetch, must be a valid InviteMessageType.
-     * @param {number} slot The message slot to fetch of a given message type.
+     * @param {InviteApiResetInviteMessageRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InviteApi
      */
-    public resetInviteMessage(userId: string, messageType: InviteMessageType, slot: number, options?: RawAxiosRequestConfig) {
-        return InviteApiFp(this.configuration).resetInviteMessage(userId, messageType, slot, options).then((request) => request(this.axios, this.basePath));
+    public resetInviteMessage(requestParameters: InviteApiResetInviteMessageRequest, options?: RawAxiosRequestConfig) {
+        return InviteApiFp(this.configuration).resetInviteMessage(requestParameters.userId, requestParameters.messageType, requestParameters.slot, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Respond to an invite or invite request without accepting it. `:notificationId` is the ID of the requesting notification.  In case the notification being replied to is an invite, the `responseSlot` refers to a response message from the the `message` collection. In case the notification is an invite request, it will refer to one from the `requestResponse` collection instead.
      * @summary Respond Invite
-     * @param {string} notificationId Must be a valid notification ID.
-     * @param {InviteResponse} inviteResponse Slot number of the Response Message to use when responding to a user.
+     * @param {InviteApiRespondInviteRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InviteApi
      */
-    public respondInvite(notificationId: string, inviteResponse: InviteResponse, options?: RawAxiosRequestConfig) {
-        return InviteApiFp(this.configuration).respondInvite(notificationId, inviteResponse, options).then((request) => request(this.axios, this.basePath));
+    public respondInvite(requestParameters: InviteApiRespondInviteRequest, options?: RawAxiosRequestConfig) {
+        return InviteApiFp(this.configuration).respondInvite(requestParameters.notificationId, requestParameters.inviteResponse, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Respond with photo to an invite or invite request without accepting it. `:notificationId` is the ID of the requesting notification.  In case the notification being replied to is an invite, the `responseSlot` refers to a response message from the the `message` collection. In case the notification is an invite request, it will refer to one from the `requestResponse` collection instead.\'
      * @summary Respond Invite with photo
-     * @param {string} notificationId Must be a valid notification ID.
-     * @param {File} image The binary blob of the png file.
-     * @param {InviteResponse} data 
+     * @param {InviteApiRespondInviteWithPhotoRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InviteApi
      */
-    public respondInviteWithPhoto(notificationId: string, image: File, data: InviteResponse, options?: RawAxiosRequestConfig) {
-        return InviteApiFp(this.configuration).respondInviteWithPhoto(notificationId, image, data, options).then((request) => request(this.axios, this.basePath));
+    public respondInviteWithPhoto(requestParameters: InviteApiRespondInviteWithPhotoRequest, options?: RawAxiosRequestConfig) {
+        return InviteApiFp(this.configuration).respondInviteWithPhoto(requestParameters.notificationId, requestParameters.image, requestParameters.data, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Updates a single Invite Message and then returns a list of all of them. Admin Credentials are required to update messages of other users!  Updating a message automatically sets the cooldown timer to 60 minutes. Trying to edit a message before the cooldown timer expires results in a 429 \"Too Fast Error\".  Message type refers to a different collection of messages, used during different types of responses.  * `message` = Message during a normal invite * `response` = Message when replying to a message * `request` = Message when requesting an invite * `requestResponse` = Message when replying to a request for invite
      * @summary Update Invite Message
-     * @param {string} userId Must be a valid user ID.
-     * @param {InviteMessageType} messageType The type of message to fetch, must be a valid InviteMessageType.
-     * @param {number} slot The message slot to fetch of a given message type.
-     * @param {UpdateInviteMessageRequest} [updateInviteMessageRequest] Message of what to set the invite message to.
+     * @param {InviteApiUpdateInviteMessageRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof InviteApi
      */
-    public updateInviteMessage(userId: string, messageType: InviteMessageType, slot: number, updateInviteMessageRequest?: UpdateInviteMessageRequest, options?: RawAxiosRequestConfig) {
-        return InviteApiFp(this.configuration).updateInviteMessage(userId, messageType, slot, updateInviteMessageRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateInviteMessage(requestParameters: InviteApiUpdateInviteMessageRequest, options?: RawAxiosRequestConfig) {
+        return InviteApiFp(this.configuration).updateInviteMessage(requestParameters.userId, requestParameters.messageType, requestParameters.slot, requestParameters.updateInviteMessageRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -24593,35 +27303,77 @@ export const JamsApiFactory = function (configuration?: Configuration, basePath?
         /**
          * Returns a jam.
          * @summary Show jam information
-         * @param {string} jamId Must be a valid query ID.
+         * @param {JamsApiGetJamRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getJam(jamId: string, options?: RawAxiosRequestConfig): AxiosPromise<Jam> {
-            return localVarFp.getJam(jamId, options).then((request) => request(axios, basePath));
+        getJam(requestParameters: JamsApiGetJamRequest, options?: RawAxiosRequestConfig): AxiosPromise<Jam> {
+            return localVarFp.getJam(requestParameters.jamId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns all submissions of a jam.
          * @summary Show jam submissions
-         * @param {string} jamId Must be a valid query ID.
+         * @param {JamsApiGetJamSubmissionsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getJamSubmissions(jamId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Submission>> {
-            return localVarFp.getJamSubmissions(jamId, options).then((request) => request(axios, basePath));
+        getJamSubmissions(requestParameters: JamsApiGetJamSubmissionsRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<Submission>> {
+            return localVarFp.getJamSubmissions(requestParameters.jamId, options).then((request) => request(axios, basePath));
         },
         /**
          * Lists World Jams or Avatar Jams, both currently running and ones that have ended.  `isActive` is used to select only active or already ended jams.  `type` is used to select only world or avatar jams, and can only take `world` or `avatar`. ``
          * @summary Show jams list
-         * @param {string} [type] Only show jams of this type (&#x60;avatar&#x60; or &#x60;world&#x60;).
+         * @param {JamsApiGetJamsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getJams(type?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Jam>> {
-            return localVarFp.getJams(type, options).then((request) => request(axios, basePath));
+        getJams(requestParameters: JamsApiGetJamsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<Jam>> {
+            return localVarFp.getJams(requestParameters.type, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for getJam operation in JamsApi.
+ * @export
+ * @interface JamsApiGetJamRequest
+ */
+export interface JamsApiGetJamRequest {
+    /**
+     * Must be a valid query ID.
+     * @type {string}
+     * @memberof JamsApiGetJam
+     */
+    readonly jamId: string
+}
+
+/**
+ * Request parameters for getJamSubmissions operation in JamsApi.
+ * @export
+ * @interface JamsApiGetJamSubmissionsRequest
+ */
+export interface JamsApiGetJamSubmissionsRequest {
+    /**
+     * Must be a valid query ID.
+     * @type {string}
+     * @memberof JamsApiGetJamSubmissions
+     */
+    readonly jamId: string
+}
+
+/**
+ * Request parameters for getJams operation in JamsApi.
+ * @export
+ * @interface JamsApiGetJamsRequest
+ */
+export interface JamsApiGetJamsRequest {
+    /**
+     * Only show jams of this type (&#x60;avatar&#x60; or &#x60;world&#x60;).
+     * @type {string}
+     * @memberof JamsApiGetJams
+     */
+    readonly type?: string
+}
 
 /**
  * JamsApi - object-oriented interface
@@ -24633,37 +27385,37 @@ export class JamsApi extends BaseAPI {
     /**
      * Returns a jam.
      * @summary Show jam information
-     * @param {string} jamId Must be a valid query ID.
+     * @param {JamsApiGetJamRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof JamsApi
      */
-    public getJam(jamId: string, options?: RawAxiosRequestConfig) {
-        return JamsApiFp(this.configuration).getJam(jamId, options).then((request) => request(this.axios, this.basePath));
+    public getJam(requestParameters: JamsApiGetJamRequest, options?: RawAxiosRequestConfig) {
+        return JamsApiFp(this.configuration).getJam(requestParameters.jamId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns all submissions of a jam.
      * @summary Show jam submissions
-     * @param {string} jamId Must be a valid query ID.
+     * @param {JamsApiGetJamSubmissionsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof JamsApi
      */
-    public getJamSubmissions(jamId: string, options?: RawAxiosRequestConfig) {
-        return JamsApiFp(this.configuration).getJamSubmissions(jamId, options).then((request) => request(this.axios, this.basePath));
+    public getJamSubmissions(requestParameters: JamsApiGetJamSubmissionsRequest, options?: RawAxiosRequestConfig) {
+        return JamsApiFp(this.configuration).getJamSubmissions(requestParameters.jamId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Lists World Jams or Avatar Jams, both currently running and ones that have ended.  `isActive` is used to select only active or already ended jams.  `type` is used to select only world or avatar jams, and can only take `world` or `avatar`. ``
      * @summary Show jams list
-     * @param {string} [type] Only show jams of this type (&#x60;avatar&#x60; or &#x60;world&#x60;).
+     * @param {JamsApiGetJamsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof JamsApi
      */
-    public getJams(type?: string, options?: RawAxiosRequestConfig) {
-        return JamsApiFp(this.configuration).getJams(type, options).then((request) => request(this.axios, this.basePath));
+    public getJams(requestParameters: JamsApiGetJamsRequest = {}, options?: RawAxiosRequestConfig) {
+        return JamsApiFp(this.configuration).getJams(requestParameters.type, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -25132,13 +27884,12 @@ export const MiscellaneousApiFactory = function (configuration?: Configuration, 
         /**
          * Fetches the CSS code to the frontend React website.
          * @summary Download CSS
-         * @param {GetCSSVariantEnum} [variant] Specifies which &#x60;variant&#x60; of the site. Public is the end-user site, while &#x60;internal&#x60; is the staff-only site with special pages for moderation and management.
-         * @param {string} [branch] Specifies which git branch the site should load frontend source code from.
+         * @param {MiscellaneousApiGetCSSRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getCSS(variant?: GetCSSVariantEnum, branch?: string, options?: RawAxiosRequestConfig): AxiosPromise<string> {
-            return localVarFp.getCSS(variant, branch, options).then((request) => request(axios, basePath));
+        getCSS(requestParameters: MiscellaneousApiGetCSSRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<string> {
+            return localVarFp.getCSS(requestParameters.variant, requestParameters.branch, options).then((request) => request(axios, basePath));
         },
         /**
          * API config contains configuration that the clients needs to work properly.  Currently the most important value here is `clientApiKey` which is used for all other API endpoints.
@@ -25171,34 +27922,32 @@ export const MiscellaneousApiFactory = function (configuration?: Configuration, 
         /**
          * IPS (Info Push System) is a system for VRChat to push out dynamic information to the client. This is primarily used by the Quick-Menu info banners, but can also be used to e.g. alert you to update your game to the latest version.  `include` is used to query what Information Pushes should be included in the response. If include is missing or empty, then no notices will normally be returned. This is an \"any of\" search.  `require` is used to limit what Information Pushes should be included in the response. This is usually used in combination with `include`, and is an \"all of\" search.
          * @summary Show Information Notices
-         * @param {string} [require] Tags to include (comma-separated). All of the tags needs to be present.
-         * @param {string} [include] Tags to include (comma-separated). Any of the tags needs to be present.
+         * @param {MiscellaneousApiGetInfoPushRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getInfoPush(require?: string, include?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<InfoPush>> {
-            return localVarFp.getInfoPush(require, include, options).then((request) => request(axios, basePath));
+        getInfoPush(requestParameters: MiscellaneousApiGetInfoPushRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<InfoPush>> {
+            return localVarFp.getInfoPush(requestParameters.require, requestParameters.include, options).then((request) => request(axios, basePath));
         },
         /**
          * Fetches the JavaScript code to the frontend React website.
          * @summary Download JavaScript
-         * @param {GetJavaScriptVariantEnum} [variant] Specifies which &#x60;variant&#x60; of the site. Public is the end-user site, while &#x60;internal&#x60; is the staff-only site with special pages for moderation and management.
-         * @param {string} [branch] Specifies which git branch the site should load frontend source code from.
+         * @param {MiscellaneousApiGetJavaScriptRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getJavaScript(variant?: GetJavaScriptVariantEnum, branch?: string, options?: RawAxiosRequestConfig): AxiosPromise<string> {
-            return localVarFp.getJavaScript(variant, branch, options).then((request) => request(axios, basePath));
+        getJavaScript(requestParameters: MiscellaneousApiGetJavaScriptRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<string> {
+            return localVarFp.getJavaScript(requestParameters.variant, requestParameters.branch, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a single permission. This endpoint is pretty useless, as it returns the exact same information as `/auth/permissions`.
          * @summary Get Permission
-         * @param {string} permissionId Must be a valid permission ID.
+         * @param {MiscellaneousApiGetPermissionRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getPermission(permissionId: string, options?: RawAxiosRequestConfig): AxiosPromise<Permission> {
-            return localVarFp.getPermission(permissionId, options).then((request) => request(axios, basePath));
+        getPermission(requestParameters: MiscellaneousApiGetPermissionRequest, options?: RawAxiosRequestConfig): AxiosPromise<Permission> {
+            return localVarFp.getPermission(requestParameters.permissionId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns the current time of the API server.  **NOTE:** The response type is not a JSON object, but a simple JSON string.
@@ -25211,6 +27960,83 @@ export const MiscellaneousApiFactory = function (configuration?: Configuration, 
         },
     };
 };
+
+/**
+ * Request parameters for getCSS operation in MiscellaneousApi.
+ * @export
+ * @interface MiscellaneousApiGetCSSRequest
+ */
+export interface MiscellaneousApiGetCSSRequest {
+    /**
+     * Specifies which &#x60;variant&#x60; of the site. Public is the end-user site, while &#x60;internal&#x60; is the staff-only site with special pages for moderation and management.
+     * @type {'public' | 'internal'}
+     * @memberof MiscellaneousApiGetCSS
+     */
+    readonly variant?: GetCSSVariantEnum
+
+    /**
+     * Specifies which git branch the site should load frontend source code from.
+     * @type {string}
+     * @memberof MiscellaneousApiGetCSS
+     */
+    readonly branch?: string
+}
+
+/**
+ * Request parameters for getInfoPush operation in MiscellaneousApi.
+ * @export
+ * @interface MiscellaneousApiGetInfoPushRequest
+ */
+export interface MiscellaneousApiGetInfoPushRequest {
+    /**
+     * Tags to include (comma-separated). All of the tags needs to be present.
+     * @type {string}
+     * @memberof MiscellaneousApiGetInfoPush
+     */
+    readonly require?: string
+
+    /**
+     * Tags to include (comma-separated). Any of the tags needs to be present.
+     * @type {string}
+     * @memberof MiscellaneousApiGetInfoPush
+     */
+    readonly include?: string
+}
+
+/**
+ * Request parameters for getJavaScript operation in MiscellaneousApi.
+ * @export
+ * @interface MiscellaneousApiGetJavaScriptRequest
+ */
+export interface MiscellaneousApiGetJavaScriptRequest {
+    /**
+     * Specifies which &#x60;variant&#x60; of the site. Public is the end-user site, while &#x60;internal&#x60; is the staff-only site with special pages for moderation and management.
+     * @type {'public' | 'internal'}
+     * @memberof MiscellaneousApiGetJavaScript
+     */
+    readonly variant?: GetJavaScriptVariantEnum
+
+    /**
+     * Specifies which git branch the site should load frontend source code from.
+     * @type {string}
+     * @memberof MiscellaneousApiGetJavaScript
+     */
+    readonly branch?: string
+}
+
+/**
+ * Request parameters for getPermission operation in MiscellaneousApi.
+ * @export
+ * @interface MiscellaneousApiGetPermissionRequest
+ */
+export interface MiscellaneousApiGetPermissionRequest {
+    /**
+     * Must be a valid permission ID.
+     * @type {string}
+     * @memberof MiscellaneousApiGetPermission
+     */
+    readonly permissionId: string
+}
 
 /**
  * MiscellaneousApi - object-oriented interface
@@ -25233,14 +28059,13 @@ export class MiscellaneousApi extends BaseAPI {
     /**
      * Fetches the CSS code to the frontend React website.
      * @summary Download CSS
-     * @param {GetCSSVariantEnum} [variant] Specifies which &#x60;variant&#x60; of the site. Public is the end-user site, while &#x60;internal&#x60; is the staff-only site with special pages for moderation and management.
-     * @param {string} [branch] Specifies which git branch the site should load frontend source code from.
+     * @param {MiscellaneousApiGetCSSRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MiscellaneousApi
      */
-    public getCSS(variant?: GetCSSVariantEnum, branch?: string, options?: RawAxiosRequestConfig) {
-        return MiscellaneousApiFp(this.configuration).getCSS(variant, branch, options).then((request) => request(this.axios, this.basePath));
+    public getCSS(requestParameters: MiscellaneousApiGetCSSRequest = {}, options?: RawAxiosRequestConfig) {
+        return MiscellaneousApiFp(this.configuration).getCSS(requestParameters.variant, requestParameters.branch, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -25280,39 +28105,37 @@ export class MiscellaneousApi extends BaseAPI {
     /**
      * IPS (Info Push System) is a system for VRChat to push out dynamic information to the client. This is primarily used by the Quick-Menu info banners, but can also be used to e.g. alert you to update your game to the latest version.  `include` is used to query what Information Pushes should be included in the response. If include is missing or empty, then no notices will normally be returned. This is an \"any of\" search.  `require` is used to limit what Information Pushes should be included in the response. This is usually used in combination with `include`, and is an \"all of\" search.
      * @summary Show Information Notices
-     * @param {string} [require] Tags to include (comma-separated). All of the tags needs to be present.
-     * @param {string} [include] Tags to include (comma-separated). Any of the tags needs to be present.
+     * @param {MiscellaneousApiGetInfoPushRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MiscellaneousApi
      */
-    public getInfoPush(require?: string, include?: string, options?: RawAxiosRequestConfig) {
-        return MiscellaneousApiFp(this.configuration).getInfoPush(require, include, options).then((request) => request(this.axios, this.basePath));
+    public getInfoPush(requestParameters: MiscellaneousApiGetInfoPushRequest = {}, options?: RawAxiosRequestConfig) {
+        return MiscellaneousApiFp(this.configuration).getInfoPush(requestParameters.require, requestParameters.include, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Fetches the JavaScript code to the frontend React website.
      * @summary Download JavaScript
-     * @param {GetJavaScriptVariantEnum} [variant] Specifies which &#x60;variant&#x60; of the site. Public is the end-user site, while &#x60;internal&#x60; is the staff-only site with special pages for moderation and management.
-     * @param {string} [branch] Specifies which git branch the site should load frontend source code from.
+     * @param {MiscellaneousApiGetJavaScriptRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MiscellaneousApi
      */
-    public getJavaScript(variant?: GetJavaScriptVariantEnum, branch?: string, options?: RawAxiosRequestConfig) {
-        return MiscellaneousApiFp(this.configuration).getJavaScript(variant, branch, options).then((request) => request(this.axios, this.basePath));
+    public getJavaScript(requestParameters: MiscellaneousApiGetJavaScriptRequest = {}, options?: RawAxiosRequestConfig) {
+        return MiscellaneousApiFp(this.configuration).getJavaScript(requestParameters.variant, requestParameters.branch, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a single permission. This endpoint is pretty useless, as it returns the exact same information as `/auth/permissions`.
      * @summary Get Permission
-     * @param {string} permissionId Must be a valid permission ID.
+     * @param {MiscellaneousApiGetPermissionRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof MiscellaneousApi
      */
-    public getPermission(permissionId: string, options?: RawAxiosRequestConfig) {
-        return MiscellaneousApiFp(this.configuration).getPermission(permissionId, options).then((request) => request(this.axios, this.basePath));
+    public getPermission(requestParameters: MiscellaneousApiGetPermissionRequest, options?: RawAxiosRequestConfig) {
+        return MiscellaneousApiFp(this.configuration).getPermission(requestParameters.permissionId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -25694,12 +28517,12 @@ export const NotificationsApiFactory = function (configuration?: Configuration, 
         /**
          * Accept a friend request by notification `frq_` ID. Friend requests can be found using the NotificationsAPI `getNotifications` by filtering of type `friendRequest`.
          * @summary Accept Friend Request
-         * @param {string} notificationId Must be a valid notification ID.
+         * @param {NotificationsApiAcceptFriendRequestRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        acceptFriendRequest(notificationId: string, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
-            return localVarFp.acceptFriendRequest(notificationId, options).then((request) => request(axios, basePath));
+        acceptFriendRequest(requestParameters: NotificationsApiAcceptFriendRequestRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
+            return localVarFp.acceptFriendRequest(requestParameters.notificationId, options).then((request) => request(axios, basePath));
         },
         /**
          * Clear **all** notifications.
@@ -25713,50 +28536,150 @@ export const NotificationsApiFactory = function (configuration?: Configuration, 
         /**
          * Delete a notification.
          * @summary Delete Notification
-         * @param {string} notificationId Must be a valid notification ID.
+         * @param {NotificationsApiDeleteNotificationRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteNotification(notificationId: string, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
-            return localVarFp.deleteNotification(notificationId, options).then((request) => request(axios, basePath));
+        deleteNotification(requestParameters: NotificationsApiDeleteNotificationRequest, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
+            return localVarFp.deleteNotification(requestParameters.notificationId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get a notification by notification `not_` ID.
          * @summary Show notification
-         * @param {string} notificationId Must be a valid notification ID.
+         * @param {NotificationsApiGetNotificationRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getNotification(notificationId: string, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
-            return localVarFp.getNotification(notificationId, options).then((request) => request(axios, basePath));
+        getNotification(requestParameters: NotificationsApiGetNotificationRequest, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
+            return localVarFp.getNotification(requestParameters.notificationId, options).then((request) => request(axios, basePath));
         },
         /**
          * Retrieve all of the current user\'s notifications.
          * @summary List Notifications
-         * @param {string} [type] Only send notifications of this type (can use &#x60;all&#x60; for all). This parameter no longer does anything, and is deprecated.
-         * @param {boolean} [sent] Return notifications sent by the user. Must be false or omitted.
-         * @param {boolean} [hidden] Whether to return hidden or non-hidden notifications. True only allowed on type &#x60;friendRequest&#x60;.
-         * @param {string} [after] Only return notifications sent after this Date. Ignored if type is &#x60;friendRequest&#x60;.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+         * @param {NotificationsApiGetNotificationsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getNotifications(type?: string, sent?: boolean, hidden?: boolean, after?: string, n?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<Notification>> {
-            return localVarFp.getNotifications(type, sent, hidden, after, n, offset, options).then((request) => request(axios, basePath));
+        getNotifications(requestParameters: NotificationsApiGetNotificationsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<Notification>> {
+            return localVarFp.getNotifications(requestParameters.type, requestParameters.sent, requestParameters.hidden, requestParameters.after, requestParameters.n, requestParameters.offset, options).then((request) => request(axios, basePath));
         },
         /**
          * Mark a notification as seen.
          * @summary Mark Notification As Read
-         * @param {string} notificationId Must be a valid notification ID.
+         * @param {NotificationsApiMarkNotificationAsReadRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        markNotificationAsRead(notificationId: string, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
-            return localVarFp.markNotificationAsRead(notificationId, options).then((request) => request(axios, basePath));
+        markNotificationAsRead(requestParameters: NotificationsApiMarkNotificationAsReadRequest, options?: RawAxiosRequestConfig): AxiosPromise<Notification> {
+            return localVarFp.markNotificationAsRead(requestParameters.notificationId, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for acceptFriendRequest operation in NotificationsApi.
+ * @export
+ * @interface NotificationsApiAcceptFriendRequestRequest
+ */
+export interface NotificationsApiAcceptFriendRequestRequest {
+    /**
+     * Must be a valid notification ID.
+     * @type {string}
+     * @memberof NotificationsApiAcceptFriendRequest
+     */
+    readonly notificationId: string
+}
+
+/**
+ * Request parameters for deleteNotification operation in NotificationsApi.
+ * @export
+ * @interface NotificationsApiDeleteNotificationRequest
+ */
+export interface NotificationsApiDeleteNotificationRequest {
+    /**
+     * Must be a valid notification ID.
+     * @type {string}
+     * @memberof NotificationsApiDeleteNotification
+     */
+    readonly notificationId: string
+}
+
+/**
+ * Request parameters for getNotification operation in NotificationsApi.
+ * @export
+ * @interface NotificationsApiGetNotificationRequest
+ */
+export interface NotificationsApiGetNotificationRequest {
+    /**
+     * Must be a valid notification ID.
+     * @type {string}
+     * @memberof NotificationsApiGetNotification
+     */
+    readonly notificationId: string
+}
+
+/**
+ * Request parameters for getNotifications operation in NotificationsApi.
+ * @export
+ * @interface NotificationsApiGetNotificationsRequest
+ */
+export interface NotificationsApiGetNotificationsRequest {
+    /**
+     * Only send notifications of this type (can use &#x60;all&#x60; for all). This parameter no longer does anything, and is deprecated.
+     * @type {string}
+     * @memberof NotificationsApiGetNotifications
+     */
+    readonly type?: string
+
+    /**
+     * Return notifications sent by the user. Must be false or omitted.
+     * @type {boolean}
+     * @memberof NotificationsApiGetNotifications
+     */
+    readonly sent?: boolean
+
+    /**
+     * Whether to return hidden or non-hidden notifications. True only allowed on type &#x60;friendRequest&#x60;.
+     * @type {boolean}
+     * @memberof NotificationsApiGetNotifications
+     */
+    readonly hidden?: boolean
+
+    /**
+     * Only return notifications sent after this Date. Ignored if type is &#x60;friendRequest&#x60;.
+     * @type {string}
+     * @memberof NotificationsApiGetNotifications
+     */
+    readonly after?: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof NotificationsApiGetNotifications
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof NotificationsApiGetNotifications
+     */
+    readonly offset?: number
+}
+
+/**
+ * Request parameters for markNotificationAsRead operation in NotificationsApi.
+ * @export
+ * @interface NotificationsApiMarkNotificationAsReadRequest
+ */
+export interface NotificationsApiMarkNotificationAsReadRequest {
+    /**
+     * Must be a valid notification ID.
+     * @type {string}
+     * @memberof NotificationsApiMarkNotificationAsRead
+     */
+    readonly notificationId: string
+}
 
 /**
  * NotificationsApi - object-oriented interface
@@ -25768,13 +28691,13 @@ export class NotificationsApi extends BaseAPI {
     /**
      * Accept a friend request by notification `frq_` ID. Friend requests can be found using the NotificationsAPI `getNotifications` by filtering of type `friendRequest`.
      * @summary Accept Friend Request
-     * @param {string} notificationId Must be a valid notification ID.
+     * @param {NotificationsApiAcceptFriendRequestRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof NotificationsApi
      */
-    public acceptFriendRequest(notificationId: string, options?: RawAxiosRequestConfig) {
-        return NotificationsApiFp(this.configuration).acceptFriendRequest(notificationId, options).then((request) => request(this.axios, this.basePath));
+    public acceptFriendRequest(requestParameters: NotificationsApiAcceptFriendRequestRequest, options?: RawAxiosRequestConfig) {
+        return NotificationsApiFp(this.configuration).acceptFriendRequest(requestParameters.notificationId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -25791,54 +28714,49 @@ export class NotificationsApi extends BaseAPI {
     /**
      * Delete a notification.
      * @summary Delete Notification
-     * @param {string} notificationId Must be a valid notification ID.
+     * @param {NotificationsApiDeleteNotificationRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof NotificationsApi
      */
-    public deleteNotification(notificationId: string, options?: RawAxiosRequestConfig) {
-        return NotificationsApiFp(this.configuration).deleteNotification(notificationId, options).then((request) => request(this.axios, this.basePath));
+    public deleteNotification(requestParameters: NotificationsApiDeleteNotificationRequest, options?: RawAxiosRequestConfig) {
+        return NotificationsApiFp(this.configuration).deleteNotification(requestParameters.notificationId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get a notification by notification `not_` ID.
      * @summary Show notification
-     * @param {string} notificationId Must be a valid notification ID.
+     * @param {NotificationsApiGetNotificationRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof NotificationsApi
      */
-    public getNotification(notificationId: string, options?: RawAxiosRequestConfig) {
-        return NotificationsApiFp(this.configuration).getNotification(notificationId, options).then((request) => request(this.axios, this.basePath));
+    public getNotification(requestParameters: NotificationsApiGetNotificationRequest, options?: RawAxiosRequestConfig) {
+        return NotificationsApiFp(this.configuration).getNotification(requestParameters.notificationId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Retrieve all of the current user\'s notifications.
      * @summary List Notifications
-     * @param {string} [type] Only send notifications of this type (can use &#x60;all&#x60; for all). This parameter no longer does anything, and is deprecated.
-     * @param {boolean} [sent] Return notifications sent by the user. Must be false or omitted.
-     * @param {boolean} [hidden] Whether to return hidden or non-hidden notifications. True only allowed on type &#x60;friendRequest&#x60;.
-     * @param {string} [after] Only return notifications sent after this Date. Ignored if type is &#x60;friendRequest&#x60;.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+     * @param {NotificationsApiGetNotificationsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof NotificationsApi
      */
-    public getNotifications(type?: string, sent?: boolean, hidden?: boolean, after?: string, n?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return NotificationsApiFp(this.configuration).getNotifications(type, sent, hidden, after, n, offset, options).then((request) => request(this.axios, this.basePath));
+    public getNotifications(requestParameters: NotificationsApiGetNotificationsRequest = {}, options?: RawAxiosRequestConfig) {
+        return NotificationsApiFp(this.configuration).getNotifications(requestParameters.type, requestParameters.sent, requestParameters.hidden, requestParameters.after, requestParameters.n, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Mark a notification as seen.
      * @summary Mark Notification As Read
-     * @param {string} notificationId Must be a valid notification ID.
+     * @param {NotificationsApiMarkNotificationAsReadRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof NotificationsApi
      */
-    public markNotificationAsRead(notificationId: string, options?: RawAxiosRequestConfig) {
-        return NotificationsApiFp(this.configuration).markNotificationAsRead(notificationId, options).then((request) => request(this.axios, this.basePath));
+    public markNotificationAsRead(requestParameters: NotificationsApiMarkNotificationAsReadRequest, options?: RawAxiosRequestConfig) {
+        return NotificationsApiFp(this.configuration).markNotificationAsRead(requestParameters.notificationId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -26084,36 +29002,84 @@ export const PlayermoderationApiFactory = function (configuration?: Configuratio
         /**
          * Returns a list of all player moderations made by **you**.  This endpoint does not have pagination, and will return *all* results. Use query parameters to limit your query if needed.
          * @summary Search Player Moderations
-         * @param {string} [type] Must be one of PlayerModerationType, except unblock. Unblocking simply removes a block.
-         * @param {string} [targetUserId] Must be valid UserID.
+         * @param {PlayermoderationApiGetPlayerModerationsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getPlayerModerations(type?: string, targetUserId?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<PlayerModeration>> {
-            return localVarFp.getPlayerModerations(type, targetUserId, options).then((request) => request(axios, basePath));
+        getPlayerModerations(requestParameters: PlayermoderationApiGetPlayerModerationsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<PlayerModeration>> {
+            return localVarFp.getPlayerModerations(requestParameters.type, requestParameters.targetUserId, options).then((request) => request(axios, basePath));
         },
         /**
          * Moderate a user, e.g. unmute them or show their avatar.  Please see the [Player Moderation docs](https://vrchatapi.github.io/docs/api/#tag--playermoderation) on what playerModerations are, and how they differ from staff moderations.
          * @summary Moderate User
-         * @param {ModerateUserRequest} moderateUserRequest 
+         * @param {PlayermoderationApiModerateUserRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        moderateUser(moderateUserRequest: ModerateUserRequest, options?: RawAxiosRequestConfig): AxiosPromise<PlayerModeration> {
-            return localVarFp.moderateUser(moderateUserRequest, options).then((request) => request(axios, basePath));
+        moderateUser(requestParameters: PlayermoderationApiModerateUserRequest, options?: RawAxiosRequestConfig): AxiosPromise<PlayerModeration> {
+            return localVarFp.moderateUser(requestParameters.moderateUserRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Removes a player moderation previously added through `moderateUser`. E.g if you previously have shown their avatar, but now want to reset it to default.
          * @summary Unmoderate User
-         * @param {ModerateUserRequest} moderateUserRequest 
+         * @param {PlayermoderationApiUnmoderateUserRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        unmoderateUser(moderateUserRequest: ModerateUserRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
-            return localVarFp.unmoderateUser(moderateUserRequest, options).then((request) => request(axios, basePath));
+        unmoderateUser(requestParameters: PlayermoderationApiUnmoderateUserRequest, options?: RawAxiosRequestConfig): AxiosPromise<Success> {
+            return localVarFp.unmoderateUser(requestParameters.moderateUserRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for getPlayerModerations operation in PlayermoderationApi.
+ * @export
+ * @interface PlayermoderationApiGetPlayerModerationsRequest
+ */
+export interface PlayermoderationApiGetPlayerModerationsRequest {
+    /**
+     * Must be one of PlayerModerationType, except unblock. Unblocking simply removes a block.
+     * @type {string}
+     * @memberof PlayermoderationApiGetPlayerModerations
+     */
+    readonly type?: string
+
+    /**
+     * Must be valid UserID.
+     * @type {string}
+     * @memberof PlayermoderationApiGetPlayerModerations
+     */
+    readonly targetUserId?: string
+}
+
+/**
+ * Request parameters for moderateUser operation in PlayermoderationApi.
+ * @export
+ * @interface PlayermoderationApiModerateUserRequest
+ */
+export interface PlayermoderationApiModerateUserRequest {
+    /**
+     * 
+     * @type {ModerateUserRequest}
+     * @memberof PlayermoderationApiModerateUser
+     */
+    readonly moderateUserRequest: ModerateUserRequest
+}
+
+/**
+ * Request parameters for unmoderateUser operation in PlayermoderationApi.
+ * @export
+ * @interface PlayermoderationApiUnmoderateUserRequest
+ */
+export interface PlayermoderationApiUnmoderateUserRequest {
+    /**
+     * 
+     * @type {ModerateUserRequest}
+     * @memberof PlayermoderationApiUnmoderateUser
+     */
+    readonly moderateUserRequest: ModerateUserRequest
+}
 
 /**
  * PlayermoderationApi - object-oriented interface
@@ -26136,38 +29102,37 @@ export class PlayermoderationApi extends BaseAPI {
     /**
      * Returns a list of all player moderations made by **you**.  This endpoint does not have pagination, and will return *all* results. Use query parameters to limit your query if needed.
      * @summary Search Player Moderations
-     * @param {string} [type] Must be one of PlayerModerationType, except unblock. Unblocking simply removes a block.
-     * @param {string} [targetUserId] Must be valid UserID.
+     * @param {PlayermoderationApiGetPlayerModerationsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PlayermoderationApi
      */
-    public getPlayerModerations(type?: string, targetUserId?: string, options?: RawAxiosRequestConfig) {
-        return PlayermoderationApiFp(this.configuration).getPlayerModerations(type, targetUserId, options).then((request) => request(this.axios, this.basePath));
+    public getPlayerModerations(requestParameters: PlayermoderationApiGetPlayerModerationsRequest = {}, options?: RawAxiosRequestConfig) {
+        return PlayermoderationApiFp(this.configuration).getPlayerModerations(requestParameters.type, requestParameters.targetUserId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Moderate a user, e.g. unmute them or show their avatar.  Please see the [Player Moderation docs](https://vrchatapi.github.io/docs/api/#tag--playermoderation) on what playerModerations are, and how they differ from staff moderations.
      * @summary Moderate User
-     * @param {ModerateUserRequest} moderateUserRequest 
+     * @param {PlayermoderationApiModerateUserRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PlayermoderationApi
      */
-    public moderateUser(moderateUserRequest: ModerateUserRequest, options?: RawAxiosRequestConfig) {
-        return PlayermoderationApiFp(this.configuration).moderateUser(moderateUserRequest, options).then((request) => request(this.axios, this.basePath));
+    public moderateUser(requestParameters: PlayermoderationApiModerateUserRequest, options?: RawAxiosRequestConfig) {
+        return PlayermoderationApiFp(this.configuration).moderateUser(requestParameters.moderateUserRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Removes a player moderation previously added through `moderateUser`. E.g if you previously have shown their avatar, but now want to reset it to default.
      * @summary Unmoderate User
-     * @param {ModerateUserRequest} moderateUserRequest 
+     * @param {PlayermoderationApiUnmoderateUserRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PlayermoderationApi
      */
-    public unmoderateUser(moderateUserRequest: ModerateUserRequest, options?: RawAxiosRequestConfig) {
-        return PlayermoderationApiFp(this.configuration).unmoderateUser(moderateUserRequest, options).then((request) => request(this.axios, this.basePath));
+    public unmoderateUser(requestParameters: PlayermoderationApiUnmoderateUserRequest, options?: RawAxiosRequestConfig) {
+        return PlayermoderationApiFp(this.configuration).unmoderateUser(requestParameters.moderateUserRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -26498,61 +29463,167 @@ export const PrintsApiFactory = function (configuration?: Configuration, basePat
         /**
          * Returns a print.
          * @summary Delete Print
-         * @param {string} printId Print ID.
+         * @param {PrintsApiDeletePrintRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deletePrint(printId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deletePrint(printId, options).then((request) => request(axios, basePath));
+        deletePrint(requestParameters: PrintsApiDeletePrintRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deletePrint(requestParameters.printId, options).then((request) => request(axios, basePath));
         },
         /**
          * Edits a print.
          * @summary Edit Print
-         * @param {string} printId Print ID.
-         * @param {File} image The binary blob of the png file.
-         * @param {string} [note] The caption for the image.
+         * @param {PrintsApiEditPrintRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        editPrint(printId: string, image: File, note?: string, options?: RawAxiosRequestConfig): AxiosPromise<Print> {
-            return localVarFp.editPrint(printId, image, note, options).then((request) => request(axios, basePath));
+        editPrint(requestParameters: PrintsApiEditPrintRequest, options?: RawAxiosRequestConfig): AxiosPromise<Print> {
+            return localVarFp.editPrint(requestParameters.printId, requestParameters.image, requestParameters.note, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a print.
          * @summary Get Print
-         * @param {string} printId Print ID.
+         * @param {PrintsApiGetPrintRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getPrint(printId: string, options?: RawAxiosRequestConfig): AxiosPromise<Print> {
-            return localVarFp.getPrint(printId, options).then((request) => request(axios, basePath));
+        getPrint(requestParameters: PrintsApiGetPrintRequest, options?: RawAxiosRequestConfig): AxiosPromise<Print> {
+            return localVarFp.getPrint(requestParameters.printId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a list of all prints of the user. User id has to be your own userId, as you can\'t request other user\'s prints.
          * @summary Get Own Prints
-         * @param {string} userId Must be a valid user ID.
+         * @param {PrintsApiGetUserPrintsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUserPrints(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Print>> {
-            return localVarFp.getUserPrints(userId, options).then((request) => request(axios, basePath));
+        getUserPrints(requestParameters: PrintsApiGetUserPrintsRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<Print>> {
+            return localVarFp.getUserPrints(requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Uploads and creates a print.
          * @summary Upload Print
-         * @param {File} image The binary blob of the png file.
-         * @param {string} timestamp The time the image was captured.
-         * @param {string} [note] The caption for the image.
-         * @param {string} [worldId] The id of the world in which the image was captured.
-         * @param {string} [worldName] The name of the world in which the image was captured.
+         * @param {PrintsApiUploadPrintRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        uploadPrint(image: File, timestamp: string, note?: string, worldId?: string, worldName?: string, options?: RawAxiosRequestConfig): AxiosPromise<Print> {
-            return localVarFp.uploadPrint(image, timestamp, note, worldId, worldName, options).then((request) => request(axios, basePath));
+        uploadPrint(requestParameters: PrintsApiUploadPrintRequest, options?: RawAxiosRequestConfig): AxiosPromise<Print> {
+            return localVarFp.uploadPrint(requestParameters.image, requestParameters.timestamp, requestParameters.note, requestParameters.worldId, requestParameters.worldName, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for deletePrint operation in PrintsApi.
+ * @export
+ * @interface PrintsApiDeletePrintRequest
+ */
+export interface PrintsApiDeletePrintRequest {
+    /**
+     * Print ID.
+     * @type {string}
+     * @memberof PrintsApiDeletePrint
+     */
+    readonly printId: string
+}
+
+/**
+ * Request parameters for editPrint operation in PrintsApi.
+ * @export
+ * @interface PrintsApiEditPrintRequest
+ */
+export interface PrintsApiEditPrintRequest {
+    /**
+     * Print ID.
+     * @type {string}
+     * @memberof PrintsApiEditPrint
+     */
+    readonly printId: string
+
+    /**
+     * The binary blob of the png file.
+     * @type {File}
+     * @memberof PrintsApiEditPrint
+     */
+    readonly image: File
+
+    /**
+     * The caption for the image.
+     * @type {string}
+     * @memberof PrintsApiEditPrint
+     */
+    readonly note?: string
+}
+
+/**
+ * Request parameters for getPrint operation in PrintsApi.
+ * @export
+ * @interface PrintsApiGetPrintRequest
+ */
+export interface PrintsApiGetPrintRequest {
+    /**
+     * Print ID.
+     * @type {string}
+     * @memberof PrintsApiGetPrint
+     */
+    readonly printId: string
+}
+
+/**
+ * Request parameters for getUserPrints operation in PrintsApi.
+ * @export
+ * @interface PrintsApiGetUserPrintsRequest
+ */
+export interface PrintsApiGetUserPrintsRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof PrintsApiGetUserPrints
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for uploadPrint operation in PrintsApi.
+ * @export
+ * @interface PrintsApiUploadPrintRequest
+ */
+export interface PrintsApiUploadPrintRequest {
+    /**
+     * The binary blob of the png file.
+     * @type {File}
+     * @memberof PrintsApiUploadPrint
+     */
+    readonly image: File
+
+    /**
+     * The time the image was captured.
+     * @type {string}
+     * @memberof PrintsApiUploadPrint
+     */
+    readonly timestamp: string
+
+    /**
+     * The caption for the image.
+     * @type {string}
+     * @memberof PrintsApiUploadPrint
+     */
+    readonly note?: string
+
+    /**
+     * The id of the world in which the image was captured.
+     * @type {string}
+     * @memberof PrintsApiUploadPrint
+     */
+    readonly worldId?: string
+
+    /**
+     * The name of the world in which the image was captured.
+     * @type {string}
+     * @memberof PrintsApiUploadPrint
+     */
+    readonly worldName?: string
+}
 
 /**
  * PrintsApi - object-oriented interface
@@ -26564,67 +29635,61 @@ export class PrintsApi extends BaseAPI {
     /**
      * Returns a print.
      * @summary Delete Print
-     * @param {string} printId Print ID.
+     * @param {PrintsApiDeletePrintRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PrintsApi
      */
-    public deletePrint(printId: string, options?: RawAxiosRequestConfig) {
-        return PrintsApiFp(this.configuration).deletePrint(printId, options).then((request) => request(this.axios, this.basePath));
+    public deletePrint(requestParameters: PrintsApiDeletePrintRequest, options?: RawAxiosRequestConfig) {
+        return PrintsApiFp(this.configuration).deletePrint(requestParameters.printId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Edits a print.
      * @summary Edit Print
-     * @param {string} printId Print ID.
-     * @param {File} image The binary blob of the png file.
-     * @param {string} [note] The caption for the image.
+     * @param {PrintsApiEditPrintRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PrintsApi
      */
-    public editPrint(printId: string, image: File, note?: string, options?: RawAxiosRequestConfig) {
-        return PrintsApiFp(this.configuration).editPrint(printId, image, note, options).then((request) => request(this.axios, this.basePath));
+    public editPrint(requestParameters: PrintsApiEditPrintRequest, options?: RawAxiosRequestConfig) {
+        return PrintsApiFp(this.configuration).editPrint(requestParameters.printId, requestParameters.image, requestParameters.note, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a print.
      * @summary Get Print
-     * @param {string} printId Print ID.
+     * @param {PrintsApiGetPrintRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PrintsApi
      */
-    public getPrint(printId: string, options?: RawAxiosRequestConfig) {
-        return PrintsApiFp(this.configuration).getPrint(printId, options).then((request) => request(this.axios, this.basePath));
+    public getPrint(requestParameters: PrintsApiGetPrintRequest, options?: RawAxiosRequestConfig) {
+        return PrintsApiFp(this.configuration).getPrint(requestParameters.printId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a list of all prints of the user. User id has to be your own userId, as you can\'t request other user\'s prints.
      * @summary Get Own Prints
-     * @param {string} userId Must be a valid user ID.
+     * @param {PrintsApiGetUserPrintsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PrintsApi
      */
-    public getUserPrints(userId: string, options?: RawAxiosRequestConfig) {
-        return PrintsApiFp(this.configuration).getUserPrints(userId, options).then((request) => request(this.axios, this.basePath));
+    public getUserPrints(requestParameters: PrintsApiGetUserPrintsRequest, options?: RawAxiosRequestConfig) {
+        return PrintsApiFp(this.configuration).getUserPrints(requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Uploads and creates a print.
      * @summary Upload Print
-     * @param {File} image The binary blob of the png file.
-     * @param {string} timestamp The time the image was captured.
-     * @param {string} [note] The caption for the image.
-     * @param {string} [worldId] The id of the world in which the image was captured.
-     * @param {string} [worldName] The name of the world in which the image was captured.
+     * @param {PrintsApiUploadPrintRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PrintsApi
      */
-    public uploadPrint(image: File, timestamp: string, note?: string, worldId?: string, worldName?: string, options?: RawAxiosRequestConfig) {
-        return PrintsApiFp(this.configuration).uploadPrint(image, timestamp, note, worldId, worldName, options).then((request) => request(this.axios, this.basePath));
+    public uploadPrint(requestParameters: PrintsApiUploadPrintRequest, options?: RawAxiosRequestConfig) {
+        return PrintsApiFp(this.configuration).uploadPrint(requestParameters.image, requestParameters.timestamp, requestParameters.note, requestParameters.worldId, requestParameters.worldName, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -26708,15 +29773,29 @@ export const PropsApiFactory = function (configuration?: Configuration, basePath
         /**
          * Returns a Prop object.
          * @summary Get Prop
-         * @param {string} propId Prop ID.
+         * @param {PropsApiGetPropRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getProp(propId: string, options?: RawAxiosRequestConfig): AxiosPromise<Prop> {
-            return localVarFp.getProp(propId, options).then((request) => request(axios, basePath));
+        getProp(requestParameters: PropsApiGetPropRequest, options?: RawAxiosRequestConfig): AxiosPromise<Prop> {
+            return localVarFp.getProp(requestParameters.propId, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for getProp operation in PropsApi.
+ * @export
+ * @interface PropsApiGetPropRequest
+ */
+export interface PropsApiGetPropRequest {
+    /**
+     * Prop ID.
+     * @type {string}
+     * @memberof PropsApiGetProp
+     */
+    readonly propId: string
+}
 
 /**
  * PropsApi - object-oriented interface
@@ -26728,13 +29807,13 @@ export class PropsApi extends BaseAPI {
     /**
      * Returns a Prop object.
      * @summary Get Prop
-     * @param {string} propId Prop ID.
+     * @param {PropsApiGetPropRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof PropsApi
      */
-    public getProp(propId: string, options?: RawAxiosRequestConfig) {
-        return PropsApiFp(this.configuration).getProp(propId, options).then((request) => request(this.axios, this.basePath));
+    public getProp(requestParameters: PropsApiGetPropRequest, options?: RawAxiosRequestConfig) {
+        return PropsApiFp(this.configuration).getProp(requestParameters.propId, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -27693,191 +30772,513 @@ export const UsersApiFactory = function (configuration?: Configuration, basePath
         /**
          * Adds tags to the user\'s profile
          * @summary Add User Tags
-         * @param {string} userId Must be a valid user ID.
-         * @param {ChangeUserTagsRequest} changeUserTagsRequest 
+         * @param {UsersApiAddTagsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        addTags(userId: string, changeUserTagsRequest: ChangeUserTagsRequest, options?: RawAxiosRequestConfig): AxiosPromise<CurrentUser> {
-            return localVarFp.addTags(userId, changeUserTagsRequest, options).then((request) => request(axios, basePath));
+        addTags(requestParameters: UsersApiAddTagsRequest, options?: RawAxiosRequestConfig): AxiosPromise<CurrentUser> {
+            return localVarFp.addTags(requestParameters.userId, requestParameters.changeUserTagsRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Checks whether the user has persistence data for a given world
          * @summary Check User Persistence Exists
-         * @param {string} userId Must be a valid user ID.
-         * @param {string} worldId Must be a valid world ID.
+         * @param {UsersApiCheckUserPersistenceExistsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        checkUserPersistenceExists(userId: string, worldId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.checkUserPersistenceExists(userId, worldId, options).then((request) => request(axios, basePath));
+        checkUserPersistenceExists(requestParameters: UsersApiCheckUserPersistenceExistsRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.checkUserPersistenceExists(requestParameters.userId, requestParameters.worldId, options).then((request) => request(axios, basePath));
         },
         /**
          * Deletes the user\'s persistence data for a given world
          * @summary Delete User Persistence
-         * @param {string} userId Must be a valid user ID.
-         * @param {string} worldId Must be a valid world ID.
+         * @param {UsersApiDeleteUserPersistenceRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteUserPersistence(userId: string, worldId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteUserPersistence(userId, worldId, options).then((request) => request(axios, basePath));
+        deleteUserPersistence(requestParameters: UsersApiDeleteUserPersistenceRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteUserPersistence(requestParameters.userId, requestParameters.worldId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get public user information about a specific user using their ID.
          * @summary Get User by ID
-         * @param {string} userId Must be a valid user ID.
+         * @param {UsersApiGetUserRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUser(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<User> {
-            return localVarFp.getUser(userId, options).then((request) => request(axios, basePath));
+        getUser(requestParameters: UsersApiGetUserRequest, options?: RawAxiosRequestConfig): AxiosPromise<User> {
+            return localVarFp.getUser(requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * ~~Get public user information about a specific user using their name.~~  **DEPRECATED:** VRChat API no longer return usernames of other users. [See issue by Tupper for more information](https://github.com/pypy-vrc/VRCX/issues/429). This endpoint now require Admin Credentials.
          * @summary Get User by Username
-         * @param {string} username Username of the user
+         * @param {UsersApiGetUserByNameRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @deprecated
          * @throws {RequiredError}
          */
-        getUserByName(username: string, options?: RawAxiosRequestConfig): AxiosPromise<User> {
-            return localVarFp.getUserByName(username, options).then((request) => request(axios, basePath));
+        getUserByName(requestParameters: UsersApiGetUserByNameRequest, options?: RawAxiosRequestConfig): AxiosPromise<User> {
+            return localVarFp.getUserByName(requestParameters.username, options).then((request) => request(axios, basePath));
         },
         /**
          * Get user\'s submitted feedback
          * @summary Get User Feedback
-         * @param {string} userId Must be a valid user ID.
-         * @param {boolean} [contentId] Filter for users\&#39; previously submitted feedback, e.g., a groupId, userId, avatarId, etc.
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+         * @param {UsersApiGetUserFeedbackRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @deprecated
          * @throws {RequiredError}
          */
-        getUserFeedback(userId: string, contentId?: boolean, n?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<Feedback>> {
-            return localVarFp.getUserFeedback(userId, contentId, n, offset, options).then((request) => request(axios, basePath));
+        getUserFeedback(requestParameters: UsersApiGetUserFeedbackRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<Feedback>> {
+            return localVarFp.getUserFeedback(requestParameters.userId, requestParameters.contentId, requestParameters.n, requestParameters.offset, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a list of group instances for a user
          * @summary Get User Group Instances
-         * @param {string} userId Must be a valid user ID.
+         * @param {UsersApiGetUserGroupInstancesRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUserGroupInstances(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<InlineObject1> {
-            return localVarFp.getUserGroupInstances(userId, options).then((request) => request(axios, basePath));
+        getUserGroupInstances(requestParameters: UsersApiGetUserGroupInstancesRequest, options?: RawAxiosRequestConfig): AxiosPromise<InlineObject1> {
+            return localVarFp.getUserGroupInstances(requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a list of Groups the user has requested to be invited into.
          * @summary Get User Group Requests
-         * @param {string} userId Must be a valid user ID.
+         * @param {UsersApiGetUserGroupRequestsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUserGroupRequests(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Group>> {
-            return localVarFp.getUserGroupRequests(userId, options).then((request) => request(axios, basePath));
+        getUserGroupRequests(requestParameters: UsersApiGetUserGroupRequestsRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<Group>> {
+            return localVarFp.getUserGroupRequests(requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get user\'s public groups
          * @summary Get User Groups
-         * @param {string} userId Must be a valid user ID.
+         * @param {UsersApiGetUserGroupsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUserGroups(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<LimitedUserGroups>> {
-            return localVarFp.getUserGroups(userId, options).then((request) => request(axios, basePath));
+        getUserGroups(requestParameters: UsersApiGetUserGroupsRequest, options?: RawAxiosRequestConfig): AxiosPromise<Array<LimitedUserGroups>> {
+            return localVarFp.getUserGroups(requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get a particular user note
          * @summary Get User Note
-         * @param {string} userNoteId Must be a valid user note ID.
+         * @param {UsersApiGetUserNoteRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUserNote(userNoteId: string, options?: RawAxiosRequestConfig): AxiosPromise<UserNote> {
-            return localVarFp.getUserNote(userNoteId, options).then((request) => request(axios, basePath));
+        getUserNote(requestParameters: UsersApiGetUserNoteRequest, options?: RawAxiosRequestConfig): AxiosPromise<UserNote> {
+            return localVarFp.getUserNote(requestParameters.userNoteId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get recently updated user notes
          * @summary Get User Notes
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+         * @param {UsersApiGetUserNotesRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUserNotes(n?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<UserNote>> {
-            return localVarFp.getUserNotes(n, offset, options).then((request) => request(axios, basePath));
+        getUserNotes(requestParameters: UsersApiGetUserNotesRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<UserNote>> {
+            return localVarFp.getUserNotes(requestParameters.n, requestParameters.offset, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns the current group that the user is currently representing
          * @summary Get user\'s current represented group
-         * @param {string} userId Must be a valid user ID.
+         * @param {UsersApiGetUserRepresentedGroupRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getUserRepresentedGroup(userId: string, options?: RawAxiosRequestConfig): AxiosPromise<RepresentedGroup> {
-            return localVarFp.getUserRepresentedGroup(userId, options).then((request) => request(axios, basePath));
+        getUserRepresentedGroup(requestParameters: UsersApiGetUserRepresentedGroupRequest, options?: RawAxiosRequestConfig): AxiosPromise<RepresentedGroup> {
+            return localVarFp.getUserRepresentedGroup(requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Removes tags from the user\'s profile
          * @summary Remove User Tags
-         * @param {string} userId Must be a valid user ID.
-         * @param {ChangeUserTagsRequest} changeUserTagsRequest 
+         * @param {UsersApiRemoveTagsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        removeTags(userId: string, changeUserTagsRequest: ChangeUserTagsRequest, options?: RawAxiosRequestConfig): AxiosPromise<CurrentUser> {
-            return localVarFp.removeTags(userId, changeUserTagsRequest, options).then((request) => request(axios, basePath));
+        removeTags(requestParameters: UsersApiRemoveTagsRequest, options?: RawAxiosRequestConfig): AxiosPromise<CurrentUser> {
+            return localVarFp.removeTags(requestParameters.userId, requestParameters.changeUserTagsRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Search and list any users by text query
          * @summary Search All Users
-         * @param {string} [search] Searches by &#x60;displayName&#x60;. Will return empty array if search query is empty or missing.
-         * @param {string} [developerType] Active user by developer type, none for normal users and internal for moderators
-         * @param {number} [n] The number of objects to return.
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+         * @param {UsersApiSearchUsersRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchUsers(search?: string, developerType?: string, n?: number, offset?: number, options?: RawAxiosRequestConfig): AxiosPromise<Array<LimitedUserSearch>> {
-            return localVarFp.searchUsers(search, developerType, n, offset, options).then((request) => request(axios, basePath));
+        searchUsers(requestParameters: UsersApiSearchUsersRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<LimitedUserSearch>> {
+            return localVarFp.searchUsers(requestParameters.search, requestParameters.developerType, requestParameters.n, requestParameters.offset, options).then((request) => request(axios, basePath));
         },
         /**
          * Updates a user\'s badge
          * @summary Update User Badge
-         * @param {string} userId Must be a valid user ID.
-         * @param {string} badgeId Must be a valid badge ID.
-         * @param {UpdateUserBadgeRequest} updateUserBadgeRequest 
+         * @param {UsersApiUpdateBadgeRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateBadge(userId: string, badgeId: string, updateUserBadgeRequest: UpdateUserBadgeRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.updateBadge(userId, badgeId, updateUserBadgeRequest, options).then((request) => request(axios, basePath));
+        updateBadge(requestParameters: UsersApiUpdateBadgeRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.updateBadge(requestParameters.userId, requestParameters.badgeId, requestParameters.updateUserBadgeRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Update a users information such as the email and birthday.
          * @summary Update User Info
-         * @param {string} userId Must be a valid user ID.
-         * @param {UpdateUserRequest} [updateUserRequest] 
+         * @param {UsersApiUpdateUserRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateUser(userId: string, updateUserRequest?: UpdateUserRequest, options?: RawAxiosRequestConfig): AxiosPromise<CurrentUser> {
-            return localVarFp.updateUser(userId, updateUserRequest, options).then((request) => request(axios, basePath));
+        updateUser(requestParameters: UsersApiUpdateUserRequest, options?: RawAxiosRequestConfig): AxiosPromise<CurrentUser> {
+            return localVarFp.updateUser(requestParameters.userId, requestParameters.updateUserRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Updates the currently authenticated user\'s note on a user
          * @summary Update User Note
-         * @param {UpdateUserNoteRequest} updateUserNoteRequest 
+         * @param {UsersApiUpdateUserNoteRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateUserNote(updateUserNoteRequest: UpdateUserNoteRequest, options?: RawAxiosRequestConfig): AxiosPromise<UserNote> {
-            return localVarFp.updateUserNote(updateUserNoteRequest, options).then((request) => request(axios, basePath));
+        updateUserNote(requestParameters: UsersApiUpdateUserNoteRequest, options?: RawAxiosRequestConfig): AxiosPromise<UserNote> {
+            return localVarFp.updateUserNote(requestParameters.updateUserNoteRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for addTags operation in UsersApi.
+ * @export
+ * @interface UsersApiAddTagsRequest
+ */
+export interface UsersApiAddTagsRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof UsersApiAddTags
+     */
+    readonly userId: string
+
+    /**
+     * 
+     * @type {ChangeUserTagsRequest}
+     * @memberof UsersApiAddTags
+     */
+    readonly changeUserTagsRequest: ChangeUserTagsRequest
+}
+
+/**
+ * Request parameters for checkUserPersistenceExists operation in UsersApi.
+ * @export
+ * @interface UsersApiCheckUserPersistenceExistsRequest
+ */
+export interface UsersApiCheckUserPersistenceExistsRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof UsersApiCheckUserPersistenceExists
+     */
+    readonly userId: string
+
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof UsersApiCheckUserPersistenceExists
+     */
+    readonly worldId: string
+}
+
+/**
+ * Request parameters for deleteUserPersistence operation in UsersApi.
+ * @export
+ * @interface UsersApiDeleteUserPersistenceRequest
+ */
+export interface UsersApiDeleteUserPersistenceRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof UsersApiDeleteUserPersistence
+     */
+    readonly userId: string
+
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof UsersApiDeleteUserPersistence
+     */
+    readonly worldId: string
+}
+
+/**
+ * Request parameters for getUser operation in UsersApi.
+ * @export
+ * @interface UsersApiGetUserRequest
+ */
+export interface UsersApiGetUserRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof UsersApiGetUser
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for getUserByName operation in UsersApi.
+ * @export
+ * @interface UsersApiGetUserByNameRequest
+ */
+export interface UsersApiGetUserByNameRequest {
+    /**
+     * Username of the user
+     * @type {string}
+     * @memberof UsersApiGetUserByName
+     */
+    readonly username: string
+}
+
+/**
+ * Request parameters for getUserFeedback operation in UsersApi.
+ * @export
+ * @interface UsersApiGetUserFeedbackRequest
+ */
+export interface UsersApiGetUserFeedbackRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof UsersApiGetUserFeedback
+     */
+    readonly userId: string
+
+    /**
+     * Filter for users\&#39; previously submitted feedback, e.g., a groupId, userId, avatarId, etc.
+     * @type {boolean}
+     * @memberof UsersApiGetUserFeedback
+     */
+    readonly contentId?: boolean
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof UsersApiGetUserFeedback
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof UsersApiGetUserFeedback
+     */
+    readonly offset?: number
+}
+
+/**
+ * Request parameters for getUserGroupInstances operation in UsersApi.
+ * @export
+ * @interface UsersApiGetUserGroupInstancesRequest
+ */
+export interface UsersApiGetUserGroupInstancesRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof UsersApiGetUserGroupInstances
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for getUserGroupRequests operation in UsersApi.
+ * @export
+ * @interface UsersApiGetUserGroupRequestsRequest
+ */
+export interface UsersApiGetUserGroupRequestsRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof UsersApiGetUserGroupRequests
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for getUserGroups operation in UsersApi.
+ * @export
+ * @interface UsersApiGetUserGroupsRequest
+ */
+export interface UsersApiGetUserGroupsRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof UsersApiGetUserGroups
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for getUserNote operation in UsersApi.
+ * @export
+ * @interface UsersApiGetUserNoteRequest
+ */
+export interface UsersApiGetUserNoteRequest {
+    /**
+     * Must be a valid user note ID.
+     * @type {string}
+     * @memberof UsersApiGetUserNote
+     */
+    readonly userNoteId: string
+}
+
+/**
+ * Request parameters for getUserNotes operation in UsersApi.
+ * @export
+ * @interface UsersApiGetUserNotesRequest
+ */
+export interface UsersApiGetUserNotesRequest {
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof UsersApiGetUserNotes
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof UsersApiGetUserNotes
+     */
+    readonly offset?: number
+}
+
+/**
+ * Request parameters for getUserRepresentedGroup operation in UsersApi.
+ * @export
+ * @interface UsersApiGetUserRepresentedGroupRequest
+ */
+export interface UsersApiGetUserRepresentedGroupRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof UsersApiGetUserRepresentedGroup
+     */
+    readonly userId: string
+}
+
+/**
+ * Request parameters for removeTags operation in UsersApi.
+ * @export
+ * @interface UsersApiRemoveTagsRequest
+ */
+export interface UsersApiRemoveTagsRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof UsersApiRemoveTags
+     */
+    readonly userId: string
+
+    /**
+     * 
+     * @type {ChangeUserTagsRequest}
+     * @memberof UsersApiRemoveTags
+     */
+    readonly changeUserTagsRequest: ChangeUserTagsRequest
+}
+
+/**
+ * Request parameters for searchUsers operation in UsersApi.
+ * @export
+ * @interface UsersApiSearchUsersRequest
+ */
+export interface UsersApiSearchUsersRequest {
+    /**
+     * Searches by &#x60;displayName&#x60;. Will return empty array if search query is empty or missing.
+     * @type {string}
+     * @memberof UsersApiSearchUsers
+     */
+    readonly search?: string
+
+    /**
+     * Active user by developer type, none for normal users and internal for moderators
+     * @type {string}
+     * @memberof UsersApiSearchUsers
+     */
+    readonly developerType?: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof UsersApiSearchUsers
+     */
+    readonly n?: number
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof UsersApiSearchUsers
+     */
+    readonly offset?: number
+}
+
+/**
+ * Request parameters for updateBadge operation in UsersApi.
+ * @export
+ * @interface UsersApiUpdateBadgeRequest
+ */
+export interface UsersApiUpdateBadgeRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof UsersApiUpdateBadge
+     */
+    readonly userId: string
+
+    /**
+     * Must be a valid badge ID.
+     * @type {string}
+     * @memberof UsersApiUpdateBadge
+     */
+    readonly badgeId: string
+
+    /**
+     * 
+     * @type {UpdateUserBadgeRequest}
+     * @memberof UsersApiUpdateBadge
+     */
+    readonly updateUserBadgeRequest: UpdateUserBadgeRequest
+}
+
+/**
+ * Request parameters for updateUser operation in UsersApi.
+ * @export
+ * @interface UsersApiUpdateUserRequest
+ */
+export interface UsersApiUpdateUserRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof UsersApiUpdateUser
+     */
+    readonly userId: string
+
+    /**
+     * 
+     * @type {UpdateUserRequest}
+     * @memberof UsersApiUpdateUser
+     */
+    readonly updateUserRequest?: UpdateUserRequest
+}
+
+/**
+ * Request parameters for updateUserNote operation in UsersApi.
+ * @export
+ * @interface UsersApiUpdateUserNoteRequest
+ */
+export interface UsersApiUpdateUserNoteRequest {
+    /**
+     * 
+     * @type {UpdateUserNoteRequest}
+     * @memberof UsersApiUpdateUserNote
+     */
+    readonly updateUserNoteRequest: UpdateUserNoteRequest
+}
 
 /**
  * UsersApi - object-oriented interface
@@ -27889,221 +31290,207 @@ export class UsersApi extends BaseAPI {
     /**
      * Adds tags to the user\'s profile
      * @summary Add User Tags
-     * @param {string} userId Must be a valid user ID.
-     * @param {ChangeUserTagsRequest} changeUserTagsRequest 
+     * @param {UsersApiAddTagsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public addTags(userId: string, changeUserTagsRequest: ChangeUserTagsRequest, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).addTags(userId, changeUserTagsRequest, options).then((request) => request(this.axios, this.basePath));
+    public addTags(requestParameters: UsersApiAddTagsRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).addTags(requestParameters.userId, requestParameters.changeUserTagsRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Checks whether the user has persistence data for a given world
      * @summary Check User Persistence Exists
-     * @param {string} userId Must be a valid user ID.
-     * @param {string} worldId Must be a valid world ID.
+     * @param {UsersApiCheckUserPersistenceExistsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public checkUserPersistenceExists(userId: string, worldId: string, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).checkUserPersistenceExists(userId, worldId, options).then((request) => request(this.axios, this.basePath));
+    public checkUserPersistenceExists(requestParameters: UsersApiCheckUserPersistenceExistsRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).checkUserPersistenceExists(requestParameters.userId, requestParameters.worldId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Deletes the user\'s persistence data for a given world
      * @summary Delete User Persistence
-     * @param {string} userId Must be a valid user ID.
-     * @param {string} worldId Must be a valid world ID.
+     * @param {UsersApiDeleteUserPersistenceRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public deleteUserPersistence(userId: string, worldId: string, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).deleteUserPersistence(userId, worldId, options).then((request) => request(this.axios, this.basePath));
+    public deleteUserPersistence(requestParameters: UsersApiDeleteUserPersistenceRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).deleteUserPersistence(requestParameters.userId, requestParameters.worldId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get public user information about a specific user using their ID.
      * @summary Get User by ID
-     * @param {string} userId Must be a valid user ID.
+     * @param {UsersApiGetUserRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public getUser(userId: string, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).getUser(userId, options).then((request) => request(this.axios, this.basePath));
+    public getUser(requestParameters: UsersApiGetUserRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).getUser(requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * ~~Get public user information about a specific user using their name.~~  **DEPRECATED:** VRChat API no longer return usernames of other users. [See issue by Tupper for more information](https://github.com/pypy-vrc/VRCX/issues/429). This endpoint now require Admin Credentials.
      * @summary Get User by Username
-     * @param {string} username Username of the user
+     * @param {UsersApiGetUserByNameRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @deprecated
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public getUserByName(username: string, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).getUserByName(username, options).then((request) => request(this.axios, this.basePath));
+    public getUserByName(requestParameters: UsersApiGetUserByNameRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).getUserByName(requestParameters.username, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get user\'s submitted feedback
      * @summary Get User Feedback
-     * @param {string} userId Must be a valid user ID.
-     * @param {boolean} [contentId] Filter for users\&#39; previously submitted feedback, e.g., a groupId, userId, avatarId, etc.
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+     * @param {UsersApiGetUserFeedbackRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @deprecated
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public getUserFeedback(userId: string, contentId?: boolean, n?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).getUserFeedback(userId, contentId, n, offset, options).then((request) => request(this.axios, this.basePath));
+    public getUserFeedback(requestParameters: UsersApiGetUserFeedbackRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).getUserFeedback(requestParameters.userId, requestParameters.contentId, requestParameters.n, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a list of group instances for a user
      * @summary Get User Group Instances
-     * @param {string} userId Must be a valid user ID.
+     * @param {UsersApiGetUserGroupInstancesRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public getUserGroupInstances(userId: string, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).getUserGroupInstances(userId, options).then((request) => request(this.axios, this.basePath));
+    public getUserGroupInstances(requestParameters: UsersApiGetUserGroupInstancesRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).getUserGroupInstances(requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a list of Groups the user has requested to be invited into.
      * @summary Get User Group Requests
-     * @param {string} userId Must be a valid user ID.
+     * @param {UsersApiGetUserGroupRequestsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public getUserGroupRequests(userId: string, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).getUserGroupRequests(userId, options).then((request) => request(this.axios, this.basePath));
+    public getUserGroupRequests(requestParameters: UsersApiGetUserGroupRequestsRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).getUserGroupRequests(requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get user\'s public groups
      * @summary Get User Groups
-     * @param {string} userId Must be a valid user ID.
+     * @param {UsersApiGetUserGroupsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public getUserGroups(userId: string, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).getUserGroups(userId, options).then((request) => request(this.axios, this.basePath));
+    public getUserGroups(requestParameters: UsersApiGetUserGroupsRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).getUserGroups(requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get a particular user note
      * @summary Get User Note
-     * @param {string} userNoteId Must be a valid user note ID.
+     * @param {UsersApiGetUserNoteRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public getUserNote(userNoteId: string, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).getUserNote(userNoteId, options).then((request) => request(this.axios, this.basePath));
+    public getUserNote(requestParameters: UsersApiGetUserNoteRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).getUserNote(requestParameters.userNoteId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get recently updated user notes
      * @summary Get User Notes
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+     * @param {UsersApiGetUserNotesRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public getUserNotes(n?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).getUserNotes(n, offset, options).then((request) => request(this.axios, this.basePath));
+    public getUserNotes(requestParameters: UsersApiGetUserNotesRequest = {}, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).getUserNotes(requestParameters.n, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns the current group that the user is currently representing
      * @summary Get user\'s current represented group
-     * @param {string} userId Must be a valid user ID.
+     * @param {UsersApiGetUserRepresentedGroupRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public getUserRepresentedGroup(userId: string, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).getUserRepresentedGroup(userId, options).then((request) => request(this.axios, this.basePath));
+    public getUserRepresentedGroup(requestParameters: UsersApiGetUserRepresentedGroupRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).getUserRepresentedGroup(requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Removes tags from the user\'s profile
      * @summary Remove User Tags
-     * @param {string} userId Must be a valid user ID.
-     * @param {ChangeUserTagsRequest} changeUserTagsRequest 
+     * @param {UsersApiRemoveTagsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public removeTags(userId: string, changeUserTagsRequest: ChangeUserTagsRequest, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).removeTags(userId, changeUserTagsRequest, options).then((request) => request(this.axios, this.basePath));
+    public removeTags(requestParameters: UsersApiRemoveTagsRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).removeTags(requestParameters.userId, requestParameters.changeUserTagsRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Search and list any users by text query
      * @summary Search All Users
-     * @param {string} [search] Searches by &#x60;displayName&#x60;. Will return empty array if search query is empty or missing.
-     * @param {string} [developerType] Active user by developer type, none for normal users and internal for moderators
-     * @param {number} [n] The number of objects to return.
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
+     * @param {UsersApiSearchUsersRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public searchUsers(search?: string, developerType?: string, n?: number, offset?: number, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).searchUsers(search, developerType, n, offset, options).then((request) => request(this.axios, this.basePath));
+    public searchUsers(requestParameters: UsersApiSearchUsersRequest = {}, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).searchUsers(requestParameters.search, requestParameters.developerType, requestParameters.n, requestParameters.offset, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Updates a user\'s badge
      * @summary Update User Badge
-     * @param {string} userId Must be a valid user ID.
-     * @param {string} badgeId Must be a valid badge ID.
-     * @param {UpdateUserBadgeRequest} updateUserBadgeRequest 
+     * @param {UsersApiUpdateBadgeRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public updateBadge(userId: string, badgeId: string, updateUserBadgeRequest: UpdateUserBadgeRequest, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).updateBadge(userId, badgeId, updateUserBadgeRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateBadge(requestParameters: UsersApiUpdateBadgeRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).updateBadge(requestParameters.userId, requestParameters.badgeId, requestParameters.updateUserBadgeRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Update a users information such as the email and birthday.
      * @summary Update User Info
-     * @param {string} userId Must be a valid user ID.
-     * @param {UpdateUserRequest} [updateUserRequest] 
+     * @param {UsersApiUpdateUserRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public updateUser(userId: string, updateUserRequest?: UpdateUserRequest, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).updateUser(userId, updateUserRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateUser(requestParameters: UsersApiUpdateUserRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).updateUser(requestParameters.userId, requestParameters.updateUserRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Updates the currently authenticated user\'s note on a user
      * @summary Update User Note
-     * @param {UpdateUserNoteRequest} updateUserNoteRequest 
+     * @param {UsersApiUpdateUserNoteRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof UsersApi
      */
-    public updateUserNote(updateUserNoteRequest: UpdateUserNoteRequest, options?: RawAxiosRequestConfig) {
-        return UsersApiFp(this.configuration).updateUserNote(updateUserNoteRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateUserNote(requestParameters: UsersApiUpdateUserNoteRequest, options?: RawAxiosRequestConfig) {
+        return UsersApiFp(this.configuration).updateUserNote(requestParameters.updateUserNoteRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
@@ -29189,209 +32576,737 @@ export const WorldsApiFactory = function (configuration?: Configuration, basePat
         /**
          * Checks whether the user has persistence data for a given world
          * @summary Check User Persistence Exists
-         * @param {string} userId Must be a valid user ID.
-         * @param {string} worldId Must be a valid world ID.
+         * @param {WorldsApiCheckUserPersistenceExistsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        checkUserPersistenceExists(userId: string, worldId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.checkUserPersistenceExists(userId, worldId, options).then((request) => request(axios, basePath));
+        checkUserPersistenceExists(requestParameters: WorldsApiCheckUserPersistenceExistsRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.checkUserPersistenceExists(requestParameters.userId, requestParameters.worldId, options).then((request) => request(axios, basePath));
         },
         /**
          * Create a new world. This endpoint requires `assetUrl` to be a valid File object with `.vrcw` file extension, and `imageUrl` to be a valid File object with an image file extension.
          * @summary Create World
-         * @param {CreateWorldRequest} [createWorldRequest] 
+         * @param {WorldsApiCreateWorldRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createWorld(createWorldRequest?: CreateWorldRequest, options?: RawAxiosRequestConfig): AxiosPromise<World> {
-            return localVarFp.createWorld(createWorldRequest, options).then((request) => request(axios, basePath));
+        createWorld(requestParameters: WorldsApiCreateWorldRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<World> {
+            return localVarFp.createWorld(requestParameters.createWorldRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * Deletes the user\'s persistence data for a given world
          * @summary Delete User Persistence
-         * @param {string} userId Must be a valid user ID.
-         * @param {string} worldId Must be a valid world ID.
+         * @param {WorldsApiDeleteUserPersistenceRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteUserPersistence(userId: string, worldId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteUserPersistence(userId, worldId, options).then((request) => request(axios, basePath));
+        deleteUserPersistence(requestParameters: WorldsApiDeleteUserPersistenceRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteUserPersistence(requestParameters.userId, requestParameters.worldId, options).then((request) => request(axios, basePath));
         },
         /**
          * Delete a world. Notice a world is never fully \"deleted\", only its ReleaseStatus is set to \"hidden\" and the linked Files are deleted. The WorldID is permanently reserved.
          * @summary Delete World
-         * @param {string} worldId Must be a valid world ID.
+         * @param {WorldsApiDeleteWorldRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteWorld(worldId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.deleteWorld(worldId, options).then((request) => request(axios, basePath));
+        deleteWorld(requestParameters: WorldsApiDeleteWorldRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.deleteWorld(requestParameters.worldId, options).then((request) => request(axios, basePath));
         },
         /**
          * Search and list currently Active worlds by query filters.
          * @summary List Active Worlds
-         * @param {boolean} [featured] Filters on featured results.
-         * @param {SortOption} [sort] The sort order of the results.
-         * @param {number} [n] The number of objects to return.
-         * @param {OrderOption} [order] Result ordering
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {string} [search] Filters by world name.
-         * @param {string} [tag] Tags to include (comma-separated). Any of the tags needs to be present.
-         * @param {string} [notag] Tags to exclude (comma-separated).
-         * @param {ReleaseStatus} [releaseStatus] Filter by ReleaseStatus.
-         * @param {string} [maxUnityVersion] The maximum Unity version supported by the asset.
-         * @param {string} [minUnityVersion] The minimum Unity version supported by the asset.
-         * @param {string} [platform] The platform the asset supports.
+         * @param {WorldsApiGetActiveWorldsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getActiveWorlds(featured?: boolean, sort?: SortOption, n?: number, order?: OrderOption, offset?: number, search?: string, tag?: string, notag?: string, releaseStatus?: ReleaseStatus, maxUnityVersion?: string, minUnityVersion?: string, platform?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<LimitedWorld>> {
-            return localVarFp.getActiveWorlds(featured, sort, n, order, offset, search, tag, notag, releaseStatus, maxUnityVersion, minUnityVersion, platform, options).then((request) => request(axios, basePath));
+        getActiveWorlds(requestParameters: WorldsApiGetActiveWorldsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<LimitedWorld>> {
+            return localVarFp.getActiveWorlds(requestParameters.featured, requestParameters.sort, requestParameters.n, requestParameters.order, requestParameters.offset, requestParameters.search, requestParameters.tag, requestParameters.notag, requestParameters.releaseStatus, requestParameters.maxUnityVersion, requestParameters.minUnityVersion, requestParameters.platform, options).then((request) => request(axios, basePath));
         },
         /**
          * Search and list favorited worlds by query filters.
          * @summary List Favorited Worlds
-         * @param {boolean} [featured] Filters on featured results.
-         * @param {SortOption} [sort] The sort order of the results.
-         * @param {number} [n] The number of objects to return.
-         * @param {OrderOption} [order] Result ordering
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {string} [search] Filters by world name.
-         * @param {string} [tag] Tags to include (comma-separated). Any of the tags needs to be present.
-         * @param {string} [notag] Tags to exclude (comma-separated).
-         * @param {ReleaseStatus} [releaseStatus] Filter by ReleaseStatus.
-         * @param {string} [maxUnityVersion] The maximum Unity version supported by the asset.
-         * @param {string} [minUnityVersion] The minimum Unity version supported by the asset.
-         * @param {string} [platform] The platform the asset supports.
-         * @param {string} [userId] Target user to see information on, admin-only.
+         * @param {WorldsApiGetFavoritedWorldsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getFavoritedWorlds(featured?: boolean, sort?: SortOption, n?: number, order?: OrderOption, offset?: number, search?: string, tag?: string, notag?: string, releaseStatus?: ReleaseStatus, maxUnityVersion?: string, minUnityVersion?: string, platform?: string, userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<FavoritedWorld>> {
-            return localVarFp.getFavoritedWorlds(featured, sort, n, order, offset, search, tag, notag, releaseStatus, maxUnityVersion, minUnityVersion, platform, userId, options).then((request) => request(axios, basePath));
+        getFavoritedWorlds(requestParameters: WorldsApiGetFavoritedWorldsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<FavoritedWorld>> {
+            return localVarFp.getFavoritedWorlds(requestParameters.featured, requestParameters.sort, requestParameters.n, requestParameters.order, requestParameters.offset, requestParameters.search, requestParameters.tag, requestParameters.notag, requestParameters.releaseStatus, requestParameters.maxUnityVersion, requestParameters.minUnityVersion, requestParameters.platform, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Search and list recently visited worlds by query filters.
          * @summary List Recent Worlds
-         * @param {boolean} [featured] Filters on featured results.
-         * @param {SortOption} [sort] The sort order of the results.
-         * @param {number} [n] The number of objects to return.
-         * @param {OrderOption} [order] Result ordering
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {string} [search] Filters by world name.
-         * @param {string} [tag] Tags to include (comma-separated). Any of the tags needs to be present.
-         * @param {string} [notag] Tags to exclude (comma-separated).
-         * @param {ReleaseStatus} [releaseStatus] Filter by ReleaseStatus.
-         * @param {string} [maxUnityVersion] The maximum Unity version supported by the asset.
-         * @param {string} [minUnityVersion] The minimum Unity version supported by the asset.
-         * @param {string} [platform] The platform the asset supports.
-         * @param {string} [userId] Target user to see information on, admin-only.
+         * @param {WorldsApiGetRecentWorldsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getRecentWorlds(featured?: boolean, sort?: SortOption, n?: number, order?: OrderOption, offset?: number, search?: string, tag?: string, notag?: string, releaseStatus?: ReleaseStatus, maxUnityVersion?: string, minUnityVersion?: string, platform?: string, userId?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<LimitedWorld>> {
-            return localVarFp.getRecentWorlds(featured, sort, n, order, offset, search, tag, notag, releaseStatus, maxUnityVersion, minUnityVersion, platform, userId, options).then((request) => request(axios, basePath));
+        getRecentWorlds(requestParameters: WorldsApiGetRecentWorldsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<LimitedWorld>> {
+            return localVarFp.getRecentWorlds(requestParameters.featured, requestParameters.sort, requestParameters.n, requestParameters.order, requestParameters.offset, requestParameters.search, requestParameters.tag, requestParameters.notag, requestParameters.releaseStatus, requestParameters.maxUnityVersion, requestParameters.minUnityVersion, requestParameters.platform, requestParameters.userId, options).then((request) => request(axios, basePath));
         },
         /**
          * Get information about a specific World. Works unauthenticated but when so will always return `0` for certain fields.
          * @summary Get World by ID
-         * @param {string} worldId Must be a valid world ID.
+         * @param {WorldsApiGetWorldRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getWorld(worldId: string, options?: RawAxiosRequestConfig): AxiosPromise<World> {
-            return localVarFp.getWorld(worldId, options).then((request) => request(axios, basePath));
+        getWorld(requestParameters: WorldsApiGetWorldRequest, options?: RawAxiosRequestConfig): AxiosPromise<World> {
+            return localVarFp.getWorld(requestParameters.worldId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a worlds instance.
          * @summary Get World Instance
-         * @param {string} worldId Must be a valid world ID.
-         * @param {string} instanceId Must be a valid instance ID.
+         * @param {WorldsApiGetWorldInstanceRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getWorldInstance(worldId: string, instanceId: string, options?: RawAxiosRequestConfig): AxiosPromise<Instance> {
-            return localVarFp.getWorldInstance(worldId, instanceId, options).then((request) => request(axios, basePath));
+        getWorldInstance(requestParameters: WorldsApiGetWorldInstanceRequest, options?: RawAxiosRequestConfig): AxiosPromise<Instance> {
+            return localVarFp.getWorldInstance(requestParameters.worldId, requestParameters.instanceId, options).then((request) => request(axios, basePath));
         },
         /**
          * Return a worlds custom metadata. This is currently believed to be unused. Metadata can be set with `updateWorld` and can be any arbitrary object.
          * @summary Get World Metadata
-         * @param {string} worldId Must be a valid world ID.
+         * @param {WorldsApiGetWorldMetadataRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @deprecated
          * @throws {RequiredError}
          */
-        getWorldMetadata(worldId: string, options?: RawAxiosRequestConfig): AxiosPromise<WorldMetadata> {
-            return localVarFp.getWorldMetadata(worldId, options).then((request) => request(axios, basePath));
+        getWorldMetadata(requestParameters: WorldsApiGetWorldMetadataRequest, options?: RawAxiosRequestConfig): AxiosPromise<WorldMetadata> {
+            return localVarFp.getWorldMetadata(requestParameters.worldId, options).then((request) => request(axios, basePath));
         },
         /**
          * Returns a worlds publish status.
          * @summary Get World Publish Status
-         * @param {string} worldId Must be a valid world ID.
+         * @param {WorldsApiGetWorldPublishStatusRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getWorldPublishStatus(worldId: string, options?: RawAxiosRequestConfig): AxiosPromise<WorldPublishStatus> {
-            return localVarFp.getWorldPublishStatus(worldId, options).then((request) => request(axios, basePath));
+        getWorldPublishStatus(requestParameters: WorldsApiGetWorldPublishStatusRequest, options?: RawAxiosRequestConfig): AxiosPromise<WorldPublishStatus> {
+            return localVarFp.getWorldPublishStatus(requestParameters.worldId, options).then((request) => request(axios, basePath));
         },
         /**
          * Publish a world. You can only publish one world per week.
          * @summary Publish World
-         * @param {string} worldId Must be a valid world ID.
+         * @param {WorldsApiPublishWorldRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        publishWorld(worldId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.publishWorld(worldId, options).then((request) => request(axios, basePath));
+        publishWorld(requestParameters: WorldsApiPublishWorldRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.publishWorld(requestParameters.worldId, options).then((request) => request(axios, basePath));
         },
         /**
          * Search and list any worlds by query filters.
          * @summary Search All Worlds
-         * @param {boolean} [featured] Filters on featured results.
-         * @param {SortOption} [sort] The sort order of the results.
-         * @param {SearchWorldsUserEnum} [user] Set to &#x60;me&#x60; for searching own worlds.
-         * @param {string} [userId] Filter by UserID.
-         * @param {number} [n] The number of objects to return.
-         * @param {OrderOption} [order] Result ordering
-         * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-         * @param {string} [search] Filters by world name.
-         * @param {string} [tag] Tags to include (comma-separated). Any of the tags needs to be present.
-         * @param {string} [notag] Tags to exclude (comma-separated).
-         * @param {ReleaseStatus} [releaseStatus] Filter by ReleaseStatus.
-         * @param {string} [maxUnityVersion] The maximum Unity version supported by the asset.
-         * @param {string} [minUnityVersion] The minimum Unity version supported by the asset.
-         * @param {string} [platform] The platform the asset supports.
-         * @param {boolean} [fuzzy] 
+         * @param {WorldsApiSearchWorldsRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        searchWorlds(featured?: boolean, sort?: SortOption, user?: SearchWorldsUserEnum, userId?: string, n?: number, order?: OrderOption, offset?: number, search?: string, tag?: string, notag?: string, releaseStatus?: ReleaseStatus, maxUnityVersion?: string, minUnityVersion?: string, platform?: string, fuzzy?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<Array<LimitedWorld>> {
-            return localVarFp.searchWorlds(featured, sort, user, userId, n, order, offset, search, tag, notag, releaseStatus, maxUnityVersion, minUnityVersion, platform, fuzzy, options).then((request) => request(axios, basePath));
+        searchWorlds(requestParameters: WorldsApiSearchWorldsRequest = {}, options?: RawAxiosRequestConfig): AxiosPromise<Array<LimitedWorld>> {
+            return localVarFp.searchWorlds(requestParameters.featured, requestParameters.sort, requestParameters.user, requestParameters.userId, requestParameters.n, requestParameters.order, requestParameters.offset, requestParameters.search, requestParameters.tag, requestParameters.notag, requestParameters.releaseStatus, requestParameters.maxUnityVersion, requestParameters.minUnityVersion, requestParameters.platform, requestParameters.fuzzy, options).then((request) => request(axios, basePath));
         },
         /**
          * Unpublish a world.
          * @summary Unpublish World
-         * @param {string} worldId Must be a valid world ID.
+         * @param {WorldsApiUnpublishWorldRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        unpublishWorld(worldId: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.unpublishWorld(worldId, options).then((request) => request(axios, basePath));
+        unpublishWorld(requestParameters: WorldsApiUnpublishWorldRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.unpublishWorld(requestParameters.worldId, options).then((request) => request(axios, basePath));
         },
         /**
          * Update information about a specific World.
          * @summary Update World
-         * @param {string} worldId Must be a valid world ID.
-         * @param {UpdateWorldRequest} [updateWorldRequest] 
+         * @param {WorldsApiUpdateWorldRequest} requestParameters Request parameters.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateWorld(worldId: string, updateWorldRequest?: UpdateWorldRequest, options?: RawAxiosRequestConfig): AxiosPromise<World> {
-            return localVarFp.updateWorld(worldId, updateWorldRequest, options).then((request) => request(axios, basePath));
+        updateWorld(requestParameters: WorldsApiUpdateWorldRequest, options?: RawAxiosRequestConfig): AxiosPromise<World> {
+            return localVarFp.updateWorld(requestParameters.worldId, requestParameters.updateWorldRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
+
+/**
+ * Request parameters for checkUserPersistenceExists operation in WorldsApi.
+ * @export
+ * @interface WorldsApiCheckUserPersistenceExistsRequest
+ */
+export interface WorldsApiCheckUserPersistenceExistsRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof WorldsApiCheckUserPersistenceExists
+     */
+    readonly userId: string
+
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof WorldsApiCheckUserPersistenceExists
+     */
+    readonly worldId: string
+}
+
+/**
+ * Request parameters for createWorld operation in WorldsApi.
+ * @export
+ * @interface WorldsApiCreateWorldRequest
+ */
+export interface WorldsApiCreateWorldRequest {
+    /**
+     * 
+     * @type {CreateWorldRequest}
+     * @memberof WorldsApiCreateWorld
+     */
+    readonly createWorldRequest?: CreateWorldRequest
+}
+
+/**
+ * Request parameters for deleteUserPersistence operation in WorldsApi.
+ * @export
+ * @interface WorldsApiDeleteUserPersistenceRequest
+ */
+export interface WorldsApiDeleteUserPersistenceRequest {
+    /**
+     * Must be a valid user ID.
+     * @type {string}
+     * @memberof WorldsApiDeleteUserPersistence
+     */
+    readonly userId: string
+
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof WorldsApiDeleteUserPersistence
+     */
+    readonly worldId: string
+}
+
+/**
+ * Request parameters for deleteWorld operation in WorldsApi.
+ * @export
+ * @interface WorldsApiDeleteWorldRequest
+ */
+export interface WorldsApiDeleteWorldRequest {
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof WorldsApiDeleteWorld
+     */
+    readonly worldId: string
+}
+
+/**
+ * Request parameters for getActiveWorlds operation in WorldsApi.
+ * @export
+ * @interface WorldsApiGetActiveWorldsRequest
+ */
+export interface WorldsApiGetActiveWorldsRequest {
+    /**
+     * Filters on featured results.
+     * @type {boolean}
+     * @memberof WorldsApiGetActiveWorlds
+     */
+    readonly featured?: boolean
+
+    /**
+     * The sort order of the results.
+     * @type {SortOption}
+     * @memberof WorldsApiGetActiveWorlds
+     */
+    readonly sort?: SortOption
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof WorldsApiGetActiveWorlds
+     */
+    readonly n?: number
+
+    /**
+     * Result ordering
+     * @type {OrderOption}
+     * @memberof WorldsApiGetActiveWorlds
+     */
+    readonly order?: OrderOption
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof WorldsApiGetActiveWorlds
+     */
+    readonly offset?: number
+
+    /**
+     * Filters by world name.
+     * @type {string}
+     * @memberof WorldsApiGetActiveWorlds
+     */
+    readonly search?: string
+
+    /**
+     * Tags to include (comma-separated). Any of the tags needs to be present.
+     * @type {string}
+     * @memberof WorldsApiGetActiveWorlds
+     */
+    readonly tag?: string
+
+    /**
+     * Tags to exclude (comma-separated).
+     * @type {string}
+     * @memberof WorldsApiGetActiveWorlds
+     */
+    readonly notag?: string
+
+    /**
+     * Filter by ReleaseStatus.
+     * @type {ReleaseStatus}
+     * @memberof WorldsApiGetActiveWorlds
+     */
+    readonly releaseStatus?: ReleaseStatus
+
+    /**
+     * The maximum Unity version supported by the asset.
+     * @type {string}
+     * @memberof WorldsApiGetActiveWorlds
+     */
+    readonly maxUnityVersion?: string
+
+    /**
+     * The minimum Unity version supported by the asset.
+     * @type {string}
+     * @memberof WorldsApiGetActiveWorlds
+     */
+    readonly minUnityVersion?: string
+
+    /**
+     * The platform the asset supports.
+     * @type {string}
+     * @memberof WorldsApiGetActiveWorlds
+     */
+    readonly platform?: string
+}
+
+/**
+ * Request parameters for getFavoritedWorlds operation in WorldsApi.
+ * @export
+ * @interface WorldsApiGetFavoritedWorldsRequest
+ */
+export interface WorldsApiGetFavoritedWorldsRequest {
+    /**
+     * Filters on featured results.
+     * @type {boolean}
+     * @memberof WorldsApiGetFavoritedWorlds
+     */
+    readonly featured?: boolean
+
+    /**
+     * The sort order of the results.
+     * @type {SortOption}
+     * @memberof WorldsApiGetFavoritedWorlds
+     */
+    readonly sort?: SortOption
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof WorldsApiGetFavoritedWorlds
+     */
+    readonly n?: number
+
+    /**
+     * Result ordering
+     * @type {OrderOption}
+     * @memberof WorldsApiGetFavoritedWorlds
+     */
+    readonly order?: OrderOption
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof WorldsApiGetFavoritedWorlds
+     */
+    readonly offset?: number
+
+    /**
+     * Filters by world name.
+     * @type {string}
+     * @memberof WorldsApiGetFavoritedWorlds
+     */
+    readonly search?: string
+
+    /**
+     * Tags to include (comma-separated). Any of the tags needs to be present.
+     * @type {string}
+     * @memberof WorldsApiGetFavoritedWorlds
+     */
+    readonly tag?: string
+
+    /**
+     * Tags to exclude (comma-separated).
+     * @type {string}
+     * @memberof WorldsApiGetFavoritedWorlds
+     */
+    readonly notag?: string
+
+    /**
+     * Filter by ReleaseStatus.
+     * @type {ReleaseStatus}
+     * @memberof WorldsApiGetFavoritedWorlds
+     */
+    readonly releaseStatus?: ReleaseStatus
+
+    /**
+     * The maximum Unity version supported by the asset.
+     * @type {string}
+     * @memberof WorldsApiGetFavoritedWorlds
+     */
+    readonly maxUnityVersion?: string
+
+    /**
+     * The minimum Unity version supported by the asset.
+     * @type {string}
+     * @memberof WorldsApiGetFavoritedWorlds
+     */
+    readonly minUnityVersion?: string
+
+    /**
+     * The platform the asset supports.
+     * @type {string}
+     * @memberof WorldsApiGetFavoritedWorlds
+     */
+    readonly platform?: string
+
+    /**
+     * Target user to see information on, admin-only.
+     * @type {string}
+     * @memberof WorldsApiGetFavoritedWorlds
+     */
+    readonly userId?: string
+}
+
+/**
+ * Request parameters for getRecentWorlds operation in WorldsApi.
+ * @export
+ * @interface WorldsApiGetRecentWorldsRequest
+ */
+export interface WorldsApiGetRecentWorldsRequest {
+    /**
+     * Filters on featured results.
+     * @type {boolean}
+     * @memberof WorldsApiGetRecentWorlds
+     */
+    readonly featured?: boolean
+
+    /**
+     * The sort order of the results.
+     * @type {SortOption}
+     * @memberof WorldsApiGetRecentWorlds
+     */
+    readonly sort?: SortOption
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof WorldsApiGetRecentWorlds
+     */
+    readonly n?: number
+
+    /**
+     * Result ordering
+     * @type {OrderOption}
+     * @memberof WorldsApiGetRecentWorlds
+     */
+    readonly order?: OrderOption
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof WorldsApiGetRecentWorlds
+     */
+    readonly offset?: number
+
+    /**
+     * Filters by world name.
+     * @type {string}
+     * @memberof WorldsApiGetRecentWorlds
+     */
+    readonly search?: string
+
+    /**
+     * Tags to include (comma-separated). Any of the tags needs to be present.
+     * @type {string}
+     * @memberof WorldsApiGetRecentWorlds
+     */
+    readonly tag?: string
+
+    /**
+     * Tags to exclude (comma-separated).
+     * @type {string}
+     * @memberof WorldsApiGetRecentWorlds
+     */
+    readonly notag?: string
+
+    /**
+     * Filter by ReleaseStatus.
+     * @type {ReleaseStatus}
+     * @memberof WorldsApiGetRecentWorlds
+     */
+    readonly releaseStatus?: ReleaseStatus
+
+    /**
+     * The maximum Unity version supported by the asset.
+     * @type {string}
+     * @memberof WorldsApiGetRecentWorlds
+     */
+    readonly maxUnityVersion?: string
+
+    /**
+     * The minimum Unity version supported by the asset.
+     * @type {string}
+     * @memberof WorldsApiGetRecentWorlds
+     */
+    readonly minUnityVersion?: string
+
+    /**
+     * The platform the asset supports.
+     * @type {string}
+     * @memberof WorldsApiGetRecentWorlds
+     */
+    readonly platform?: string
+
+    /**
+     * Target user to see information on, admin-only.
+     * @type {string}
+     * @memberof WorldsApiGetRecentWorlds
+     */
+    readonly userId?: string
+}
+
+/**
+ * Request parameters for getWorld operation in WorldsApi.
+ * @export
+ * @interface WorldsApiGetWorldRequest
+ */
+export interface WorldsApiGetWorldRequest {
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof WorldsApiGetWorld
+     */
+    readonly worldId: string
+}
+
+/**
+ * Request parameters for getWorldInstance operation in WorldsApi.
+ * @export
+ * @interface WorldsApiGetWorldInstanceRequest
+ */
+export interface WorldsApiGetWorldInstanceRequest {
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof WorldsApiGetWorldInstance
+     */
+    readonly worldId: string
+
+    /**
+     * Must be a valid instance ID.
+     * @type {string}
+     * @memberof WorldsApiGetWorldInstance
+     */
+    readonly instanceId: string
+}
+
+/**
+ * Request parameters for getWorldMetadata operation in WorldsApi.
+ * @export
+ * @interface WorldsApiGetWorldMetadataRequest
+ */
+export interface WorldsApiGetWorldMetadataRequest {
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof WorldsApiGetWorldMetadata
+     */
+    readonly worldId: string
+}
+
+/**
+ * Request parameters for getWorldPublishStatus operation in WorldsApi.
+ * @export
+ * @interface WorldsApiGetWorldPublishStatusRequest
+ */
+export interface WorldsApiGetWorldPublishStatusRequest {
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof WorldsApiGetWorldPublishStatus
+     */
+    readonly worldId: string
+}
+
+/**
+ * Request parameters for publishWorld operation in WorldsApi.
+ * @export
+ * @interface WorldsApiPublishWorldRequest
+ */
+export interface WorldsApiPublishWorldRequest {
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof WorldsApiPublishWorld
+     */
+    readonly worldId: string
+}
+
+/**
+ * Request parameters for searchWorlds operation in WorldsApi.
+ * @export
+ * @interface WorldsApiSearchWorldsRequest
+ */
+export interface WorldsApiSearchWorldsRequest {
+    /**
+     * Filters on featured results.
+     * @type {boolean}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly featured?: boolean
+
+    /**
+     * The sort order of the results.
+     * @type {SortOption}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly sort?: SortOption
+
+    /**
+     * Set to &#x60;me&#x60; for searching own worlds.
+     * @type {'me'}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly user?: SearchWorldsUserEnum
+
+    /**
+     * Filter by UserID.
+     * @type {string}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly userId?: string
+
+    /**
+     * The number of objects to return.
+     * @type {number}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly n?: number
+
+    /**
+     * Result ordering
+     * @type {OrderOption}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly order?: OrderOption
+
+    /**
+     * A zero-based offset from the default object sorting from where search results start.
+     * @type {number}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly offset?: number
+
+    /**
+     * Filters by world name.
+     * @type {string}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly search?: string
+
+    /**
+     * Tags to include (comma-separated). Any of the tags needs to be present.
+     * @type {string}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly tag?: string
+
+    /**
+     * Tags to exclude (comma-separated).
+     * @type {string}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly notag?: string
+
+    /**
+     * Filter by ReleaseStatus.
+     * @type {ReleaseStatus}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly releaseStatus?: ReleaseStatus
+
+    /**
+     * The maximum Unity version supported by the asset.
+     * @type {string}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly maxUnityVersion?: string
+
+    /**
+     * The minimum Unity version supported by the asset.
+     * @type {string}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly minUnityVersion?: string
+
+    /**
+     * The platform the asset supports.
+     * @type {string}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly platform?: string
+
+    /**
+     * 
+     * @type {boolean}
+     * @memberof WorldsApiSearchWorlds
+     */
+    readonly fuzzy?: boolean
+}
+
+/**
+ * Request parameters for unpublishWorld operation in WorldsApi.
+ * @export
+ * @interface WorldsApiUnpublishWorldRequest
+ */
+export interface WorldsApiUnpublishWorldRequest {
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof WorldsApiUnpublishWorld
+     */
+    readonly worldId: string
+}
+
+/**
+ * Request parameters for updateWorld operation in WorldsApi.
+ * @export
+ * @interface WorldsApiUpdateWorldRequest
+ */
+export interface WorldsApiUpdateWorldRequest {
+    /**
+     * Must be a valid world ID.
+     * @type {string}
+     * @memberof WorldsApiUpdateWorld
+     */
+    readonly worldId: string
+
+    /**
+     * 
+     * @type {UpdateWorldRequest}
+     * @memberof WorldsApiUpdateWorld
+     */
+    readonly updateWorldRequest?: UpdateWorldRequest
+}
 
 /**
  * WorldsApi - object-oriented interface
@@ -29403,235 +33318,182 @@ export class WorldsApi extends BaseAPI {
     /**
      * Checks whether the user has persistence data for a given world
      * @summary Check User Persistence Exists
-     * @param {string} userId Must be a valid user ID.
-     * @param {string} worldId Must be a valid world ID.
+     * @param {WorldsApiCheckUserPersistenceExistsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public checkUserPersistenceExists(userId: string, worldId: string, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).checkUserPersistenceExists(userId, worldId, options).then((request) => request(this.axios, this.basePath));
+    public checkUserPersistenceExists(requestParameters: WorldsApiCheckUserPersistenceExistsRequest, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).checkUserPersistenceExists(requestParameters.userId, requestParameters.worldId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Create a new world. This endpoint requires `assetUrl` to be a valid File object with `.vrcw` file extension, and `imageUrl` to be a valid File object with an image file extension.
      * @summary Create World
-     * @param {CreateWorldRequest} [createWorldRequest] 
+     * @param {WorldsApiCreateWorldRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public createWorld(createWorldRequest?: CreateWorldRequest, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).createWorld(createWorldRequest, options).then((request) => request(this.axios, this.basePath));
+    public createWorld(requestParameters: WorldsApiCreateWorldRequest = {}, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).createWorld(requestParameters.createWorldRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Deletes the user\'s persistence data for a given world
      * @summary Delete User Persistence
-     * @param {string} userId Must be a valid user ID.
-     * @param {string} worldId Must be a valid world ID.
+     * @param {WorldsApiDeleteUserPersistenceRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public deleteUserPersistence(userId: string, worldId: string, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).deleteUserPersistence(userId, worldId, options).then((request) => request(this.axios, this.basePath));
+    public deleteUserPersistence(requestParameters: WorldsApiDeleteUserPersistenceRequest, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).deleteUserPersistence(requestParameters.userId, requestParameters.worldId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Delete a world. Notice a world is never fully \"deleted\", only its ReleaseStatus is set to \"hidden\" and the linked Files are deleted. The WorldID is permanently reserved.
      * @summary Delete World
-     * @param {string} worldId Must be a valid world ID.
+     * @param {WorldsApiDeleteWorldRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public deleteWorld(worldId: string, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).deleteWorld(worldId, options).then((request) => request(this.axios, this.basePath));
+    public deleteWorld(requestParameters: WorldsApiDeleteWorldRequest, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).deleteWorld(requestParameters.worldId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Search and list currently Active worlds by query filters.
      * @summary List Active Worlds
-     * @param {boolean} [featured] Filters on featured results.
-     * @param {SortOption} [sort] The sort order of the results.
-     * @param {number} [n] The number of objects to return.
-     * @param {OrderOption} [order] Result ordering
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {string} [search] Filters by world name.
-     * @param {string} [tag] Tags to include (comma-separated). Any of the tags needs to be present.
-     * @param {string} [notag] Tags to exclude (comma-separated).
-     * @param {ReleaseStatus} [releaseStatus] Filter by ReleaseStatus.
-     * @param {string} [maxUnityVersion] The maximum Unity version supported by the asset.
-     * @param {string} [minUnityVersion] The minimum Unity version supported by the asset.
-     * @param {string} [platform] The platform the asset supports.
+     * @param {WorldsApiGetActiveWorldsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public getActiveWorlds(featured?: boolean, sort?: SortOption, n?: number, order?: OrderOption, offset?: number, search?: string, tag?: string, notag?: string, releaseStatus?: ReleaseStatus, maxUnityVersion?: string, minUnityVersion?: string, platform?: string, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).getActiveWorlds(featured, sort, n, order, offset, search, tag, notag, releaseStatus, maxUnityVersion, minUnityVersion, platform, options).then((request) => request(this.axios, this.basePath));
+    public getActiveWorlds(requestParameters: WorldsApiGetActiveWorldsRequest = {}, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).getActiveWorlds(requestParameters.featured, requestParameters.sort, requestParameters.n, requestParameters.order, requestParameters.offset, requestParameters.search, requestParameters.tag, requestParameters.notag, requestParameters.releaseStatus, requestParameters.maxUnityVersion, requestParameters.minUnityVersion, requestParameters.platform, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Search and list favorited worlds by query filters.
      * @summary List Favorited Worlds
-     * @param {boolean} [featured] Filters on featured results.
-     * @param {SortOption} [sort] The sort order of the results.
-     * @param {number} [n] The number of objects to return.
-     * @param {OrderOption} [order] Result ordering
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {string} [search] Filters by world name.
-     * @param {string} [tag] Tags to include (comma-separated). Any of the tags needs to be present.
-     * @param {string} [notag] Tags to exclude (comma-separated).
-     * @param {ReleaseStatus} [releaseStatus] Filter by ReleaseStatus.
-     * @param {string} [maxUnityVersion] The maximum Unity version supported by the asset.
-     * @param {string} [minUnityVersion] The minimum Unity version supported by the asset.
-     * @param {string} [platform] The platform the asset supports.
-     * @param {string} [userId] Target user to see information on, admin-only.
+     * @param {WorldsApiGetFavoritedWorldsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public getFavoritedWorlds(featured?: boolean, sort?: SortOption, n?: number, order?: OrderOption, offset?: number, search?: string, tag?: string, notag?: string, releaseStatus?: ReleaseStatus, maxUnityVersion?: string, minUnityVersion?: string, platform?: string, userId?: string, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).getFavoritedWorlds(featured, sort, n, order, offset, search, tag, notag, releaseStatus, maxUnityVersion, minUnityVersion, platform, userId, options).then((request) => request(this.axios, this.basePath));
+    public getFavoritedWorlds(requestParameters: WorldsApiGetFavoritedWorldsRequest = {}, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).getFavoritedWorlds(requestParameters.featured, requestParameters.sort, requestParameters.n, requestParameters.order, requestParameters.offset, requestParameters.search, requestParameters.tag, requestParameters.notag, requestParameters.releaseStatus, requestParameters.maxUnityVersion, requestParameters.minUnityVersion, requestParameters.platform, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Search and list recently visited worlds by query filters.
      * @summary List Recent Worlds
-     * @param {boolean} [featured] Filters on featured results.
-     * @param {SortOption} [sort] The sort order of the results.
-     * @param {number} [n] The number of objects to return.
-     * @param {OrderOption} [order] Result ordering
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {string} [search] Filters by world name.
-     * @param {string} [tag] Tags to include (comma-separated). Any of the tags needs to be present.
-     * @param {string} [notag] Tags to exclude (comma-separated).
-     * @param {ReleaseStatus} [releaseStatus] Filter by ReleaseStatus.
-     * @param {string} [maxUnityVersion] The maximum Unity version supported by the asset.
-     * @param {string} [minUnityVersion] The minimum Unity version supported by the asset.
-     * @param {string} [platform] The platform the asset supports.
-     * @param {string} [userId] Target user to see information on, admin-only.
+     * @param {WorldsApiGetRecentWorldsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public getRecentWorlds(featured?: boolean, sort?: SortOption, n?: number, order?: OrderOption, offset?: number, search?: string, tag?: string, notag?: string, releaseStatus?: ReleaseStatus, maxUnityVersion?: string, minUnityVersion?: string, platform?: string, userId?: string, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).getRecentWorlds(featured, sort, n, order, offset, search, tag, notag, releaseStatus, maxUnityVersion, minUnityVersion, platform, userId, options).then((request) => request(this.axios, this.basePath));
+    public getRecentWorlds(requestParameters: WorldsApiGetRecentWorldsRequest = {}, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).getRecentWorlds(requestParameters.featured, requestParameters.sort, requestParameters.n, requestParameters.order, requestParameters.offset, requestParameters.search, requestParameters.tag, requestParameters.notag, requestParameters.releaseStatus, requestParameters.maxUnityVersion, requestParameters.minUnityVersion, requestParameters.platform, requestParameters.userId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Get information about a specific World. Works unauthenticated but when so will always return `0` for certain fields.
      * @summary Get World by ID
-     * @param {string} worldId Must be a valid world ID.
+     * @param {WorldsApiGetWorldRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public getWorld(worldId: string, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).getWorld(worldId, options).then((request) => request(this.axios, this.basePath));
+    public getWorld(requestParameters: WorldsApiGetWorldRequest, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).getWorld(requestParameters.worldId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a worlds instance.
      * @summary Get World Instance
-     * @param {string} worldId Must be a valid world ID.
-     * @param {string} instanceId Must be a valid instance ID.
+     * @param {WorldsApiGetWorldInstanceRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public getWorldInstance(worldId: string, instanceId: string, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).getWorldInstance(worldId, instanceId, options).then((request) => request(this.axios, this.basePath));
+    public getWorldInstance(requestParameters: WorldsApiGetWorldInstanceRequest, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).getWorldInstance(requestParameters.worldId, requestParameters.instanceId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Return a worlds custom metadata. This is currently believed to be unused. Metadata can be set with `updateWorld` and can be any arbitrary object.
      * @summary Get World Metadata
-     * @param {string} worldId Must be a valid world ID.
+     * @param {WorldsApiGetWorldMetadataRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @deprecated
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public getWorldMetadata(worldId: string, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).getWorldMetadata(worldId, options).then((request) => request(this.axios, this.basePath));
+    public getWorldMetadata(requestParameters: WorldsApiGetWorldMetadataRequest, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).getWorldMetadata(requestParameters.worldId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Returns a worlds publish status.
      * @summary Get World Publish Status
-     * @param {string} worldId Must be a valid world ID.
+     * @param {WorldsApiGetWorldPublishStatusRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public getWorldPublishStatus(worldId: string, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).getWorldPublishStatus(worldId, options).then((request) => request(this.axios, this.basePath));
+    public getWorldPublishStatus(requestParameters: WorldsApiGetWorldPublishStatusRequest, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).getWorldPublishStatus(requestParameters.worldId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Publish a world. You can only publish one world per week.
      * @summary Publish World
-     * @param {string} worldId Must be a valid world ID.
+     * @param {WorldsApiPublishWorldRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public publishWorld(worldId: string, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).publishWorld(worldId, options).then((request) => request(this.axios, this.basePath));
+    public publishWorld(requestParameters: WorldsApiPublishWorldRequest, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).publishWorld(requestParameters.worldId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Search and list any worlds by query filters.
      * @summary Search All Worlds
-     * @param {boolean} [featured] Filters on featured results.
-     * @param {SortOption} [sort] The sort order of the results.
-     * @param {SearchWorldsUserEnum} [user] Set to &#x60;me&#x60; for searching own worlds.
-     * @param {string} [userId] Filter by UserID.
-     * @param {number} [n] The number of objects to return.
-     * @param {OrderOption} [order] Result ordering
-     * @param {number} [offset] A zero-based offset from the default object sorting from where search results start.
-     * @param {string} [search] Filters by world name.
-     * @param {string} [tag] Tags to include (comma-separated). Any of the tags needs to be present.
-     * @param {string} [notag] Tags to exclude (comma-separated).
-     * @param {ReleaseStatus} [releaseStatus] Filter by ReleaseStatus.
-     * @param {string} [maxUnityVersion] The maximum Unity version supported by the asset.
-     * @param {string} [minUnityVersion] The minimum Unity version supported by the asset.
-     * @param {string} [platform] The platform the asset supports.
-     * @param {boolean} [fuzzy] 
+     * @param {WorldsApiSearchWorldsRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public searchWorlds(featured?: boolean, sort?: SortOption, user?: SearchWorldsUserEnum, userId?: string, n?: number, order?: OrderOption, offset?: number, search?: string, tag?: string, notag?: string, releaseStatus?: ReleaseStatus, maxUnityVersion?: string, minUnityVersion?: string, platform?: string, fuzzy?: boolean, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).searchWorlds(featured, sort, user, userId, n, order, offset, search, tag, notag, releaseStatus, maxUnityVersion, minUnityVersion, platform, fuzzy, options).then((request) => request(this.axios, this.basePath));
+    public searchWorlds(requestParameters: WorldsApiSearchWorldsRequest = {}, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).searchWorlds(requestParameters.featured, requestParameters.sort, requestParameters.user, requestParameters.userId, requestParameters.n, requestParameters.order, requestParameters.offset, requestParameters.search, requestParameters.tag, requestParameters.notag, requestParameters.releaseStatus, requestParameters.maxUnityVersion, requestParameters.minUnityVersion, requestParameters.platform, requestParameters.fuzzy, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Unpublish a world.
      * @summary Unpublish World
-     * @param {string} worldId Must be a valid world ID.
+     * @param {WorldsApiUnpublishWorldRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public unpublishWorld(worldId: string, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).unpublishWorld(worldId, options).then((request) => request(this.axios, this.basePath));
+    public unpublishWorld(requestParameters: WorldsApiUnpublishWorldRequest, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).unpublishWorld(requestParameters.worldId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * Update information about a specific World.
      * @summary Update World
-     * @param {string} worldId Must be a valid world ID.
-     * @param {UpdateWorldRequest} [updateWorldRequest] 
+     * @param {WorldsApiUpdateWorldRequest} requestParameters Request parameters.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof WorldsApi
      */
-    public updateWorld(worldId: string, updateWorldRequest?: UpdateWorldRequest, options?: RawAxiosRequestConfig) {
-        return WorldsApiFp(this.configuration).updateWorld(worldId, updateWorldRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateWorld(requestParameters: WorldsApiUpdateWorldRequest, options?: RawAxiosRequestConfig) {
+        return WorldsApiFp(this.configuration).updateWorld(requestParameters.worldId, requestParameters.updateWorldRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

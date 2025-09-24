@@ -32,10 +32,6 @@ export default function Home() {
     setMsgs((prev) => [{mode: "recv", data: `[${msg.type}] ${ctt}`}, ...prev ]);
   }, [vrc.pipeline?.lastMessage])
 
-  useEffect(() => {
-    console.log("Friends updated:", friends.data.length);
-  }, [friends.data]);
-
   return (
     <GenericScreen>
 
@@ -53,19 +49,6 @@ export default function Home() {
           renderItem={({ item }) => (
             <Text style={[globalStyles.text, {color:  item.mode === "recv" ? theme.colors.primary : theme.colors.text, marginBottom: 4}]}>
               {item.data}
-            </Text>
-          )}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      </View>
-      {/* State */}
-      <View style={{height: "60%", borderStyle: "solid", borderColor: theme.colors.border, borderWidth: 1, borderRadius: 8, padding: 8, marginTop: 8}}>
-        <Text style={[globalStyles.text, {color:theme.colors.text, fontWeight: "bold", marginBottom: 8}]}> Friends ({friends.data.length}) </Text>
-        <FlatList
-          data={friends.data}
-          renderItem={({ item }) => (
-            <Text style={[globalStyles.text, {color:theme.colors.text, marginBottom: 4}]}>
-              {`${item.displayName}\n (${item.id.slice(0, 20)}) - ${item.location.slice(0, 20)}`}
             </Text>
           )}
           keyExtractor={(item, index) => index.toString()}

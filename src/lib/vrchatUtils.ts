@@ -1,6 +1,6 @@
-import { Avatar, CurrentUser, Group, GroupAccessType, InstanceRegion, InstanceType, LimitedGroup, LimitedUserFriend, LimitedUserInstance, LimitedUserSearch, LimitedWorld, User, UserState, World } from "@/vrchat/api";
+import { Avatar, CurrentUser, FavoritedWorld, Group, GroupAccessType, InstanceRegion, InstanceType, LimitedGroup, LimitedUserFriend, LimitedUserInstance, LimitedUserSearch, LimitedWorld, User, UserState, World } from "@/vrchat/api";
 export type UserLike = LimitedUserSearch | LimitedUserFriend | LimitedUserInstance | User | CurrentUser
-export type WorldLike = LimitedWorld | World
+export type WorldLike = LimitedWorld | FavoritedWorld | World
 export type GroupLike = LimitedGroup | Group
 export type AvatarLike = Avatar
 type StatusGettableUser = Exclude<UserLike, LimitedUserInstance>
@@ -10,6 +10,7 @@ export function parseLocationString(location: string| undefined):
 {
   isOffline?: boolean;
   isPrivate?: boolean;
+  isTraveling?: boolean;
   parsedLocation?: { 
     worldId?: string; 
     instanceId?: string;
@@ -20,6 +21,7 @@ export function parseLocationString(location: string| undefined):
     if (location == "offline") return { isOffline: true };
     if (location == "private") return { isPrivate: true };
     const [worldId, instanceId] = location.split(":");
+    if (worldId == "traveling") return { isTraveling: true };
     return {
       parsedLocation: { worldId, instanceId }
     };
@@ -83,8 +85,8 @@ export function getInstanceType(type:InstanceType, groupAccessType?: GroupAccess
 }
 
 export function getState(user: LimitedUserFriend): UserState | undefined {
+  if (user.platform == "web") return "active"; 
   if (user.status !== "offline" ) return "online"; 
-  if (user.location && user.location !== "offline") return "active"; 
   if (user.location != "") return "offline";
   return undefined;
 }

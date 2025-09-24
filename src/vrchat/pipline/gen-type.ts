@@ -74,7 +74,8 @@ function generateDefinitionFileContent (objs :  {type: string, content: Object |
   });
   const types = Array.from(typeMap.keys());
 
-  const definitions = createimportStatements() + "\n\n"
+  const definitions = "// This file is generated automatically by a script(gen-type.ts).\n Don't modify manually!\n\n"
+    + createimportStatements() + "\n\n"
     + createOtherDefinitions() + "\n\n"
     + createEnums(types) + "\n\n"
     + createConditionalTypes(types) + "\n\n"

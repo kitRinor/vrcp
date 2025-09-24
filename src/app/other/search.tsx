@@ -33,7 +33,7 @@ export default function Search() {
     const offset = useRef(0);
     const fetchWorlds = async () => {
       try {
-        const res = await new WorldsApi(vrc.config).searchWorlds(undefined, SortOption.Magic, undefined, undefined, limit, undefined, offset.current, query);
+        const res = await new WorldsApi(vrc.config).searchWorlds({sort: SortOption.Magic, n: limit, offset: offset.current, search: query});
         setWorlds(prev => [...prev, ...res.data]);
         offset.current += limit;
       } catch (error) {
@@ -66,7 +66,7 @@ export default function Search() {
     const offset = useRef(0);
     const fetchUsers = async () => {
       try {
-        const res = await new UsersApi(vrc.config).searchUsers(query, undefined, limit, offset.current);
+        const res = await new UsersApi(vrc.config).searchUsers({n: limit, offset: offset.current, search: query});
         setUsers(prev => [...prev, ...res.data]);
         offset.current += limit;
       } catch (error) {
@@ -100,7 +100,7 @@ export default function Search() {
 
     const fetchGroups = async () => {
       try {
-        const res = await new GroupsApi(vrc.config).searchGroups(query, offset.current, limit);
+        const res = await new GroupsApi(vrc.config).searchGroups({n: limit, offset: offset.current, query: query});
         setGroups(prev => [...prev, ...res.data]);
         offset.current += limit
       } catch (error) {

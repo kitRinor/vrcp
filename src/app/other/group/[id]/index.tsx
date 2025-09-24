@@ -3,6 +3,7 @@ import DetailItemContainer from "@/components/screen/detail/DetailItemContainer"
 import CardViewGroupDetail from "@/components/view/item-CardView/detail/CardViewGroupDetail";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
 import { fontSize, radius, spacing } from "@/config/styles";
+import { useCache } from "@/contexts/CacheContext";
 import { useVRChat } from "@/contexts/VRChatContext";
 import { extractErrMsg } from "@/lib/extractErrMsg";
 import { Group } from "@/vrchat/api";
@@ -15,13 +16,14 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 export default function GroupDetail() {
   const { id } = useLocalSearchParams<{id: string}>();
   const vrc = useVRChat();
+  const cache = useCache();
   const theme = useTheme();  
   const [group, setGroup] = useState<Group>();
 
   const fetchData = async () => {
     try {
-      const res = await vrc.groupsApi.getGroup(id);
-      if (res.data) setGroup(res.data);
+      const res = await cache.group.get(id, true); // fetch and force refresh cache
+      setGroup(res);
     } catch (error) {
       console.error("Error fetching user profile:", extractErrMsg(error));
     }

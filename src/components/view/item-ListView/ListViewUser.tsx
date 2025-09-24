@@ -3,7 +3,7 @@ import { CachedImage, useCache } from "@/contexts/CacheContext";
 import { getInstanceType, getStatusColor, parseInstanceId, parseLocationString, UserLike } from "@/lib/vrchatUtils";
 import { World } from "@/vrchat/api";
 import { useTheme } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import BaseListView from "./BaseListView";
 
@@ -19,9 +19,10 @@ const extractSubtitles = (data: UserLike, world?: World) => {
   const statusText = data.statusDescription !== "" ? data.statusDescription : data.status;
   let locationText = "unknown";
   if (Object(data).hasOwnProperty("location")) {
-    const { isOffline, isPrivate, parsedLocation } =  parseLocationString(Object(data).location);
+    const { isOffline, isPrivate, isTraveling, parsedLocation } =  parseLocationString(Object(data).location);
     if (isOffline) locationText = "* user is offline *";
     if (isPrivate) locationText = "* user is in a private instance *";
+    if (isTraveling) locationText = "* user is now traveling... *";
     if (parsedLocation) {
       const parsedInstance = parseInstanceId(parsedLocation.instanceId);
       const worldName =  world?.name ?? ""
@@ -47,10 +48,10 @@ const ListViewUser = ({ user, onPress, onLongPress, ...rest }: Props) => {
     .then((world) => {
       setSubtitles(extractSubtitles(user, world));
     })
-    .catch((e) => { 
-      console.error("Error fetching world data for ListViewUser:", e); 
+    .catch((e) => {
+      console.error(`Err fetching world on ListViewUser: ${parsedLocation.worldId}`);
     });
-  }, []);
+  }, [Object(user).location]);
   return (
     <BaseListView
       data={user}
@@ -64,7 +65,7 @@ const ListViewUser = ({ user, onPress, onLongPress, ...rest }: Props) => {
       OverlapComponents={
         <View style={styles.iconContainer}>
           <CachedImage
-            src={user.userIcon.length > 0 ? user.userIcon : user.currentAvatarThumbnailImageUrl ?? ""}
+            src={user.userIcon && user.userIcon.length > 0 ? user.userIcon : user.currentAvatarThumbnailImageUrl ?? user.currentAvatarImageUrl}
             style={[styles.icon, { borderColor: getStatusColor(user), backgroundColor: theme.colors.card }]}
           />
         </View>
@@ -105,4 +106,4 @@ const styles = StyleSheet.create({
     borderRadius: radius.all,
   },
 });
-export default ListViewUser;
+export default React.memo(ListViewUser);

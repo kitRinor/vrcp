@@ -7,6 +7,7 @@ import ListViewInstance, { MinInstance } from "@/components/view/item-ListView/L
 import LoadingIndicator from "@/components/view/LoadingIndicator";
 import SelectGroupButton from "@/components/view/SelectGroupButton";
 import { fontSize, radius, spacing } from "@/config/styles";
+import { useCache } from "@/contexts/CacheContext";
 import { useVRChat } from "@/contexts/VRChatContext";
 import { formatToDateTime } from "@/lib/date";
 import { extractErrMsg } from "@/lib/extractErrMsg";
@@ -21,14 +22,15 @@ import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
 export default function WorldDetail() {
   const { id } = useLocalSearchParams<{id: string}>();
   const vrc = useVRChat();
+  const cache = useCache();
   const theme = useTheme();  
   const [world, setWorld] = useState<World>();
   const [mode, setMode] = useState<"info" | "instance">("info");
 
   const fetchData = async () => {
     try {
-      const res = await vrc.worldsApi.getWorld(id);
-      if (res.data) setWorld(res.data);
+      const res = await cache.world.get(id, true); // fetch and force refresh cache
+      setWorld(res);
     } catch (error) {
       console.error("Error fetching world profile:", extractErrMsg(error));
     }

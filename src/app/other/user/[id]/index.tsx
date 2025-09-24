@@ -4,7 +4,7 @@ import LinkChip from "@/components/view/chip-badge/LinkChip";
 import CardViewUserDetail from "@/components/view/item-CardView/detail/CardViewUserDetail";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
 import { fontSize, radius, spacing } from "@/config/styles";
-import { CachedImage } from "@/contexts/CacheContext";
+import { CachedImage, useCache } from "@/contexts/CacheContext";
 import { useVRChat } from "@/contexts/VRChatContext";
 import { extractErrMsg } from "@/lib/extractErrMsg";
 import { getInstanceType, parseLocationString } from "@/lib/vrchatUtils";
@@ -18,6 +18,7 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 export default function UserDetail() {
   const { id } = useLocalSearchParams<{id: string}>();
   const vrc = useVRChat();
+  const cache = useCache();
   const theme = useTheme();  
   const [user, setUser] = useState<User>();
   const [locationInfo, setLocationInfo] = useState<{
@@ -29,8 +30,8 @@ export default function UserDetail() {
 
   const fetchData = async () => {
     try {
-      const res = await vrc.usersApi.getUser(id);
-      if (res.data) setUser(res.data);
+      const res = await cache.user.get(id, true); // fetch and force refresh cache
+      setUser(res);
     } catch (error) {
       console.error("Error fetching user profile:", extractErrMsg(error));
     }
@@ -55,7 +56,10 @@ export default function UserDetail() {
       });
     } else if (parsedLocation?.worldId && parsedLocation?.instanceId) {
       try {
-        const res = await vrc.instancesApi.getInstance(parsedLocation.worldId, parsedLocation.instanceId);
+        const res = await vrc.instancesApi.getInstance({
+          worldId: parsedLocation.worldId, 
+          instanceId: parsedLocation.instanceId
+        });
         if (res.data) {
           setLocationInfo({
             image: res.data.world?.thumbnailImageUrl,

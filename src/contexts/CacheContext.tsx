@@ -1,6 +1,6 @@
 
 import { omitObject } from "@/lib/objectUtils";
-import { User, World } from "@/vrchat/api";
+import { Avatar, CurrentUser, FavoriteLimits, Group, User, World } from "@/vrchat/api";
 import * as Crypto from 'expo-crypto';
 import * as FileSystem from 'expo-file-system';
 import React, { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from "react";
@@ -13,7 +13,12 @@ interface Cache<T> {
   value: T;
 }
 interface CacheWrapper<T> {
-  get: (id: string) => Promise<T>;
+  get: (forceFetch?: boolean) => Promise<T>;
+  set: (data: T) => Promise<void>;
+  del: () => Promise<void>;
+}
+interface CacheByIdWrapper<T> {
+  get: (id: string, forceFetch?: boolean) => Promise<T>;
   set: (id: string, data: T) => Promise<void>;
   del: (id: string) => Promise<void>;
 }
@@ -22,8 +27,13 @@ interface CacheContextType {
   clearCache: () => Promise<void>;
   getCacheInfo: () => Promise<{size: number, count: number}>;
   //
-  user: CacheWrapper<User>;
-  world: CacheWrapper<World>;
+  currentUser: CacheWrapper<CurrentUser>;
+  favoriteLimits: CacheWrapper<FavoriteLimits>;
+  // by id (list-data)
+  user: CacheByIdWrapper<User>;
+  world: CacheByIdWrapper<World>;
+  group: CacheByIdWrapper<Group>;
+  avatar: CacheByIdWrapper<Avatar>;
 }
 
 const Context = createContext<CacheContextType | undefined>(undefined)
@@ -31,7 +41,7 @@ const Context = createContext<CacheContextType | undefined>(undefined)
 const cacheRootDir = `${FileSystem.documentDirectory}cache/`; // root-directory for cache
 
 // get local file uri from key (id or url), subDirName must end with /
-const getLocalUri = async (key: string, subDirName: string, encryptKey?: boolean) => {
+const getLocalUri = async (key: string, subDirName: string = "", encryptKey?: boolean) => {
   if (encryptKey) {
     const cryptKey = await Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256, key)
     return cacheRootDir + subDirName + cryptKey;
@@ -62,13 +72,24 @@ const CacheProvider: React.FC<{ children?: ReactNode }> = ({children}) => {
   }, [])
 
   /// Cache Getters
-  const getWorld = async (id: string) => (await vrc.worldsApi.getWorld(id)).data;
-  const getUser = async (id: string) => (await vrc.usersApi.getUser(id)).data;
-  // Initialize cached images (called when clear cache and on mount)
-  useEffect(initCachedImage, [initTrigger.current]); // for images
+  const getCurrentUser = async () => (await vrc.authenticationApi.getCurrentUser()).data;
+  const getFavoriteLimits = async () => (await vrc.favoritesApi.getFavoriteLimits()).data;
+  const getWorld = async (id: string) => (await vrc.worldsApi.getWorld({worldId: id})).data;
+  const getUser = async (id: string) => (await vrc.usersApi.getUser({userId: id})).data;
+  const getGroup = async (id: string) => (await vrc.groupsApi.getGroup({groupId: id})).data;
+  const getAvatar = async (id: string) => (await vrc.avatarsApi.getAvatar({avatarId: id})).data;
+
+  // Initialize caches (called when clear cache and on mount)
+  useEffect(()=> { // for images
+    initCachedImage()
+  }, [initTrigger.current]); 
   const wrappers = useMemo(() => ({ // for other data
-    user: initCacheWrapper<User>("users/", getUser),
-    world: initCacheWrapper<World>("worlds/", getWorld),
+    currentUser: initCacheWrapper<CurrentUser>("currentUser", getCurrentUser, { expiration: 1000 }), // expire with 1 second, basically, use useData(),currentUser instaead of this
+    favoriteLimits: initCacheWrapper<FavoriteLimits>("favoriteLimits", getFavoriteLimits, { expiration: 24 * 60 * 60 * 1000 }), // expire with 24 hours
+    user: initCacheByIdWrapper<User>("users/", getUser),
+    world: initCacheByIdWrapper<World>("worlds/", getWorld),
+    group: initCacheByIdWrapper<Group>("groups/", getGroup),
+    avatar: initCacheByIdWrapper<Avatar>("avatars/", getAvatar),
   }), [initTrigger.current, vrc.config]); 
   
 
@@ -113,16 +134,70 @@ const CacheProvider: React.FC<{ children?: ReactNode }> = ({children}) => {
   )
 } 
 
-// create and init cache wrapper from getter function
-function initCacheWrapper<T>(
-  subDir: string, 
-  getter: (id: string) => Promise<T>, 
+
+
+/** Cache Initializers */
+
+function initCacheWrapper<T = any>(
+  path: string, //directry filename
+  getter: CacheWrapper<T>["get"],
+  options?: {
+    expiration?: number, // in milliseconds
+    type?: "json" | "raw"
+  }
+): CacheWrapper<T> {
+  const opt = {
+    expiration: options?.expiration ?? 24 * 60 * 60 * 1000, // default: 24 hours, if set to 0, never expire
+    type: options?.type ?? "json" // default: json
+  }
+  const { expiration, type } = opt;
+
+  if (path.startsWith("/") || path.endsWith("/")) throw new Error("path must not start or end with /: " + path);
+  if (type !== "json") throw new Error("not-implemented cache type: " + type);
+
+  const get = async (forceFetch: boolean = false): Promise<T> => {
+    const localUri = await getLocalUri(path);
+    const fileInfo = await FileSystem.getInfoAsync(localUri);
+    if (fileInfo.exists) {
+      const fileContent = await FileSystem.readAsStringAsync(localUri);
+      const cache: Cache<T> = JSON.parse(fileContent);
+      if (!forceFetch && (cache.expiredAt == "" || new Date() < new Date(cache.expiredAt))) {
+        return cache.value;
+      } 
+    } 
+    // no-cached or cached-but-expired, get and set with new data
+    const data = await getter();
+    const newCache: Cache<T> = {
+      expiredAt: expiration > 0 ? new Date(Date.now() + expiration).toISOString() : "",
+      value: data
+    };
+    await FileSystem.writeAsStringAsync(localUri, JSON.stringify(newCache));
+    return data;
+  }
+  const set = async (data: T) => {
+    const localUri = await getLocalUri(path);
+    const newCache: Cache<T> = {
+      expiredAt: expiration > 0 ? new Date(Date.now() + expiration).toISOString() : "",
+      value: data
+    };
+    await FileSystem.writeAsStringAsync(localUri, JSON.stringify(newCache));
+  }
+  const del = async () => {
+    const localUri = await getLocalUri(path);
+    await FileSystem.deleteAsync(localUri, { idempotent: true });
+  }
+  return { get, set, del };
+
+}
+function initCacheByIdWrapper<T = any>(
+  subDir: string,  // sub-directory name, must end with /
+  getter: CacheByIdWrapper<T>["get"],
   options?: {
     expiration?: number, // in milliseconds
     encrypt?: boolean,
     type?: "json" | "raw"
   }
-): CacheWrapper<T> {
+): CacheByIdWrapper<T> {
   const opt = {
     expiration: options?.expiration ?? 24 * 60 * 60 * 1000, // default: 24 hours, if set to 0, never expire
     encrypt: options?.encrypt ?? false, // default: no encrypt, use raw key as filename
@@ -142,13 +217,13 @@ function initCacheWrapper<T>(
     console.error(`Error creating cache sub-dir: ${cacheRootDir + subDir}`, error);
   });
 
-  const get = async (id: string): Promise<T> => {
+  const get = async (id: string, forceFetch: boolean = false): Promise<T> => {
     const localUri = await getLocalUri(id, subDir, encrypt);
     const fileInfo = await FileSystem.getInfoAsync(localUri);
     if (fileInfo.exists) {
       const fileContent = await FileSystem.readAsStringAsync(localUri);
       const cache: Cache<T> = JSON.parse(fileContent);
-      if (cache.expiredAt == "" || new Date() < new Date(cache.expiredAt)) {
+      if (!forceFetch && (cache.expiredAt == "" || new Date() < new Date(cache.expiredAt))) {
         return cache.value;
       } 
     } 
@@ -202,7 +277,7 @@ const CachedImage = ({src:remoteUri , ...rest}: {src: string, [key: string]: any
         setSrc(uri);
       }
     } catch (error) {
-      console.log("Error loading image:", error);
+      console.log("Error loading image:", remoteUri);
     }
   }
   useEffect(() => {

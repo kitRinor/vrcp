@@ -3,6 +3,7 @@ import DetailItemContainer from "@/components/screen/detail/DetailItemContainer"
 import CardViewAvatarDetail from "@/components/view/item-CardView/detail/CardViewAvatarDetail";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
 import { fontSize, radius, spacing } from "@/config/styles";
+import { useCache } from "@/contexts/CacheContext";
 import { useVRChat } from "@/contexts/VRChatContext";
 import { extractErrMsg } from "@/lib/extractErrMsg";
 import { Avatar } from "@/vrchat/api";
@@ -15,13 +16,14 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 export default function AvatarDetail() {
   const { id } = useLocalSearchParams<{id: string}>();
   const vrc = useVRChat();
+  const cache = useCache();
   const theme = useTheme();  
   const [avatar, setAvatar] = useState<Avatar>();
 
   const fetchData = async () => {
     try {
-      const res = await vrc.avatarsApi.getAvatar(id);
-      if (res.data) setAvatar(res.data);
+      const res = await cache.avatar.get(id, true); // fetch and force refresh cache
+      setAvatar(res);
     } catch (error) {
       console.error("Error fetching user profile:", extractErrMsg(error));
     }

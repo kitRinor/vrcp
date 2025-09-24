@@ -12,7 +12,7 @@ interface Props {
 
   [key: string]: any;
 }
-const extractImageUrl = (data: UserLike) => data.profilePicOverride !== "" ? data.profilePicOverride : data.currentAvatarThumbnailImageUrl ?? "";
+const extractImageUrl = (data: UserLike) => data.profilePicOverride && data.profilePicOverride !== "" ? data.profilePicOverride : data.currentAvatarThumbnailImageUrl ?? data.currentAvatarImageUrl;
 const extractTitle = (data: UserLike) => data.displayName;
 
 const CardViewUser = ({ user, onPress, onLongPress, ...rest }: Props) => {
@@ -29,7 +29,7 @@ const CardViewUser = ({ user, onPress, onLongPress, ...rest }: Props) => {
       OverlapComponents={
         <View style={styles.iconContainer}>
           <CachedImage
-            src={user.userIcon.length > 0 ? user.userIcon : user.currentAvatarThumbnailImageUrl ?? ""}
+            src={user.userIcon && user.userIcon.length > 0 ? user.userIcon : user.currentAvatarThumbnailImageUrl ?? user.currentAvatarImageUrl}
             style={[styles.icon, { borderColor: getStatusColor(user), backgroundColor: theme.colors.card }]}
           />
         </View>

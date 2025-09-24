@@ -27,7 +27,7 @@ export default function Resources() {
     const fetchAvatars = async () => {
       setIsLoading(true);
       try {
-        const res = await vrc.avatarsApi.searchAvatars(false,undefined,"me",undefined,NumPerReq,undefined,offset.current,undefined,undefined,"all");
+        const res = await vrc.avatarsApi.searchAvatars({offset: offset.current, n: NumPerReq, user: "me", releaseStatus: "all"});
         setAvatars(res.data);
         offset.current += NumPerReq;
       } catch (e) {
@@ -64,7 +64,7 @@ export default function Resources() {
     const fetchWorlds = async () => {
       setIsLoading(true);
       try {
-        const res = await vrc.worldsApi.searchWorlds(false,undefined,"me",undefined,NumPerReq,undefined,offset.current,undefined,undefined,undefined,"all");
+        const res = await vrc.worldsApi.searchWorlds({offset: offset.current, n: NumPerReq, user: "me", releaseStatus: "all"});
         setWorlds(res.data);
         offset.current += NumPerReq;
       } catch (e) {
