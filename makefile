@@ -46,5 +46,5 @@ build-submit:  # submit the application for store
 lint: # lint the codebase
 # @npx eslint . --fix
 	@npx prettier --write "**/*.tsx"
-	@npx tsc --noEmit
+	@echo "tsc checking..." && npx tsc --noEmit && echo "done"
 # @npx next lint --fix
