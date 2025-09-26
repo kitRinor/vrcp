@@ -1,11 +1,11 @@
 import GenericScreen from "@/components/layout/GenericScreen";
-import DetailItemContainer from "@/components/screen/detail/DetailItemContainer";
+import DetailItemContainer from "@/features/detail/DetailItemContainer";
 import BadgeChip from "@/components/view/chip-badge/BadgeChip";
 import LinkChip from "@/components/view/chip-badge/LinkChip";
 import RegionBadge from "@/components/view/chip-badge/RegionBadge";
 import CardViewUserDetail from "@/components/view/item-CardView/detail/CardViewUserDetail";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
-import { radius, spacing } from "@/config/styles";
+import { radius, spacing } from "@/configs/styles";
 import { useData } from "@/contexts/DataContext";
 import { useVRChat } from "@/contexts/VRChatContext";
 import { useTheme } from "@react-navigation/native";

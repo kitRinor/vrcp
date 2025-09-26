@@ -1,4 +1,4 @@
-import { extractErrMsg } from "@/lib/utils";
+import { extractErrMsg } from "@/libs/utils";
 import { AuthenticationApi } from "@/vrchat/api";
 import { router } from "expo-router";
 import Storage from "expo-sqlite/kv-store";

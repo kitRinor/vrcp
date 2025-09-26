@@ -1,5 +1,5 @@
 import GenericModal from "@/components/layout/GenericModal";
-import globalStyles, { spacing } from "@/config/styles";
+import globalStyles, { spacing } from "@/configs/styles";
 import { useVRChat } from "@/contexts/VRChatContext";
 import { Button, Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";

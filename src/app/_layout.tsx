@@ -1,7 +1,8 @@
-import { darkTheme, lightTheme } from "@/config/theme";
+import { darkTheme, lightTheme } from "@/configs/theme";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CacheProvider } from "@/contexts/CacheContext";
 import { DataProvider } from "@/contexts/DataContext";
+import { SettingProvider } from "@/contexts/SettingContext";
 import { VRChatProvider } from "@/contexts/VRChatContext";
 import { ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
@@ -14,7 +15,6 @@ function RootLayout() {
     <Stack initialRouteName="index" screenOptions={{ headerShown: false, gestureEnabled: true }}>
       <Stack.Screen name="maintab" options={{ headerShown: false }} />
       <Stack.Screen name="modals" options={{ headerShown: false }} />
-      <Stack.Screen name="other" options={{ headerShown: false }} />
       <Stack.Screen name="index" options={{ headerShown: false }} />
     </Stack>
   );
@@ -22,23 +22,25 @@ function RootLayout() {
 
 export default function Root() {
   return (
-    <VRChatProvider>
-      <AuthProvider>
-        <CacheProvider>
-          <DataProvider>
-            <SafeAreaProvider>
-              <SafeAreaView style={{ flex: 1 }} edges={["left", "right"]}>
-                <ThemeProvider
-                  value={useColorScheme() !== "dark" ? lightTheme : darkTheme}
-                >
-                  <RootLayout />
-                  <StatusBar style="auto" />
-                </ThemeProvider>
-              </SafeAreaView>
-            </SafeAreaProvider>
-          </DataProvider>
-        </CacheProvider>
-      </AuthProvider>
-    </VRChatProvider>
+    <SettingProvider>
+      <VRChatProvider>
+        <AuthProvider>
+          <CacheProvider>
+            <DataProvider>
+              <SafeAreaProvider>
+                <SafeAreaView style={{ flex: 1 }} edges={["left", "right"]}>
+                  <ThemeProvider
+                    value={useColorScheme() !== "dark" ? lightTheme : darkTheme}
+                  >
+                    <RootLayout />
+                    <StatusBar style="auto" />
+                  </ThemeProvider>
+                </SafeAreaView>
+              </SafeAreaProvider>
+            </DataProvider>
+          </CacheProvider>
+        </AuthProvider>
+      </VRChatProvider>
+    </SettingProvider>
   );
 }

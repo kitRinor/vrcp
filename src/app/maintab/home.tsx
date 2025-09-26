@@ -1,11 +1,11 @@
 import GenericScreen from "@/components/layout/GenericScreen";
 import CardViewInstance from "@/components/view/item-CardView/CardViewInstance";
-import globalStyles, { spacing } from "@/config/styles";
+import globalStyles, { spacing } from "@/configs/styles";
 import { useData } from "@/contexts/DataContext";
 import { useVRChat } from "@/contexts/VRChatContext";
-import { calcFriendsLocations } from "@/lib/funcs/calcFriendLocations";
-import { routeToInstance, routeToWorld } from "@/lib/route";
-import { convertToLimitedUserInstance, getInstanceType, InstanceLike, parseInstanceId, parseLocationString } from "@/lib/vrchat";
+import { calcFriendsLocations } from "@/libs/funcs/calcFriendLocations";
+import { routeToInstance, routeToWorld } from "@/libs/route";
+import { convertToLimitedUserInstance, getInstanceType, InstanceLike, parseInstanceId, parseLocationString } from "@/libs/vrchat";
 import { Favorite, LimitedUserFriend } from "@/vrchat/api";
 import { Button } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";

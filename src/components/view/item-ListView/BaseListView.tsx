@@ -1,5 +1,5 @@
-import { fontSize, radius, spacing } from "@/config/styles";
-import { omitObject } from "@/lib/utils";
+import { fontSize, radius, spacing } from "@/configs/styles";
+import { omitObject } from "@/libs/utils";
 import { Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
@@ -49,6 +49,7 @@ const BaseListView = <T,>({
       )}
     >
       <TouchableOpacity
+        activeOpacity={0.7}
         onPress={onPress}
         onLongPress={onLongPress}
         style={[styles.base, { backgroundColor: theme.colors.card }]}

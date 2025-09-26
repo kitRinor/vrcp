@@ -1,9 +1,9 @@
-import { fontSize, spacing } from "@/config/styles";
+import { fontSize, spacing } from "@/configs/styles";
 import {
   AvatarLike,
   getReleaseStatusColor,
   WorldLike,
-} from "@/lib/vrchat";
+} from "@/libs/vrchat";
 import { Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
 import { StyleSheet, View } from "react-native";

@@ -1,10 +1,11 @@
 import GenericDialog from "@/components/layout/GenericDialog";
 import GenericScreen from "@/components/layout/GenericScreen";
-import DatabaseModal from "@/components/screen/settings/DatabaseModal";
-import DevelopperModal from "@/components/screen/settings/DevelopperModal";
+import DatabaseModal from "@/features/settings/DatabaseModal";
+import DevelopperModal from "@/features/settings/DevelopperModal";
+import UIModal from "@/features/settings/UIModal";
 import IconSymbol from "@/components/view/icon-components/IconView";
 import { SupportedIconNames } from "@/components/view/icon-components/utils";
-import globalStyles, { fontSize, spacing } from "@/config/styles";
+import globalStyles, { fontSize, spacing } from "@/configs/styles";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@react-navigation/native";
 import { push } from "expo-router/build/global-state/routing";
@@ -24,6 +25,7 @@ export default function Settings() {
   const [openLogout, setOpenLogout] = useState(false);
   const [openDevelopper, setOpenDevelopper] = useState(false);
   const [openDatabase, setOpenDatabase] = useState(false);
+  const [openUI, setOpenUI] = useState(false);
 
   const settingContents: Record<string, SettingItem[]> = {
     general: [
@@ -39,15 +41,19 @@ export default function Settings() {
         icon: "imagesearch-roller",
         title: "UI",
         description: "Manage your UI settings",
-        onPress: () => {},
+        onPress: () => setOpenUI(true),
       },
       {
         icon: "view-list",
         title: "Database",
         description: "Manage your database",
-        onPress: () => {
-          setOpenDatabase(true);
-        },
+        onPress: () => setOpenDatabase(true),
+      },
+      {
+        icon: "notifications",
+        title: "Notifications",
+        description: "Manage Push Notifications",
+        onPress: () => {},
       },
     ],
     other: [
@@ -83,6 +89,7 @@ export default function Settings() {
           </Text>
           {items.map((item, index) => (
             <TouchableOpacity
+              activeOpacity={0.7}
               key={index}
               style={[
                 styles.listItemContainer,
@@ -122,8 +129,8 @@ export default function Settings() {
         cancelTitle="Cancel"
       />
 
+      <UIModal open={openUI} setOpen={setOpenUI} />
       <DevelopperModal open={openDevelopper} setOpen={setOpenDevelopper} />
-
       <DatabaseModal open={openDatabase} setOpen={setOpenDatabase} />
     </GenericScreen>
   );

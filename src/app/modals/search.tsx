@@ -3,10 +3,10 @@ import CardViewGroup from "@/components/view/item-CardView/CardViewGroup";
 import CardViewUser from "@/components/view/item-CardView/CardViewUser";
 import CardViewWorld from "@/components/view/item-CardView/CardViewWorld";
 import SearchBox from "@/components/view/SearchBox";
-import { spacing } from "@/config/styles";
+import { spacing } from "@/configs/styles";
 import { useVRChat } from "@/contexts/VRChatContext";
-import { extractErrMsg } from "@/lib/utils";
-import { routeToGroup, routeToUser, routeToWorld } from "@/lib/route";
+import { extractErrMsg } from "@/libs/utils";
+import { routeToGroup, routeToUser, routeToWorld } from "@/libs/route";
 import {
   GroupsApi,
   LimitedGroup,

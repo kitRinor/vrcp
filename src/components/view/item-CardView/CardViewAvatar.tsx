@@ -1,4 +1,4 @@
-import { spacing } from "@/config/styles";
+import { spacing } from "@/configs/styles";
 import { Avatar } from "@/vrchat/api";
 import React, { useState } from "react";
 import { LayoutChangeEvent, StyleSheet, View } from "react-native";

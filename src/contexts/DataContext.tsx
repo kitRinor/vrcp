@@ -11,7 +11,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useReducer,
 import { useAuth } from "./AuthContext";
 import { useVRChat } from "./VRChatContext";
 import { PipelineContent, PipelineType } from "@/vrchat/pipline/type";
-import { convertToLimitedUserFriend } from "@/lib/vrchat";
+import { convertToLimitedUserFriend } from "@/libs/vrchat";
 import { useCache } from "./CacheContext";
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry";
 

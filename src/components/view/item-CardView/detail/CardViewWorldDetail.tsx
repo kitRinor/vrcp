@@ -1,6 +1,6 @@
 import ReleaseStatusChip from "@/components/view/chip-badge/ReleaseStatusChip";
-import { fontSize, spacing } from "@/config/styles";
-import { WorldLike } from "@/lib/vrchat";
+import { fontSize, spacing } from "@/configs/styles";
+import { WorldLike } from "@/libs/vrchat";
 import { Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
 import { useState } from "react";

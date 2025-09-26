@@ -1,13 +1,13 @@
 import GenericScreen from "@/components/layout/GenericScreen";
-import DetailItemContainer from "@/components/screen/detail/DetailItemContainer";
+import DetailItemContainer from "@/features/detail/DetailItemContainer";
 import LinkChip from "@/components/view/chip-badge/LinkChip";
 import CardViewUserDetail from "@/components/view/item-CardView/detail/CardViewUserDetail";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
-import { fontSize, radius, spacing } from "@/config/styles";
+import { fontSize, radius, spacing } from "@/configs/styles";
 import { CachedImage, useCache } from "@/contexts/CacheContext";
 import { useVRChat } from "@/contexts/VRChatContext";
-import { extractErrMsg } from "@/lib/utils";
-import { getInstanceType, parseLocationString } from "@/lib/vrchat";
+import { extractErrMsg } from "@/libs/utils";
+import { getInstanceType, parseLocationString } from "@/libs/vrchat";
 import { User } from "@/vrchat/api";
 import { useTheme } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";

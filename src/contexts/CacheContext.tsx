@@ -1,4 +1,4 @@
-import { omitObject } from "@/lib/utils";
+import { omitObject } from "@/libs/utils";
 import {
   Avatar,
   CurrentUser,

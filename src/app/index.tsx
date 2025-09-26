@@ -2,7 +2,7 @@ import GenericModal from "@/components/layout/GenericModal";
 import GenericScreen from "@/components/layout/GenericScreen";
 import { Atag } from "@/components/view/Atag";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
-import globalStyles, { fontSize, spacing } from "@/config/styles";
+import globalStyles, { fontSize, spacing } from "@/configs/styles";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";

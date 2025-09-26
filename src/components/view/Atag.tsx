@@ -1,4 +1,4 @@
-import { spacing } from "@/config/styles";
+import { spacing } from "@/configs/styles";
 import { useTheme } from "@react-navigation/native";
 import { Href, Link } from "expo-router";
 import { openBrowserAsync } from "expo-web-browser";

@@ -1,5 +1,5 @@
-import enUS from "@/config/langs/en-us";
-import jaJP from "@/config/langs/ja-jp";
+import enUS from "@/configs/langs/en-us";
+import jaJP from "@/configs/langs/ja-jp";
 
 const langMap: Record<string, ConstantTexts> = {
   'en-US': enUS,

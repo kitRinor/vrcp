@@ -1,4 +1,4 @@
-import { spacing } from "@/config/styles";
+import { spacing } from "@/configs/styles";
 import { useTheme } from "@react-navigation/native";
 import { useRouter } from "expo-router";
 import { StyleSheet, View } from "react-native";

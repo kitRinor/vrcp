@@ -1,5 +1,5 @@
 import GenericScreen from "@/components/layout/GenericScreen";
-import DetailItemContainer from "@/components/screen/detail/DetailItemContainer";
+import DetailItemContainer from "@/features/detail/DetailItemContainer";
 import PlatformChips from "@/components/view/chip-badge/PlatformChips";
 import TagChips from "@/components/view/chip-badge/TagChips";
 import UserChip from "@/components/view/chip-badge/UserChip";
@@ -8,12 +8,12 @@ import CardViewWorldDetail from "@/components/view/item-CardView/detail/CardView
 import ListViewInstance from "@/components/view/item-ListView/ListViewInstance";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
 import SelectGroupButton from "@/components/view/SelectGroupButton";
-import { fontSize, radius, spacing } from "@/config/styles";
+import { fontSize, radius, spacing } from "@/configs/styles";
 import { useCache } from "@/contexts/CacheContext";
 import { useData } from "@/contexts/DataContext";
 import { useVRChat } from "@/contexts/VRChatContext";
-import { formatToDateTime } from "@/lib/date";
-import { extractErrMsg } from "@/lib/utils";
+import { formatToDateTime } from "@/libs/date";
+import { extractErrMsg } from "@/libs/utils";
 import {
   getAuthorTags,
   getTrustRankColor,
@@ -22,7 +22,7 @@ import {
   parseInstanceId,
   parseLocationString,
   UserLike,
-} from "@/lib/vrchat";
+} from "@/libs/vrchat";
 import { Instance, World } from "@/vrchat/api";
 import { useTheme } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router/build/hooks";

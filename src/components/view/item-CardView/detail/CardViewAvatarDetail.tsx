@@ -1,5 +1,5 @@
 import ReleaseStatusChip from "@/components/view/chip-badge/ReleaseStatusChip";
-import { fontSize, spacing } from "@/config/styles";
+import { fontSize, spacing } from "@/configs/styles";
 import { Avatar } from "@/vrchat/api";
 import { Text } from "@react-navigation/elements";
 import { useState } from "react";

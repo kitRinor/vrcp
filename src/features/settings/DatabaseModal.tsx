@@ -1,6 +1,6 @@
 import GenericModal from "@/components/layout/GenericModal";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
-import globalStyles, { spacing } from "@/config/styles";
+import globalStyles, { spacing } from "@/configs/styles";
 import { useCache } from "@/contexts/CacheContext";
 import { Button, Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
@@ -14,22 +14,29 @@ interface Props {
 
 const DatabaseModal = ({ open, setOpen }: Props) => {
   const theme = useTheme();
-  const imageCache = useCache();
+  const cache = useCache();
 
-  const [imageCacheInfo, setImageCacheInfo] = useState<{
+  const [cacheInfo, setCacheInfo] = useState<{
     size: number;
     count: number;
   }>();
 
-  const refleshImageCacheInfo = async () => {
-    setImageCacheInfo(undefined);
-    const info = await imageCache.getCacheInfo();
-    setImageCacheInfo(info);
+  const refleshCacheInfo = async () => {
+    const info = await cache.getCacheInfo();
+    setCacheInfo(info);
   };
+  const clearCache = async () => {
+    setCacheInfo(undefined);
+    await cache.clearCache();
+    refleshCacheInfo();
+  }
 
   useEffect(() => {
-    if (open) refleshImageCacheInfo();
-  }, [imageCache, open]);
+    if (open) {
+      setCacheInfo(undefined);
+      refleshCacheInfo();
+    }
+  }, [open, cache]);
 
   return (
     <GenericModal open={open} onClose={() => setOpen(false)}>
@@ -53,7 +60,7 @@ const DatabaseModal = ({ open, setOpen }: Props) => {
         {/* <Text style={[globalStyles.text, {color: theme.colors.text}]}>Clear the app cache to free up space.</Text>
           <Text style={[globalStyles.text, {color: theme.colors.text}]}>This will not delete your data.</Text> */}
         <View>
-          {imageCacheInfo ? (
+          {cacheInfo ? (
             <View style={styles.cacheContainer}>
               <Text
                 style={[
@@ -62,17 +69,14 @@ const DatabaseModal = ({ open, setOpen }: Props) => {
                   { color: theme.colors.text },
                 ]}
               >
-                {`${(imageCacheInfo.size / (1024 * 1024)).toFixed(2)} MB, ${
-                  imageCacheInfo.count
+                {`${(cacheInfo.size / (1024 * 1024)).toFixed(2)} MB, ${
+                  cacheInfo.count
                 } Files`}
               </Text>
               <Button
                 style={[globalStyles.button, { marginLeft: spacing.medium }]}
                 color={theme.colors.text}
-                onPress={async () => {
-                  await imageCache.clearCache();
-                  refleshImageCacheInfo();
-                }}
+                onPress={clearCache}
               >
                 Clear
               </Button>

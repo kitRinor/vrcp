@@ -1,4 +1,4 @@
-import { radius, spacing } from "@/config/styles";
+import { radius, spacing } from "@/configs/styles";
 import { CachedImage, useCache } from "@/contexts/CacheContext";
 import {
   getInstanceType,
@@ -7,7 +7,7 @@ import {
   parseInstanceId,
   parseLocationString,
   UserLike,
-} from "@/lib/vrchat";
+} from "@/libs/vrchat";
 import { World } from "@/vrchat/api";
 import { useTheme } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";

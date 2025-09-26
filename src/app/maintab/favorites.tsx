@@ -4,11 +4,11 @@ import CardViewUser from "@/components/view/item-CardView/CardViewUser";
 import CardViewWorld from "@/components/view/item-CardView/CardViewWorld";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
 import SelectGroupButton from "@/components/view/SelectGroupButton";
-import { spacing } from "@/config/styles";
+import { spacing } from "@/configs/styles";
 import { useData } from "@/contexts/DataContext";
 import { useVRChat } from "@/contexts/VRChatContext";
-import { extractErrMsg } from "@/lib/utils";
-import { routeToAvatar, routeToUser, routeToWorld } from "@/lib/route";
+import { extractErrMsg } from "@/libs/utils";
+import { routeToAvatar, routeToUser, routeToWorld } from "@/libs/route";
 import {
   Avatar,
   FavoritedWorld,

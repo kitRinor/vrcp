@@ -1,12 +1,12 @@
 import GenericScreen from "@/components/layout/GenericScreen";
 import ListViewUser from "@/components/view/item-ListView/ListViewUser";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
-import { spacing } from "@/config/styles";
+import { spacing } from "@/configs/styles";
 import { useData } from "@/contexts/DataContext";
 import { useVRChat } from "@/contexts/VRChatContext";
-import { extractErrMsg } from "@/lib/utils";
-import { routeToUser } from "@/lib/route";
-import { getState } from "@/lib/vrchat";
+import { extractErrMsg } from "@/libs/utils";
+import { routeToUser } from "@/libs/route";
+import { getState } from "@/libs/vrchat";
 import { LimitedUserFriend } from "@/vrchat/api";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useTheme } from "@react-navigation/native";

@@ -67,6 +67,9 @@ const globalStyles = StyleSheet.create({
   text: {
     fontSize: fontSize.medium,
   },
+  description: {
+    fontSize: fontSize.small,
+  },
 
   // form elements
   input: {

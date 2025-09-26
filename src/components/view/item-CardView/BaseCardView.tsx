@@ -1,6 +1,6 @@
-import { fontSize, radius, spacing } from "@/config/styles";
+import { fontSize, radius, spacing } from "@/configs/styles";
 import { CachedImage } from "@/contexts/CacheContext";
-import { omitObject } from "@/lib/utils";
+import { omitObject } from "@/libs/utils";
 import { Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
@@ -40,6 +40,7 @@ const BaseCardView = <T,>({
       {...omitObject(rest, "style", "ImageStyle", "FooterStyle", "TitleStyle")}
     >
       <TouchableOpacity
+        activeOpacity={0.7}
         onPress={onPress}
         onLongPress={onLongPress}
         style={[styles.base, { backgroundColor: theme.colors.card }]}

@@ -1,4 +1,4 @@
-import { spacing } from "@/config/styles";
+import { spacing } from "@/configs/styles";
 import { useRouter } from "expo-router";
 import IconButton from "../view/icon-components/IconButton";
 

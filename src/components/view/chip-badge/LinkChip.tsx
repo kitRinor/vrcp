@@ -1,4 +1,4 @@
-import { fontSize } from "@/config/styles";
+import { fontSize } from "@/configs/styles";
 import { Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
 import { Linking } from "react-native";

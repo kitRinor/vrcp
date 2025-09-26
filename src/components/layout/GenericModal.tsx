@@ -1,4 +1,4 @@
-import { radius, spacing } from "@/config/styles";
+import { radius, spacing } from "@/configs/styles";
 import { useTheme } from "@react-navigation/native";
 import { Modal, StyleSheet, View } from "react-native";
 interface GenericModalProps {

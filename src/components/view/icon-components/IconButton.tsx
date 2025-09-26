@@ -1,4 +1,4 @@
-import { omitObject } from "@/lib/utils";
+import { omitObject } from "@/libs/utils";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 import { TouchableOpacity } from "react-native";
@@ -16,6 +16,7 @@ const IconButton = ({ onPress, name, color, size, ...rest }: Props) => {
   const theme = useTheme();
   return (
     <TouchableOpacity
+      activeOpacity={0.7}
       style={[
         {
           display: "flex",
