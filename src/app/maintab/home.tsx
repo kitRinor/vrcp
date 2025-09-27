@@ -20,7 +20,7 @@ import { FlatList, StyleSheet, Text, TextInput, View } from "react-native";
 
 export default function Home() {
   const theme = useTheme();
-  const vrc = useVRChat();  
+  const { pipeline } = useVRChat();  
   const { friends, favorites } = useData();
 
   const instances = useMemo<InstanceLike[]>(() => {
@@ -29,10 +29,13 @@ export default function Home() {
 
   const [feeds, setFeeds] = useState<PipelineMessage[]>([]);
   useEffect(() => {
-    if (vrc.pipeline.lastMessage) {
-      setFeeds((prev) => [vrc.pipeline.lastMessage!, ...prev].slice(0, 20));
+    if (pipeline.lastMessage) {
+      if (feeds.find(msg => msg.timestamp == pipeline.lastMessage?.timestamp && msg.type == pipeline.lastMessage?.type)) {
+        return;
+      }
+      setFeeds((prev) => [pipeline.lastMessage!, ...prev].slice(0, 20));
     }
-  }, [vrc.pipeline.lastMessage]);
+  }, [pipeline.lastMessage]);
 
   return (
     <GenericScreen>
@@ -47,7 +50,7 @@ export default function Home() {
           keyExtractor={(item) => `${item.timestamp}-${item.type}`}
           renderItem={({ item }) => (
             <ListViewPipelineMessage message={item} style={styles.feed} />
-          )}
+          )} 
           ListEmptyComponent={() => (
             <View style={{ alignItems: "center", marginTop: spacing.large }}>
               <Text style={{ color: theme.colors.text }}>No feeds available.</Text>

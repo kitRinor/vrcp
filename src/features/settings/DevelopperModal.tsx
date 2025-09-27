@@ -16,7 +16,6 @@ interface Props {
 
 const DevelopperModal = ({ open, setOpen }: Props) => {
   const theme = useTheme();
-  const { pipeline } = useVRChat();
 
   const devInfo = {
     version: Constants.expoConfig?.version,
@@ -30,14 +29,6 @@ const DevelopperModal = ({ open, setOpen }: Props) => {
     expoBuildProfile: Constants.expoConfig?.extra?.vrcmm?.buildProfile,
     node_env: process.env.NODE_ENV,
   };
-
-  const [lastFiveMsgs, setLastFiveMsgs] = useState<string[]>([]);
-  useEffect(() => {
-    if (!pipeline.lastMessage) return;
-    const { type, content } = pipeline.lastMessage;
-    const newMsg = `${type}: ${JSON.stringify(content).slice(0, 25)}`;
-    setLastFiveMsgs((prev) => [...(prev.slice(-4)), newMsg]);
-  }, [pipeline.lastMessage]);
 
   const [cacheInfo, setCacheInfo] = useState<string>("");
   const getCacheInfo = async () => {
@@ -70,29 +61,19 @@ const DevelopperModal = ({ open, setOpen }: Props) => {
           .join("\n")}
       </Text>
 
-      {Constants.expoConfig?.extra?.vrcmm.buildProfile === "development" && ( // only show in development build
-        <View style={globalStyles.containerHorizontal}>
-          <Text
-            style={[globalStyles.text, { color: theme.colors.text, flex: 1 }]}
-          >
-            {cacheInfo}
-          </Text>
-          <Button
-            style={[globalStyles.button, { marginTop: spacing.medium }]}
-            color={theme.colors.primary}
-            onPress={() => navigate("/_sitemap")}
-          >
-            [Sitemap]
-          </Button>
-        </View>
-      )}
-
-      <View>
-        {lastFiveMsgs.map((msg, index) => (
-          <Text key={index} style={[globalStyles.text, { color: theme.colors.text }]}>
-            {msg}
-          </Text>
-        ))}
+      <View style={globalStyles.containerHorizontal}>
+        <Text
+          style={[globalStyles.text, { color: theme.colors.text, flex: 1 }]}
+        >
+          {cacheInfo}
+        </Text>
+        <Button
+          style={[globalStyles.button, { marginTop: spacing.medium }]}
+          color={theme.colors.primary}
+          onPress={() => navigate("/_sitemap")}
+        >
+          [Sitemap]
+        </Button>
       </View>
 
       <Button

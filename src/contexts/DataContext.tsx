@@ -162,47 +162,46 @@ const DataProvider: React.FC<{ children?: React.ReactNode }> = ({
     content: PipelineContent<T>
   ) => {
     // about friends only for now
-    if (
-      (
-        [
-          "friend-update",
-          "friend-location",
-          "friend-online",
-          "friend-active",
-        ] as PipelineType[]
-      ).includes(type)
-    ) {
-      const data = content as PipelineContent<
-        "friend-update" | "friend-location" | "friend-online" | "friend-active"
-      >;
-      if (wrappers.friends.data.find((f) => f.id === data.userId) != undefined) {
+    switch (type) {
+      case "friend-update":
+      case "friend-location":
+      case "friend-online":
+      case "friend-active":
+        const dataF = content as PipelineContent<
+          "friend-update" | "friend-location" | "friend-online" | "friend-active"
+        >;
+        if (wrappers.friends.data.find((f) => f.id === dataF.userId) != undefined) {
+          wrappers.friends.set((prev) =>
+            prev.map((f) => (f.id === dataF.userId ? { ...f, ...dataF.user } : f))
+          );
+        } else {
+          wrappers.friends.set((prev) => [
+            ...prev,
+            convertToLimitedUserFriend(dataF.user),
+          ]);
+        }
+        break;
+      case "friend-offline":
+        const dataFof = content as PipelineContent<"friend-offline">;
         wrappers.friends.set((prev) =>
-          prev.map((f) => (f.id === data.userId ? { ...f, ...data.user } : f))
+          prev.map((f) =>
+            f.id === dataFof.userId ? { ...f, location: "offline" } : f
+          )
         );
-      } else {
+        break;
+      case "friend-add":
+        const dataFad = content as PipelineContent<"friend-add">;
         wrappers.friends.set((prev) => [
           ...prev,
-          convertToLimitedUserFriend(data.user),
+          convertToLimitedUserFriend(dataFad.user),
         ]);
-      }
-    } else if (type == "friend-offline") {
-      const data = content as PipelineContent<"friend-offline">;
-      wrappers.friends.set((prev) =>
-        prev.map((f) =>
-          f.id === data.userId ? { ...f, location: "offline" } : f
-        )
-      );
-    } else if (type == "friend-add") {
-      const data = content as PipelineContent<"friend-add">;
-      wrappers.friends.set((prev) => [
-        ...prev,
-        convertToLimitedUserFriend(data.user),
-      ]);
-    } else if (type == "friend-delete") {
-      const data = content as PipelineContent<"friend-delete">;
-      wrappers.friends.set((prev) => prev.filter((f) => f.id !== data.userId));
-    } else {
-      console.log("Pipeline type:", type);
+        break;
+      case "friend-delete":
+        const dataFdel = content as PipelineContent<"friend-delete">;
+        wrappers.friends.set((prev) => prev.filter((f) => f.id !== dataFdel.userId));
+        break;
+      default:
+        console.log("Invalid Pipeline type:", type);
     }
   };
 

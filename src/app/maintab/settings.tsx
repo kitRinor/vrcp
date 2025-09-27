@@ -8,7 +8,7 @@ import { SupportedIconNames } from "@/components/view/icon-components/utils";
 import globalStyles, { fontSize, spacing } from "@/configs/styles";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@react-navigation/native";
-import { push } from "expo-router/build/global-state/routing";
+import Constants from "expo-constants";
 import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -63,12 +63,12 @@ export default function Settings() {
         description: "Get help and support",
         onPress: () => {},
       },
-      {
-        icon: "bug",
-        title: "developper",
-        description: "Manage development features",
-        onPress: () => setOpenDevelopper(true),
-      },
+      ...(Constants.expoConfig?.extra?.vrcmm.buildProfile == "development" ? [{
+          icon: "bug" as SupportedIconNames,
+          title: "developper",
+          description: "Manage development features",
+          onPress: () => setOpenDevelopper(true),
+      }] : []),
     ],
     logout: [
       {

@@ -3,6 +3,8 @@ import { StyleSheet, View } from "react-native";
 import BaseListView from "./BaseListView";
 import { PipelineMessage } from "@/vrchat/pipline/type";
 import { dateToShortDatetime } from "@/libs/date";
+import { parseLocationString } from "@/libs/vrchat";
+import { extractPipelineMessageContent } from "@/libs/funcs/extractPipelineMessageContent";
 
 
 
@@ -19,8 +21,9 @@ const extractTitle = (data: PipelineMessage) => {
   return `${timestamp}  ${data.type}`
 }
 const extractSubtitles = (data: PipelineMessage) => {
-  return [];
-};
+  const subtitles = extractPipelineMessageContent(data);
+  return [subtitles.join("  ")]
+}
 
 const ListViewPipelineMessage = ({
   message,
@@ -37,7 +40,7 @@ const ListViewPipelineMessage = ({
       onLongPress={onLongPress}
       ContainerStyle={styles.container}
       TitleStyle={globalStyles.description}
-      SubtitleStyle={styles.subtitle}
+      SubtitleStyle={globalStyles.text}
       {...rest}
     />
   );
@@ -52,6 +55,9 @@ const styles = StyleSheet.create({
     // borderColor: "blue", borderStyle: "dotted", borderWidth: 1
   },
   subtitle: {
+    display: "flex",
+    flexDirection: "row",
+    // maxWidth: "100%",
     // borderColor: "blue", borderStyle: "dotted", borderWidth: 1
   },
   overlap: {
