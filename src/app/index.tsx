@@ -180,6 +180,7 @@ export default function Login() {
               placeholder="Username / Email"
               placeholderTextColor={theme.colors.subText}
               autoComplete="username"
+              textContentType="username"
               value={username}
               onChangeText={setUsername}
               inputMode="email"
@@ -195,6 +196,7 @@ export default function Login() {
               placeholderTextColor={theme.colors.subText}
               secureTextEntry={true}
               autoComplete="password"
+              textContentType="password"
               value={password}
               onChangeText={setPassword}
             />
@@ -245,6 +247,8 @@ export default function Login() {
             placeholder="Enter code"
             keyboardType="numeric"
             autoComplete="one-time-code"
+            textContentType="oneTimeCode"
+            maxLength={6}
             placeholderTextColor={theme.colors.subText}
             value={TFACode}
             onChangeText={setTFACode}

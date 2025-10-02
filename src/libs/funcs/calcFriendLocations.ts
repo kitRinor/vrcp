@@ -7,13 +7,25 @@ type LocationData = {
   friendsCount?: number;
   hasFavoriteFriends?: boolean;
 }
-
-export function calcFriendsLocations(
+// overload signatures
+function calcFriendsLocations(
   friends: LimitedUserFriend[], 
   favorites: Favorite[],
-  onlyHasFavorites = false,
-  includeUnlocatable = false,
-): InstanceLike[] {
+  onlyHasFavorites: boolean,
+  withUnlocatable: false,
+): InstanceLike[];
+function calcFriendsLocations(
+  friends: LimitedUserFriend[], 
+  favorites: Favorite[],
+  onlyHasFavorites: boolean,
+  withUnlocatable: true,
+): {instances: InstanceLike[], unlocatableFriends: LimitedUserFriend[]};
+function calcFriendsLocations(
+  friends: LimitedUserFriend[], 
+  favorites: Favorite[],
+  onlyHasFavorites: boolean,
+  withUnlocatable:boolean = false,
+): InstanceLike[] | {instances: InstanceLike[], unlocatableFriends: LimitedUserFriend[]} {
     if (!friends) return [];
     // create favoriteMap for quick lookup
     const favoriteMap: Record<string, boolean> = {};
@@ -23,12 +35,17 @@ export function calcFriendsLocations(
         favoriteMap[fav.favoriteId] = true;
       }
     }
+    const unlocatableFriends: LimitedUserFriend[] = [];
     // group friends by instanceId
     // instanceId -> { friends: LimitedUserFriend[], length: number, hasFavorite: boolean }
     const map: Record<string, LocationData> = {};
     for (const friend of friends) {
       const location = friend.location;
-      if (!includeUnlocatable && parseLocationString(location).parsedLocation == undefined) continue;
+      const { parsedLocation, isOffline } = parseLocationString(location);
+      if (parsedLocation == undefined) {
+        if (withUnlocatable && !isOffline) unlocatableFriends.push(friend);
+        continue;
+      }
       if (!map[location]) {
         map[location] = { location, friends: [], friendsCount: 0, hasFavoriteFriends: false }
       };
@@ -45,45 +62,24 @@ export function calcFriendsLocations(
       if (onlyHasFavorites && !locData.hasFavoriteFriends) return;
       const { parsedLocation } = parseLocationString(locData.location);
       const parsedInstance = parseInstanceId(parsedLocation?.instanceId);
-      if (!parsedLocation?.worldId || !parsedLocation?.instanceId || !parsedInstance) {
-        if (includeUnlocatable) {
-          locData.friends?.map(f => {
-            const instance = {
-              id: parsedLocation?.instanceId,
-              instanceId: parsedLocation?.instanceId,
-              worldId: parsedLocation?.worldId,
-              location: locData.location,
-              users: [convertToLimitedUserInstance(f)],
-              n_users: -1,
-              capacity: -1,
-              type: parsedInstance?.type ?? "hidden",
-              region: parsedInstance?.region ?? "unknown",
-              name: parsedInstance?.name ?? "",
-              // for sort, not from MinInstance interface
-              hasFavoriteFriends: locData.hasFavoriteFriends ?? false,
-              friendsCount: locData.friendsCount ?? 0,
-            };
-
-          }); 
-        }
-        return;
+      if (parsedLocation && parsedLocation.worldId && parsedLocation.instanceId) {
+        const instance = {
+          id: parsedLocation.instanceId,
+          instanceId: parsedLocation.instanceId,
+          worldId: parsedLocation.worldId,
+          location: locData.location,
+          users: locData.friends?.map(convertToLimitedUserInstance),
+          n_users: -1,
+          capacity: -1,
+          type: parsedInstance?.type ?? "hidden",
+          region: parsedInstance?.region ?? "unknown",
+          name: parsedInstance?.name ?? "",
+          // for sort, not from MinInstance interface
+          hasFavoriteFriends: locData.hasFavoriteFriends ?? false,
+          friendsCount: locData.friendsCount ?? 0,
+        };
+        instanceFriends.push(instance);
       }
-      const instance = {
-        id: parsedLocation?.instanceId,
-        instanceId: parsedLocation?.instanceId,
-        worldId: parsedLocation?.worldId,
-        location: locData.location,
-        users: locData.friends?.map(convertToLimitedUserInstance),
-        n_users: -1,
-        capacity: -1,
-        type: parsedInstance?.type ?? "hidden",
-        region: parsedInstance?.region ?? "unknown",
-        name: parsedInstance?.name ?? "",
-        // for sort, not from MinInstance interface
-        hasFavoriteFriends: locData.hasFavoriteFriends ?? false,
-        friendsCount: locData.friendsCount ?? 0,
-      };
-      instanceFriends.push(instance);
     });
     const sorted = instanceFriends.sort((a, b) => {
       if (a.hasFavoriteFriends && !b.hasFavoriteFriends) return -1;
@@ -94,5 +90,11 @@ export function calcFriendsLocations(
       if (aCount !== bCount) return bCount - aCount;
       return a.type.localeCompare(b.type);
     });
+    if (withUnlocatable) {
+          return {instances: sorted, unlocatableFriends};
+    }
     return sorted;
   }
+
+
+  export { calcFriendsLocations };

@@ -48,6 +48,19 @@ export default function ModalLayout() {
         name="group/[id]"
         options={{title: "Group" }}
       />
+
+      <ModalStack.Screen
+        name="feeds"
+        options={{title: "Feeds" }}
+      />
+      <ModalStack.Screen
+        name="friendlocations"
+        options={{title: "FriendLocations" }}
+      />
+      <ModalStack.Screen
+        name="search"
+        options={{title: "Search" }}
+      />
     </ModalStack>
   );
 }

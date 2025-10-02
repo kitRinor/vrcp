@@ -6,12 +6,13 @@ import { useData } from "@/contexts/DataContext";
 import { useVRChat } from "@/contexts/VRChatContext";
 import { extractErrMsg } from "@/libs/utils";
 import { routeToUser } from "@/libs/route";
-import { getState } from "@/libs/vrchat";
-import { LimitedUserFriend } from "@/vrchat/api";
+import { getState, parseLocationString } from "@/libs/vrchat";
+import { LimitedUserFriend, UserStatus } from "@/vrchat/api";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useTheme } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FlatList, StyleSheet } from "react-native";
+import { FlatList, SectionList, StyleSheet, View } from "react-native";
+import { Text } from "@react-navigation/elements";
 
 interface FriendsByState {
   online: LimitedUserFriend[];
@@ -23,6 +24,38 @@ export default function Friends() {
   const theme = useTheme();
 
   const MaterialTab = createMaterialTopTabNavigator();
+
+  const statusOrder = (status: UserStatus) => {
+    switch (status) {
+      case "join me":
+        return 5;
+      case "active":
+        return 4;
+      case "ask me":
+        return 3;
+      case "busy":
+        return 2;
+      case "offline":
+        return 1;
+      default:
+        return 0;
+    }
+  }
+  const friendSorter = (a: LimitedUserFriend, b: LimitedUserFriend) => {
+    // location がある順
+    const locA = parseLocationString(a.location);
+    const locB = parseLocationString(b.location);
+    if (locA.parsedLocation && !locB.parsedLocation) return -1;
+    if (!locA.parsedLocation && locB.parsedLocation) return 1;
+    // status Order が大きい順
+    const statusDiff = statusOrder(b.status) - statusOrder(a.status);
+    if (statusDiff !== 0) return statusDiff;
+    // last_activity が新しい順
+    const aLast = a.last_activity ?? "";
+    const bLast = b.last_activity ?? "";
+    return bLast.localeCompare(aLast);
+  }
+
 
   // separate loading with online,active and offline friends
 
@@ -52,48 +85,38 @@ export default function Friends() {
         else devided.offline.push(f);
       });
 
-      const sorter = (a: LimitedUserFriend, b: LimitedUserFriend) => {
-        const aLast = a.last_activity ?? "";
-        const bLast = b.last_activity ?? "";
-        return aLast.localeCompare(bLast);
-      }
+      
       const sorted: FriendsByState = {
-        online: devided.online.sort(sorter),
-        active: devided.active.sort(sorter),
-        offline: devided.offline.sort(sorter),
+        online: devided.online.sort(friendSorter),
+        active: devided.active.sort(friendSorter),
+        offline: devided.offline.sort(friendSorter),
       };
 
       return sorted;
     }, [friends.data]);
 
-    const deviderIdx = [
-      favoriteFriends.online.length,
-      favoriteFriends.online.length + favoriteFriends.active.length,
-    ];
-
     return (
       <>
         {isLoading && <LoadingIndicator absolute />}
-        <FlatList
-          data={[
-            ...favoriteFriends.online,
-            ...favoriteFriends.active,
-            ...favoriteFriends.offline,
+        <SectionList
+          sections={[
+            { title: "Online", data: favoriteFriends.online },
+            { title: "Active", data: favoriteFriends.active },
+            { title: "Offline", data: favoriteFriends.offline },
           ]}
           keyExtractor={(item) => item.id}
+          renderSectionHeader={({ section: { title } }) => (
+            <View style={[styles.sectionHeader, {borderBottomColor: theme.colors.border}]}>
+              <Text style={{fontWeight: "bold", color: theme.colors.text}}>{title}</Text>
+            </View>
+          )}
           renderItem={({ item, index }) => (
             <ListViewUser
               user={item}
-              style={[
-                styles.cardView, 
-                deviderIdx.includes(index) 
-                ? {...styles.withDevider, borderTopColor: theme.colors.subText} 
-                : undefined 
-              ]}
+              style={styles.cardView}
               onPress={() => routeToUser(item.id)}
             />
           )}
-          numColumns={1}
           refreshing={isLoading}
           onRefresh={refresh}
         />
@@ -111,11 +134,16 @@ export default function Friends() {
         .catch(console.error)
         .finally(() => setIsLoading(false));
     };
+
+    const onlineFriends = useMemo(() => {
+      return friends.data.filter((f) => getState(f) === "online").sort(friendSorter);
+    }, [friends.data]);
+
     return (
       <>
         {isLoading && <LoadingIndicator absolute />}
         <FlatList
-          data={friends.data.filter((f) => getState(f) === "online")}
+          data={onlineFriends}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <ListViewUser
@@ -142,11 +170,16 @@ export default function Friends() {
         .catch(console.error)
         .finally(() => setIsLoading(false));
     };
+
+    const activeFriends = useMemo(() => {
+      return friends.data.filter((f) => getState(f) === "active").sort(friendSorter);
+    }, [friends.data]);
+
     return (
       <>
         {isLoading && <LoadingIndicator absolute />}
         <FlatList
-          data={friends.data.filter((f) => getState(f) === "active")}
+          data={activeFriends}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <ListViewUser
@@ -173,11 +206,16 @@ export default function Friends() {
         .catch(console.error)
         .finally(() => setIsLoading(false));
     };
+
+    const offlineFriends = useMemo(() => {
+      return friends.data.filter((f) => getState(f) === "offline").sort(friendSorter);
+    }, [friends.data]);
+
     return (
       <>
         {isLoading && <LoadingIndicator absolute />}
         <FlatList
-          data={friends.data.filter((f) => getState(f) === "offline")}
+          data={offlineFriends}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <ListViewUser
@@ -227,6 +265,11 @@ export default function Friends() {
 }
 
 const styles = StyleSheet.create({
+  sectionHeader: {
+    paddingTop: spacing.medium, 
+    marginBottom: spacing.small, 
+    borderBottomWidth: 1, 
+  },
   cardView: {
     padding: spacing.small,
     width: "100%",

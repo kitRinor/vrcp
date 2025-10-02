@@ -127,7 +127,7 @@ export function getInstanceType(type:InstanceType, groupAccessType?: GroupAccess
 
 export function getState(user: LimitedUserFriend): UserState | undefined {
   if (user.platform == "web") return "active"; 
-  if (user.status !== "offline" ) return "online"; 
+  if (user.status !== "offline") return "online"; 
   if (user.location != "") return "offline";
   return undefined;
 }

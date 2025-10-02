@@ -13,18 +13,18 @@ import { SupportedIconNames } from "../icon-components/utils";
 
 interface Props {
   user: UserLike;
-  optional?: boolean; //
   size?: number; // default 32
   textSize?: number;
   textColor?: string;
   icon?: SupportedIconNames;
+  IconStyle?: { [key: string]: any };
   [key: string]: any;
 }
 
-const UserChip = ({ user, icon, textSize, textColor, size = 32, ...rest }: Props) => {
+const UserChip = ({ user, icon, textSize, textColor, size = 32, IconStyle, ...rest }: Props) => {
   const theme = useTheme()
   return (
-    <View style={[styles.container, rest.style]}>
+    <View style={[styles.container, rest.style]} {...omitObject(rest, "style", "IconStyle")}>
       
       {icon && (
         <IconSymbol name={icon} size={size/2} style={styles.option} />
@@ -32,8 +32,7 @@ const UserChip = ({ user, icon, textSize, textColor, size = 32, ...rest }: Props
 
       <CachedImage
         src={getUserIconUrl(user)}
-        style={[styles.icon, { height: size, borderColor: getStatusColor(user)}, rest.style]}
-        {...omitObject(rest, "style")}
+        style={[styles.icon, { height: size, borderColor: getStatusColor(user)}, IconStyle]}
       />
       <Text numberOfLines={1} style={[styles.text, { color: textColor ?? theme.colors.text, fontSize: textSize ?? fontSize.medium }]}>{user.displayName}</Text>
       

@@ -22,6 +22,9 @@ import {
   useRef,
   useState,
 } from "react";
+// import axios from 'axios';
+// import { CookieJar } from 'tough-cookie';
+// import { wrapper } from 'axios-cookiejar-support';
 
 const BASE_PIPELINE_URL = "wss://pipeline.vrchat.cloud";
 const BASE_API_URL = "https://api.vrchat.cloud/api/1";
@@ -166,6 +169,14 @@ const VRChatProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
     }
   };
 
+
+  // const jar = new CookieJar();
+  // const _axios = wrapper(axios.create({
+  //   jar,
+  //   withCredentials: true, // クッキーを送受信するために重要
+  // }));
+  const _axios = undefined
+
   return (
     <Context.Provider
       value={{
@@ -174,15 +185,15 @@ const VRChatProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
         configurePipeline,
         unConfigure,
         // https apis
-        authenticationApi: new AuthenticationApi(config),
-        worldsApi: new WorldsApi(config),
-        avatarsApi: new AvatarsApi(config),
-        usersApi: new UsersApi(config),
-        favoritesApi: new FavoritesApi(config),
-        friendsApi: new FriendsApi(config),
-        groupsApi: new GroupsApi(config),
-        instancesApi: new InstancesApi(config),
-        inviteApi: new InviteApi(config),
+        authenticationApi: new AuthenticationApi(config, BASE_API_URL, _axios),
+        worldsApi: new WorldsApi(config, BASE_API_URL, _axios),
+        avatarsApi: new AvatarsApi(config, BASE_API_URL, _axios),
+        usersApi: new UsersApi(config, BASE_API_URL, _axios),
+        favoritesApi: new FavoritesApi(config, BASE_API_URL, _axios),
+        friendsApi: new FriendsApi(config, BASE_API_URL, _axios),
+        groupsApi: new GroupsApi(config, BASE_API_URL, _axios),
+        instancesApi: new InstancesApi(config, BASE_API_URL, _axios),
+        inviteApi: new InviteApi(config, BASE_API_URL, _axios),
         // pipeline
         pipeline: {
           client: pipelineRef.current,

@@ -242,7 +242,6 @@ const DataProvider: React.FC<{ children?: React.ReactNode }> = ({
         wrappers.friends.set((prev) => prev.filter((f) => f.id !== dataFdel.userId));
         break;
       default:
-        console.log(`got unhandled pipeline message type: ${type}`);
     }
   };
 
