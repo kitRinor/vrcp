@@ -1,4 +1,5 @@
 // https://orm.drizzle.team/docs/column-types/sqlite
+import { Group } from "@/vrchat/api";
 import { sql } from "drizzle-orm";
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 
@@ -8,12 +9,12 @@ export const groupsTable = sqliteTable("groups", {
   updatedAt: text("updated_at").$onUpdateFn(()=>sql`(current_timestamp)`),
 
   name: text("name"),
-  pictureUrl: text("picture_url"),
+  imageUrl: text("image_url"),
   isJoined: integer("is_joined", { mode: 'boolean' }).default(false),
   option: text("option", { mode: 'json' }).$type<{
-    
+    [key: string]: any
   }>().notNull().default({}),
-  
+  rawData: text("raw_data", { mode: 'json' }).$type<Group>(),
 });
 
-export type DBGroup = typeof groupsTable.$inferSelect;
+export type DBGroup = typeof groupsTable.$inferInsert;

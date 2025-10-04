@@ -9,12 +9,13 @@ import { radius, spacing } from "@/configs/styles";
 import { useData } from "@/contexts/DataContext";
 import { useVRChat } from "@/contexts/VRChatContext";
 import { useTheme } from "@react-navigation/native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 
@@ -22,7 +23,6 @@ export default function Profile() {
   const vrc = useVRChat();
   const theme = useTheme();
   const { currentUser } = useData();
-
   return (
     <GenericScreen>
       {currentUser.data ? (
@@ -40,6 +40,7 @@ export default function Profile() {
               />
             }
           >
+
             <DetailItemContainer title="Bio">
               <View style={styles.detailItemContent}>
                 <Text style={{ color: theme.colors.text }}>

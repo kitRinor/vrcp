@@ -1,5 +1,5 @@
 import { fontSize, spacing } from "@/configs/styles";
-import { getWorldPlatform, WorldLike } from "@/libs/vrchat";
+import { getPlatform, WorldLike } from "@/libs/vrchat";
 import { Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
 import React, { useState } from "react";
@@ -45,7 +45,7 @@ const CardViewWorld = ({ world, onPress, onLongPress, ...rest }: Props) => {
             />
           </View>
           <View style={styles.platformContainer}>
-            <PlatformChips size={24} platforms={getWorldPlatform(world)} />
+            <PlatformChips size={24} platforms={getPlatform(world)} />
           </View>
         </>
       }

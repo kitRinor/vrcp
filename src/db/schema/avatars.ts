@@ -1,4 +1,5 @@
 // https://orm.drizzle.team/docs/column-types/sqlite
+import { Avatar } from "@/vrchat/api";
 import { sql } from "drizzle-orm";
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 
@@ -8,12 +9,25 @@ export const avatarsTable = sqliteTable("avatars", {
   updatedAt: text("updated_at").$onUpdateFn(()=>sql`(current_timestamp)`),
 
   name: text("name"),
-  pictureUrl: text("picture_url"),
+  imageUrl: text("image_url"),
   favoriteGroupId: text("favorite_group_id"),
   option: text("option", { mode: 'json' }).$type<{
-    
+    [key: string]: any
   }>().notNull().default({}),
+
+  rawData: text("raw_data", { mode: 'json' }).$type<Avatar>(),
   
 });
 
-export type DBAvatar = typeof avatarsTable.$inferSelect;
+export function convertToDBAvatar(avatar: Avatar) : DBAvatar {
+  return {
+    id: avatar.id,
+    name: avatar.name,
+    imageUrl: avatar.imageUrl,
+    favoriteGroupId: null,
+    rawData: avatar,
+    updatedAt: new Date().toISOString(),
+  }
+}
+
+export type DBAvatar = typeof avatarsTable.$inferInsert;

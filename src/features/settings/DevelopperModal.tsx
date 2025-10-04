@@ -1,5 +1,6 @@
 import GenericModal from "@/components/layout/GenericModal";
 import globalStyles, { spacing } from "@/configs/styles";
+import { useDB } from "@/contexts/DBContext";
 import { useVRChat } from "@/contexts/VRChatContext";
 import { Button, Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
@@ -16,6 +17,7 @@ interface Props {
 
 const DevelopperModal = ({ open, setOpen }: Props) => {
   const theme = useTheme();
+  const db = useDB();
 
   const devInfo = {
     version: Constants.expoConfig?.version,
@@ -30,19 +32,6 @@ const DevelopperModal = ({ open, setOpen }: Props) => {
     node_env: process.env.NODE_ENV,
   };
 
-  const [cacheInfo, setCacheInfo] = useState<string>("");
-  const getCacheInfo = async () => {
-    FileSystem.readDirectoryAsync(FileSystem.documentDirectory + "cache/").then(
-      (files) => {
-        setCacheInfo("caches:\n" + files.join(", ") || "No cache files");
-      }
-    );
-  };
-
-  useEffect(() => {
-    if (!open) return;
-    getCacheInfo();
-  }, [open]);
   return (
     <GenericModal open={open} onClose={() => setOpen(false)}>
       <Text
@@ -62,17 +51,46 @@ const DevelopperModal = ({ open, setOpen }: Props) => {
       </Text>
 
       <View style={globalStyles.containerHorizontal}>
-        <Text
-          style={[globalStyles.text, { color: theme.colors.text, flex: 1 }]}
-        >
-          {cacheInfo}
-        </Text>
         <Button
           style={[globalStyles.button, { marginTop: spacing.medium }]}
           color={theme.colors.primary}
           onPress={() => navigate("/_sitemap")}
         >
           [Sitemap]
+        </Button>
+        <Button
+          style={[globalStyles.button, { marginTop: spacing.medium }]}
+          color={theme.colors.primary}
+          onPress={() =>{
+            db.users.create({
+              id: "usr_test",
+              displayName: "Test User",
+
+            }).then((res)=>{
+              console.log("Created test user:", res);
+            }).catch((err)=>{
+              console.error("Error creating test user:", err);
+            });
+          }}
+        >
+          [user]
+        </Button>
+        <Button
+          style={[globalStyles.button, { marginTop: spacing.medium }]}
+          color={theme.colors.primary}
+          onPress={() =>{
+            db.worlds.create({
+              id: "usr_test",
+              name: "Test World",
+
+            }).then((res)=>{
+              console.log("Created test world:", res);
+            }).catch((err)=>{
+              console.error("Error creating test world:", err);
+            });
+          }}
+        >
+          [world]
         </Button>
       </View>
 

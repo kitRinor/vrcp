@@ -13,15 +13,19 @@ import { formatToDateTime } from "@/libs/date";
 import { extractErrMsg } from "@/libs/utils";
 import {
   getAuthorTags,
-  getWorldPlatform,
+  getPlatform,
+  getTrustRankColor,
   InstanceLike,
   parseInstanceId,
 } from "@/libs/vrchat";
-import { World } from "@/vrchat/api";
+import { User, World } from "@/vrchat/api";
 import { useTheme } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router/build/hooks";
 import React, { useEffect, useState } from "react";
 import { FlatList, ScrollView, StyleSheet, Text, View } from "react-native";
+import { TouchableOpacity } from "react-native";
+import UserChip from "@/components/view/chip-badge/UserChip";
+import { routeToUser } from "@/libs/route";
 
 export default function WorldDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -29,6 +33,7 @@ export default function WorldDetail() {
   const cache = useCache();
   const theme = useTheme();
   const [world, setWorld] = useState<World>();
+  const [author, setAuthor] = useState<User>();
   const [mode, setMode] = useState<"info" | "instance">("info");
 
   const fetchData = async () => {
@@ -43,6 +48,12 @@ export default function WorldDetail() {
   useEffect(() => {
     fetchData();
   }, []);
+  
+
+  useEffect(() => {
+    if (!world?.authorId) return;
+    cache.user.get(world.authorId).then((u) => setAuthor(u)).catch(console.error)
+  }, [world?.authorId])
 
   const formatAndSortInstances = (
     instances: any[][] | undefined
@@ -88,13 +99,7 @@ export default function WorldDetail() {
             <ScrollView>
               <DetailItemContainer title="Platform">
                 <View style={styles.detailItemContent}>
-                  <PlatformChips platforms={getWorldPlatform(world)} />
-                </View>
-              </DetailItemContainer>
-
-              <DetailItemContainer title="Tags">
-                <View style={styles.detailItemContent}>
-                  <TagChips tags={getAuthorTags(world)} />
+                  <PlatformChips platforms={getPlatform(world)} />
                 </View>
               </DetailItemContainer>
 
@@ -104,6 +109,22 @@ export default function WorldDetail() {
                     {world.description}
                   </Text>
                 </View>
+              </DetailItemContainer>
+
+              <DetailItemContainer title="Tags">
+                <View style={styles.detailItemContent}>
+                  <TagChips tags={getAuthorTags(world)} />
+                </View>
+              </DetailItemContainer>
+
+              <DetailItemContainer title="Author">
+                {author && (
+                  <View style={styles.detailItemContent}>
+                    <TouchableOpacity onPress={() => routeToUser(author.id)} activeOpacity={0.7}>
+                      <UserChip user={author} textColor={getTrustRankColor(author, true, false)}/>
+                    </TouchableOpacity>
+                  </View>
+                )}
               </DetailItemContainer>
 
               <DetailItemContainer title="Info">

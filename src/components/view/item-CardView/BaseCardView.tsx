@@ -60,6 +60,7 @@ const BaseCardView = <T,>({
   );
 };
 
+
 const styles = StyleSheet.create({
   root: {
     // padding: spacing.small,

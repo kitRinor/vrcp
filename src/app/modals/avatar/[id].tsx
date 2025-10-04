@@ -6,11 +6,16 @@ import { fontSize, radius, spacing } from "@/configs/styles";
 import { useCache } from "@/contexts/CacheContext";
 import { useVRChat } from "@/contexts/VRChatContext";
 import { extractErrMsg } from "@/libs/utils";
-import { Avatar } from "@/vrchat/api";
+import { Avatar, User } from "@/vrchat/api";
 import { useTheme } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router/build/hooks";
 import React, { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { routeToUser } from "@/libs/route";
+import UserChip from "@/components/view/chip-badge/UserChip";
+import { getAuthorTags, getPlatform, getTrustRankColor } from "@/libs/vrchat";
+import PlatformChips from "@/components/view/chip-badge/PlatformChips";
+import TagChips from "@/components/view/chip-badge/TagChips";
 
 export default function AvatarDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -18,6 +23,7 @@ export default function AvatarDetail() {
   const cache = useCache();
   const theme = useTheme();
   const [avatar, setAvatar] = useState<Avatar>();
+  const [author, setAuthor] = useState<User>();
 
   const fetchData = async () => {
     try {
@@ -32,26 +38,47 @@ export default function AvatarDetail() {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    if (!avatar?.authorId) return;
+    cache.user.get(avatar.authorId).then((u) => setAuthor(u)).catch(console.error)
+  }, [avatar?.authorId])
+
   return (
     <GenericScreen>
       {avatar ? (
         <View style={{ flex: 1 }}>
           <CardViewAvatarDetail avatar={avatar} style={[styles.cardView]} />
           <ScrollView>
-            <DetailItemContainer title="Title1">
+
+            <DetailItemContainer title="Platform">
               <View style={styles.detailItemContent}>
-                <Text style={{ color: theme.colors.text }}>text1-1</Text>
-                <Text style={{ color: theme.colors.text }}>text1-2</Text>
+                <PlatformChips platforms={getPlatform(avatar)} />
               </View>
             </DetailItemContainer>
 
-            <DetailItemContainer
-              title="Title2"
-              iconButtonConfig={[{ name: "edit", onPress: () => {} }]}
-            >
+            <DetailItemContainer title="Description">
               <View style={styles.detailItemContent}>
-                <Text style={{ color: theme.colors.text }}>text2-1</Text>
+                <Text style={{ color: theme.colors.text }}>
+                  {avatar.description}
+                </Text>
               </View>
+            </DetailItemContainer>
+
+            <DetailItemContainer title="Tags">
+              <View style={styles.detailItemContent}>
+                <TagChips tags={getAuthorTags(avatar)} />
+              </View>
+            </DetailItemContainer>
+
+            
+            <DetailItemContainer title="Author">
+              {author && (
+                <View style={styles.detailItemContent}>
+                  <TouchableOpacity onPress={() => routeToUser(author.id)} activeOpacity={0.7}>
+                    <UserChip user={author} textColor={getTrustRankColor(author, true, false)}/>
+                  </TouchableOpacity>
+                </View>
+              )}
             </DetailItemContainer>
 
             <Text style={{ color: "gray" }}>

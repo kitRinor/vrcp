@@ -20,6 +20,8 @@ import React, {
 } from "react";
 import { Image } from "react-native";
 import { useVRChat } from "./VRChatContext";
+import { TableWrapper, useDB } from "./DBContext";
+import { SQLiteTableWithColumns } from "drizzle-orm/sqlite-core";
 
 // Image Cache in Storage
 interface Cache<T> {
@@ -168,6 +170,58 @@ const CacheProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
     </Context.Provider>
   );
 };
+/** DB-based-Cache-Wrapper */
+function useDBbasedCacheByIdWrapper<T = any, D extends SQLiteTableWithColumns<any> = any>(  subDir: string, // sub-directory name, must end with /
+  getter: CacheByIdWrapper<T>["get"],
+  tableWrapper: TableWrapper<D>,
+  converter: (data: T) => D["$inferSelect"],
+  options?: {
+    expiration?: number; // in milliseconds
+    encrypt?: boolean;
+    type?: "json" | "raw";
+  }
+): CacheByIdWrapper<T> {
+  const opt = {
+    expiration: options?.expiration ?? 24 * 60 * 60 * 1000, // default: 24 hours, if set to 0, never expire
+    encrypt: options?.encrypt ?? false, // default: no encrypt, use raw key as filename
+    type: options?.type ?? "json", // default: json
+  };
+  const { expiration, encrypt, type } = opt;
+
+  if (type !== "json") throw new Error("not-implemented cache type: " + type);
+
+  const get = async (id: string, forceFetch: boolean = false): Promise<T> => {
+    const dbData = await tableWrapper.get(id as any);
+    if (!forceFetch && dbData) {
+      if (new Date(dbData.updatedAt) > new Date(Date.now() - expiration)) {
+        return dbData.rawData as T;
+      }
+    }
+    // no-cached or cached-but-expired, get and set with new data
+    const data = await getter(id);
+    if (dbData) {
+      tableWrapper.create(converter(data)); // upsert
+    } else {
+      tableWrapper.update(id as any, converter(data)); // upsert
+    }
+    return data;
+  };
+  const set = async (id: string, data: T) => {
+    const localUri = await getLocalUri(id, subDir, encrypt);
+    const newCache: Cache<T> = {
+      expiredAt:
+        expiration > 0 ? new Date(Date.now() + expiration).toISOString() : "",
+      value: data,
+    };
+    await FileSystem.writeAsStringAsync(localUri, JSON.stringify(newCache));
+  };
+  const del = async (id: string) => {
+    const localUri = await getLocalUri(id, subDir, encrypt);
+    await FileSystem.deleteAsync(localUri, { idempotent: true });
+  };
+  return { get, set, del };
+}
+
 
 /** Cache Initializers */
 

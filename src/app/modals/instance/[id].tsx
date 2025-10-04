@@ -17,9 +17,7 @@ import { extractErrMsg } from "@/libs/utils";
 import {
   getAuthorTags,
   getTrustRankColor,
-  getWorldPlatform,
-  InstanceLike,
-  parseInstanceId,
+  getPlatform,
   parseLocationString,
   UserLike,
 } from "@/libs/vrchat";
@@ -101,7 +99,7 @@ export default function InstanceDetail() {
 
             <DetailItemContainer title="Platform">
               <View style={styles.detailItemContent}>
-                <PlatformChips platforms={getWorldPlatform(instance.world)} />
+                <PlatformChips platforms={getPlatform(instance.world)} />
               </View>
             </DetailItemContainer>
 

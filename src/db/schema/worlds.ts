@@ -1,4 +1,5 @@
 // https://orm.drizzle.team/docs/column-types/sqlite
+import { World } from "@/vrchat/api";
 import { sql } from "drizzle-orm";
 import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
 
@@ -8,13 +9,24 @@ export const worldsTable = sqliteTable("worlds", {
   updatedAt: text("updated_at").$onUpdateFn(()=>sql`(current_timestamp)`),
 
   name: text("name"),
-  pictureUrl: text("picture_url"),
+  imageUrl: text("image_url"),
   favoriteGroupId: text("favorite_group_id"),
   option: text("option", { mode: 'json' }).$type<{
-
+    [key: string]: any
   }>().notNull().default({}),
-  
+  rawData: text("raw_data", { mode: 'json' }).$type<World>(),
 });
 
-export type DBWorld = typeof worldsTable.$inferSelect;
+export function convertToDBWorld(world: World) : DBWorld {
+  return {
+    id: world.id,
+    name: world.name,
+    imageUrl: world.imageUrl,
+    favoriteGroupId: null,
+    rawData: world,
+    updatedAt: new Date().toISOString(),
+  }
+}
+
+export type DBWorld = typeof worldsTable.$inferInsert;
 

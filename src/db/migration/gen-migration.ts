@@ -27,10 +27,13 @@ function readMigrationFiles(dirPath: string): MigrationFile[] {
 // convert migration file content to a typescript code
 function convertToMigrationCode(migrations: MigrationFile[]): string {
   const migrationEntries = migrations.map(mig => {
-    const sql = mig.sql.replace(/`/g, '\\`').replace(/\$/g, '\\$'); // escape backticks and dollar signs
+    const sql = mig.sql.replaceAll('--> statement-breakpoint', '').replace(/`/g, '\\`').replace(/\$/g, '\\$'); // escape backticks and dollar signs
+    const sqlStatements = sql.split(';').map((stmt: string) => stmt.trim()).filter((stmt: string) => stmt.length > 0).map((stmt: string) => stmt + ';');
     return `  '${mig.file}': {
     version: ${mig.version},
-    sql: \`${sql}\`
+    sql: [
+      ${sqlStatements.map(s => `\`${s}\``).join(',\n      ')}
+    ]
   },`;
   });
   return `export const migrations = {\n${migrationEntries.join('\n')}\n};`;

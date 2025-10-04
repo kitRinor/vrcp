@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ad66bc7a-8643-4d47-a250-36b6ced726a0",
+  "id": "028be87b-19c1-4569-ab2d-a8487685c543",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "users": {
@@ -43,8 +43,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "picture_url": {
-          "name": "picture_url",
+        "image_url": {
+          "name": "image_url",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -72,6 +72,13 @@
           "notNull": true,
           "autoincrement": false,
           "default": "'{}'"
+        },
+        "raw_data": {
+          "name": "raw_data",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -112,8 +119,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "picture_url": {
-          "name": "picture_url",
+        "image_url": {
+          "name": "image_url",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -133,6 +140,13 @@
           "notNull": true,
           "autoincrement": false,
           "default": "'{}'"
+        },
+        "raw_data": {
+          "name": "raw_data",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -173,8 +187,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "picture_url": {
-          "name": "picture_url",
+        "image_url": {
+          "name": "image_url",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -195,6 +209,13 @@
           "notNull": true,
           "autoincrement": false,
           "default": "'{}'"
+        },
+        "raw_data": {
+          "name": "raw_data",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -235,8 +256,8 @@
           "notNull": false,
           "autoincrement": false
         },
-        "picture_url": {
-          "name": "picture_url",
+        "image_url": {
+          "name": "image_url",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
@@ -256,6 +277,13 @@
           "notNull": true,
           "autoincrement": false,
           "default": "'{}'"
+        },
+        "raw_data": {
+          "name": "raw_data",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -269,10 +297,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": true,
           "notNull": true,
-          "autoincrement": true
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
@@ -318,6 +346,13 @@
           "notNull": true,
           "autoincrement": false,
           "default": "'{}'"
+        },
+        "raw_data": {
+          "name": "raw_data",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
         }
       },
       "indexes": {},

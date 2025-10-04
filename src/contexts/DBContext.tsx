@@ -3,7 +3,7 @@ import * as sqlite from "expo-sqlite";
 import { drizzle } from 'drizzle-orm/expo-sqlite';
 import Constants from 'expo-constants';
 import { SQLiteColumn, SQLiteInsertValue, sqliteTable, SQLiteTableWithColumns, SQLiteUpdateSetSource, TableConfig } from "drizzle-orm/sqlite-core";
-import { eq, sql, SQL } from "drizzle-orm";
+import { and, eq, like, not, sql, SQL } from "drizzle-orm";
 import { avatarsTable, favoriteGroupsTable, groupsTable, usersTable, worldsTable } from "@/db/schema";
 import { migrations } from "@/db/migration";
 import Storage from "expo-sqlite/kv-store";
@@ -11,7 +11,7 @@ import * as FileSystem from "expo-file-system";
 // provide db access globally
 
 
-interface TableWrapper<
+export interface TableWrapper<
   T extends SQLiteTableWithColumns<any>
 > {
   _tableName: string;
@@ -65,35 +65,41 @@ const DBProvider: React.FC<{ children?: React.ReactNode }> = ({
   }
 
   const applyMigrations = async (init: boolean = false) => {
-    const currentVersion = init ? -1 : Number((await Storage.getItemAsync('dbVersion')) ?? -1); // -1:未作成
-    if (isNaN(currentVersion)) {
-      console.warn("Invalid DB version, resetting DB");
-      await resetDB();
-      return;
-    }
-    const appliables = Object.values(migrations).filter(m => m.version > currentVersion).sort((a, b) => a.version - b.version);
-    if (appliables.length === 0) {
+    let currentVersion = parseInt(await Storage.getItemAsync('dbVersion') ?? "-1") || -1;
+    let targetVersion = Math.max(...Object.values(migrations).map(v => Number(v.version)));
+    const needReset = init || isNaN(currentVersion) || currentVersion < 0 || currentVersion > targetVersion;
+    if (!needReset && targetVersion === currentVersion) {
       console.log("DB version up to date:", currentVersion);
     } else {
-      console.log("updating DB from version", currentVersion, "to", appliables[appliables.length - 1].version);
+      const appliables = Object.values(migrations).filter(m => m.version > currentVersion).sort((a, b) => a.version - b.version);
+      console.log("updating DB from version", currentVersion, "to", targetVersion);
       await db.transaction(async (tx) => {
+        if (needReset) {
+          const existTables = await db.select({ name: sql`name` }).from(sql`sqlite_master`).where(
+            and(
+              eq(sql`type`, "table"),
+              not(like(sql`name`, "sqlite_%")),
+            )
+          ).all();
+          console.log("Resetting DB..., dropping tables:", existTables.map(t => t.name).join(", "));
+          for (const table of existTables) {
+            // drop table if exists
+            await tx.run(`DROP TABLE IF EXISTS "${table.name}";`);
+          }
+        }
+        console.log("Applying migrations...");
         for (const m of appliables) {
-          await tx.run(m.sql)
+          for (const stmt of m.sql) {
+            await tx.run(stmt);
+          }
         }
       }, { behavior: "immediate" });
-      await Storage.setItemAsync('dbVersion', String(appliables[appliables.length - 1].version));
-      console.log("DB updated to version", appliables[appliables.length - 1].version);
+      await Storage.setItemAsync('dbVersion', targetVersion.toString());
+      console.log("DB version up to date:", targetVersion);
     }
   }
   const resetDB = async () => {
     try {
-      const tables = Object.values(wrappers).map(w => w._tableName);
-      await db.transaction(async (tx) => {
-        for (const table of tables) {
-          // drop table if exists
-          await tx.run(`DROP TABLE IF EXISTS "${table}";`);
-        }
-      });
       await applyMigrations(true);
       console.log("DB reset complete");
     } catch (error) {

@@ -17,7 +17,7 @@ interface Props {
 }
 
 const extractImageUrl = (data: InstanceLike) => {
-  const url = data?.world?.thumbnailImageUrl ?? data?.world?.imageUrl;
+  const url = data?.world?.imageUrl;
   if (url && url.length > 0) return url;
   return "";
 };

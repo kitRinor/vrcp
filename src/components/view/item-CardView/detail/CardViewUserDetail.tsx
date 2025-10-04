@@ -16,7 +16,7 @@ interface Props {
 
   [key: string]: any;
 }
-const extractImageUrl = (data: UserLike) => getUserProfilePicUrl(data);
+const extractImageUrl = (data: UserLike) => getUserProfilePicUrl(data, true);
 const extractTitle = (data: UserLike) => data.displayName;
 
 const CardViewUserDetail = ({
@@ -40,7 +40,7 @@ const CardViewUserDetail = ({
         <>
           <View style={styles.iconContainer}>
             <CachedImage
-              src={getUserIconUrl(user)}
+              src={getUserIconUrl(user, true)}
               style={[
                 styles.icon,
                 {

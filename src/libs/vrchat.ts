@@ -17,22 +17,25 @@ type MinInstance = Pick< Instance, "id" | "instanceId" | "worldId" | "name" | "n
 
 // get ImageUrls from user 
 
-export function getUserIconUrl(user: UserLike): string {
+export function getUserIconUrl(user: UserLike, highRes = false): string {
   if (user.userIcon && user.userIcon.length > 0) {
     return user.userIcon;
   }
   if (user.profilePicOverride && user.profilePicOverride.length > 0) {
     return user.profilePicOverride;
   }
-  return user.currentAvatarThumbnailImageUrl ?? user.currentAvatarImageUrl;
+  return highRes
+  ? user.currentAvatarImageUrl
+  : user.currentAvatarThumbnailImageUrl ?? user.currentAvatarImageUrl;
 }
-export function getUserProfilePicUrl(user: UserLike): string {
+export function getUserProfilePicUrl(user: UserLike, highRes = false): string {
   if (user.profilePicOverride && user.profilePicOverride.length > 0) {
     return user.profilePicOverride;
   }
-  return user.currentAvatarThumbnailImageUrl ?? user.currentAvatarImageUrl;
+  return highRes
+  ? user.currentAvatarImageUrl
+  : user.currentAvatarThumbnailImageUrl ?? user.currentAvatarImageUrl;
 }
-
 
 // parse location string
 
@@ -177,6 +180,9 @@ export function isSupporter(user: UserLike): boolean {
   return tags.includes("system_supporter");
 }
 
+
+// Avatar or World 
+
 export function getAuthorTags(data: AvatarLike | WorldLike): string[] {
   const tags = data.tags?.filter(t => t.startsWith("author_tag_"));
   return tags?.map(t => t.replace("author_tag_", "")) ?? [];
@@ -190,18 +196,17 @@ export function getReleaseStatusColor(data: AvatarLike | WorldLike) {
   return "#000000ff";
 }
 
-export function getAvatarPlatform (data: AvatarLike) {
+export function getPlatform (data: AvatarLike | WorldLike) {
   const platforms: string[] = []
-  if (data.performance.standalonewindows) platforms.push("standalonewindows");
-  if (data.performance.android) platforms.push("android");
-  if (data.performance.ios) platforms.push("ios");
-  return platforms;
-}
-export function getWorldPlatform (data: WorldLike) {
-  const platforms: string[] = []
-  if (data.unityPackages?.some(pkg => pkg.platform == "standalonewindows")) platforms.push("standalonewindows");
-  if (data.unityPackages?.some(pkg => pkg.platform == "android")) platforms.push("android");
-  if (data.unityPackages?.some(pkg => pkg.platform == "ios")) platforms.push("ios");
+  if ("performance" in data) {
+    if (data.performance.standalonewindows) platforms.push("standalonewindows");
+    if (data.performance.android) platforms.push("android");
+    if (data.performance.ios) platforms.push("ios");
+  } else if ("unityPackages" in data) {
+    if (data.unityPackages?.some(pkg => pkg.platform == "standalonewindows")) platforms.push("standalonewindows");
+    if (data.unityPackages?.some(pkg => pkg.platform == "android")) platforms.push("android");
+    if (data.unityPackages?.some(pkg => pkg.platform == "ios")) platforms.push("ios");
+  }
   return platforms;
 }
 

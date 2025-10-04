@@ -4,6 +4,7 @@ import CardViewInstance from "@/components/view/item-CardView/CardViewInstance";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
 import { navigationBarHeight, spacing } from "@/configs/styles";
 import { useData } from "@/contexts/DataContext";
+import { usersTable } from "@/db/schema";
 import SeeMoreContainer from "@/features/home/SeeMoreContainer";
 import { calcFriendsLocations } from "@/libs/funcs/calcFriendLocations";
 import { routeToInstance, routeToUser } from "@/libs/route";
@@ -36,7 +37,7 @@ export default function FriendLocations() {
               renderItem: ({ item }) => (
                 <View style={styles.chunk}>
                 {item.map((instance: InstanceLike) => (
-                  <CardViewInstance instance={instance} style={styles.cardView} onPress={() => routeToInstance(instance.worldId, instance.instanceId)} />
+                  <CardViewInstance key={instance.id} instance={instance} style={styles.cardView} onPress={() => routeToInstance(instance.worldId, instance.instanceId)} />
                 ))}
                 </View>
               )
@@ -44,12 +45,12 @@ export default function FriendLocations() {
             { 
               title: `Private Friends`, 
               data: chunkArray(unlocatableFriends, 3), // 3 columns
-              keyExtractor: (item, index) => `private-friend-${item.id}-${index}`,
+              keyExtractor: (_, index) => `private-friend-${index}`,
               renderItem: ({ item }) => (
                 <View style={styles.chunk}>
                   {item.map((friend: LimitedUserFriend) => (
-                    <TouchableOpacity  style={styles.userChip} onPress={() => routeToUser(friend.id)} activeOpacity={0.7}>
-                      <UserChip user={friend} />
+                    <TouchableOpacity style={styles.userChip} onPress={() => routeToUser(friend.id)} activeOpacity={0.7}>
+                      <UserChip key={friend.id} user={friend} />
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -94,7 +95,6 @@ const styles = StyleSheet.create({
   },
   chunk: {
     flexDirection: "row",
-    justifyContent: "space-between",
     marginBottom: spacing.small,
   },
   cardView: {
