@@ -13,6 +13,7 @@ import { useTheme } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FlatList, SectionList, StyleSheet, View } from "react-native";
 import { Text } from "@react-navigation/elements";
+import { sortFriendWithStatus } from "@/libs/funcs/sortFriendWithStatus";
 
 interface FriendsByState {
   online: LimitedUserFriend[];
@@ -24,37 +25,6 @@ export default function Friends() {
   const theme = useTheme();
 
   const MaterialTab = createMaterialTopTabNavigator();
-
-  const statusOrder = (status: UserStatus) => {
-    switch (status) {
-      case "join me":
-        return 5;
-      case "active":
-        return 4;
-      case "ask me":
-        return 3;
-      case "busy":
-        return 2;
-      case "offline":
-        return 1;
-      default:
-        return 0;
-    }
-  }
-  const friendSorter = (a: LimitedUserFriend, b: LimitedUserFriend) => {
-    // location がある順
-    const locA = parseLocationString(a.location);
-    const locB = parseLocationString(b.location);
-    if (locA.parsedLocation && !locB.parsedLocation) return -1;
-    if (!locA.parsedLocation && locB.parsedLocation) return 1;
-    // status Order が大きい順
-    const statusDiff = statusOrder(b.status) - statusOrder(a.status);
-    if (statusDiff !== 0) return statusDiff;
-    // last_activity が新しい順
-    const aLast = a.last_activity ?? "";
-    const bLast = b.last_activity ?? "";
-    return bLast.localeCompare(aLast);
-  }
 
 
   // separate loading with online,active and offline friends
@@ -87,9 +57,9 @@ export default function Friends() {
 
       
       const sorted: FriendsByState = {
-        online: devided.online.sort(friendSorter),
-        active: devided.active.sort(friendSorter),
-        offline: devided.offline.sort(friendSorter),
+        online: sortFriendWithStatus(devided.online),
+        active: sortFriendWithStatus(devided.active),
+        offline: sortFriendWithStatus(devided.offline),
       };
 
       return sorted;
@@ -136,7 +106,8 @@ export default function Friends() {
     };
 
     const onlineFriends = useMemo(() => {
-      return friends.data.filter((f) => getState(f) === "online").sort(friendSorter);
+      const unsorted = friends.data.filter((f) => getState(f) === "online");
+      return sortFriendWithStatus(unsorted);
     }, [friends.data]);
 
     return (
@@ -172,7 +143,8 @@ export default function Friends() {
     };
 
     const activeFriends = useMemo(() => {
-      return friends.data.filter((f) => getState(f) === "active").sort(friendSorter);
+      const unsorted = friends.data.filter((f) => getState(f) === "active");
+      return sortFriendWithStatus(unsorted);
     }, [friends.data]);
 
     return (
@@ -208,7 +180,8 @@ export default function Friends() {
     };
 
     const offlineFriends = useMemo(() => {
-      return friends.data.filter((f) => getState(f) === "offline").sort(friendSorter);
+      const unsorted = friends.data.filter((f) => getState(f) === "offline");
+      return sortFriendWithStatus(unsorted);
     }, [friends.data]);
 
     return (

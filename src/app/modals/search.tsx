@@ -25,14 +25,15 @@ import { FlatList, StyleSheet, View } from "react-native";
 export default function Search() {
   const vrc = useVRChat();
   const theme = useTheme();
-  const initialParams = useLocalSearchParams<{ query: string }>();
-  const [query, setQuery] = useState(initialParams.query || "");
+  const initialParams = useLocalSearchParams<{ search?: string, tags?: string[] }>();
+  const [search, setSearch] = useState(initialParams.search || "");
+  const [tags, setTags] = useState(initialParams.tags || []);
   const limit = 50; // Number of items to fetch per request
 
   const MaterialTab = createMaterialTopTabNavigator();
 
   const handleSearch = (search: string) => {
-    setQuery(search);
+    setSearch(search);
   };
 
   // Worlds Tab
@@ -45,7 +46,7 @@ export default function Search() {
           sort: SortOption.Magic,
           n: limit,
           offset: offset.current,
-          search: query,
+          search: search,
         });
         setWorlds((prev) => [...prev, ...res.data]);
         offset.current += limit;
@@ -54,10 +55,10 @@ export default function Search() {
       }
     };
     useEffect(() => {
-      if (query.length === 0) return;
+      if (search.length === 0) return;
       offset.current = 0;
       fetchWorlds();
-    }, [query]);
+    }, [search]);
 
     return (
       <FlatList
@@ -86,7 +87,7 @@ export default function Search() {
         const res = await new UsersApi(vrc.config).searchUsers({
           n: limit,
           offset: offset.current,
-          search: query,
+          search: search,
         });
         setUsers((prev) => [...prev, ...res.data]);
         offset.current += limit;
@@ -95,10 +96,10 @@ export default function Search() {
       }
     };
     useEffect(() => {
-      if (query.length === 0) return;
+      if (search.length === 0) return;
       offset.current = 0;
       fetchUsers();
-    }, [query]);
+    }, [search]);
 
     return (
       <FlatList
@@ -128,7 +129,7 @@ export default function Search() {
         const res = await new GroupsApi(vrc.config).searchGroups({
           n: limit,
           offset: offset.current,
-          query: query,
+          query: search,
         });
         setGroups((prev) => [...prev, ...res.data]);
         offset.current += limit;
@@ -137,10 +138,10 @@ export default function Search() {
       }
     };
     useEffect(() => {
-      if (query.length === 0) return;
+      if (search.length === 0) return;
       offset.current = 0;
       fetchGroups();
-    }, [query]);
+    }, [search]);
 
     return (
       <FlatList
@@ -166,7 +167,7 @@ export default function Search() {
         <SearchBox
           onSubmit={handleSearch}
           placeholder="Search worlds, avatars, and users..."
-          defaultValue={initialParams.query || ""}
+          defaultValue={initialParams.search || ""}
         />
       </View>
       <View style={styles.tabsContainer}>

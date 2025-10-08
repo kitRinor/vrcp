@@ -54,6 +54,7 @@ const styles = StyleSheet.create({
   },
   icon : {
     borderRadius: radius.all,
+    borderWidth: 1.5,
     aspectRatio: 1,
     margin: spacing.small
   },

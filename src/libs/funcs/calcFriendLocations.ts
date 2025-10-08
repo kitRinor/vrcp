@@ -1,5 +1,6 @@
 import { Favorite, LimitedUserFriend } from "@/vrchat/api";
 import { convertToLimitedUserInstance, InstanceLike, parseInstanceId, parseLocationString } from "../vrchat";
+import { sortFriendWithStatus } from "./sortFriendWithStatus";
 
 type LocationData = {
   location: string;
@@ -91,7 +92,7 @@ function calcFriendsLocations(
       return a.type.localeCompare(b.type);
     });
     if (withUnlocatable) {
-          return {instances: sorted, unlocatableFriends};
+          return {instances: sorted, unlocatableFriends: sortFriendWithStatus(unlocatableFriends)};
     }
     return sorted;
   }

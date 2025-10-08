@@ -12,8 +12,9 @@ import { User } from "@/vrchat/api";
 import { useTheme } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
 import React, { useEffect, useState } from "react";
-import { Platform } from "react-native";
+import { Platform, TouchableOpacity } from "react-native";
 import { KeyboardAvoidingView, KeyboardAvoidingViewComponent, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { routeToInstance } from "@/libs/route";
 
 export default function UserDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -22,6 +23,8 @@ export default function UserDetail() {
   const theme = useTheme();
   const [user, setUser] = useState<User>();
   const [locationInfo, setLocationInfo] = useState<{
+    wId?: string;
+    iId?: string;
     image?: string | undefined;
     baseInfo: string | undefined;
     instType?: string | undefined;
@@ -56,6 +59,8 @@ export default function UserDetail() {
         });
         if (res.data) {
           setLocationInfo({
+            wId: res.data.worldId,
+            iId: res.data.instanceId,
             image: res.data.world?.thumbnailImageUrl,
             baseInfo: `${res.data.world?.name}`,
             instType: `${getInstanceType(res.data.type)} #${res.data.name}`,
@@ -106,30 +111,40 @@ export default function UserDetail() {
           <CardViewUserDetail user={user} style={[styles.cardView]} />
           <ScrollView>
             <DetailItemContainer title="Location">
-              {!locationInfo && <LoadingIndicator size={30} />}
-              {locationInfo?.image && (
-                <CachedImage
-                  style={styles.detailItemImage}
-                  src={locationInfo?.image ?? ""}
-                />
+              {locationInfo ? (
+                <TouchableOpacity 
+                  activeOpacity={0.7} 
+                  style={styles.location}
+                  onPress={(locationInfo.wId && locationInfo.iId) ? () => routeToInstance(locationInfo.wId!, locationInfo.iId!) : undefined}
+                >
+                  {locationInfo?.image && (
+                    <CachedImage
+                      style={styles.detailItemImage}
+                      src={locationInfo?.image ?? ""}
+                    />
+                  )}
+                  <View style={styles.detailItemContent}>
+                    {locationInfo?.baseInfo && (
+                      <Text numberOfLines={1} style={{ color: theme.colors.text }}>
+                        {locationInfo?.baseInfo}
+                      </Text>
+                    )}
+                    {locationInfo?.instType && (
+                      <Text numberOfLines={1} style={{ color: theme.colors.text }}>
+                        {locationInfo?.instType}
+                      </Text>
+                    )}
+                    {locationInfo?.capacity && (
+                      <Text numberOfLines={1} style={{ color: theme.colors.text }}>
+                        {locationInfo?.capacity}
+                      </Text>
+                    )}
+                  </View>
+                </TouchableOpacity>
+              ) : (
+                <LoadingIndicator size={30} />
               )}
-              <View style={styles.detailItemContent}>
-                {locationInfo?.baseInfo && (
-                  <Text numberOfLines={1} style={{ color: theme.colors.text }}>
-                    {locationInfo?.baseInfo}
-                  </Text>
-                )}
-                {locationInfo?.instType && (
-                  <Text numberOfLines={1} style={{ color: theme.colors.text }}>
-                    {locationInfo?.instType}
-                  </Text>
-                )}
-                {locationInfo?.capacity && (
-                  <Text numberOfLines={1} style={{ color: theme.colors.text }}>
-                    {locationInfo?.capacity}
-                  </Text>
-                )}
-              </View>
+              
             </DetailItemContainer>
 
             <DetailItemContainer
@@ -156,7 +171,7 @@ export default function UserDetail() {
                     />
                   : <Text style={{ color: theme.colors.text }}>{user.note}</Text>
                 }
-                </View>
+              </View>
             </DetailItemContainer>
 
             <DetailItemContainer title="Bio">
@@ -216,7 +231,11 @@ const styles = StyleSheet.create({
     width: "20%",
     aspectRatio: 1,
   },
-
+  location: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+  },
   detailItemContent: {
     flex: 1,
     // borderStyle:"dotted", borderColor:"red",borderWidth:1

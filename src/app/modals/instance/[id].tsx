@@ -71,29 +71,35 @@ export default function InstanceDetail() {
     return allFriends.data.filter((f) => f.location === location);
   }, [instance, instance?.users]);
 
-  const ownerAndFriends = useMemo(() => {
-    const list = [];
-    if (owner) list.push(owner);
-    friends.forEach(f => {
-      if (f.id !== owner?.id) list.push(f);
-    });
-    return list;
-  }, [owner, friends]);
+
 
   return (
     <GenericScreen>
       {instance ? (
         <View style={{ flex: 1 }}>
           <CardViewInstanceDetail instance={instance} style={[styles.cardView]} />
-
           <ScrollView>
+
+            <DetailItemContainer title="Owner">
+              <View style={styles.detailItemContent}>
+                {owner && (
+                  <TouchableOpacity key={owner.id} onPress={() => routeToUser(owner.id)} activeOpacity={0.7}>
+                    <UserChip user={owner} icon="crown" textColor={getTrustRankColor(owner, true, false)} />
+                  </TouchableOpacity>
+                )}
+              </View>
+            </DetailItemContainer>
+
             <DetailItemContainer title="Users">
               <View style={styles.detailItemContent}>
-                {ownerAndFriends.map((friend) => (
+                {friends.map((friend) => (
                   <TouchableOpacity key={friend.id} onPress={() => routeToUser(friend.id)} activeOpacity={0.7}>
-                    <UserChip user={friend} textColor={getTrustRankColor(friend, true, false)} icon={friend.id === owner?.id ? "crown" : undefined} />
+                    <UserChip user={friend} textColor={getTrustRankColor(friend, true, false)} />
                   </TouchableOpacity>
                 ))}
+                {instance.n_users > friends.length && (
+                  <Text style={[styles.moreUser,{ color: theme.colors.text }]}>{`+ ${instance.n_users - friends.length} more users`}</Text>
+                )}
               </View>
             </DetailItemContainer>
 
@@ -152,6 +158,9 @@ const styles = StyleSheet.create({
     padding: spacing.small,
     width: "20%",
     aspectRatio: 1,
+  },
+  moreUser: {
+    marginLeft: spacing.medium,
   },
 
   detailItemContent: {

@@ -1,6 +1,15 @@
 import { push } from "expo-router/build/global-state/routing";
 
-export const routeToSearch = (query:string) => push(`/modals/search?query=${query}`);
+export const routeToSearch = (search?:string, tags?:string[]) => {
+  const q = []; 
+  if (search) q.push(`search=${search}`);
+  if (tags) q.push(`tags=${tags.join(",")}`);
+  if (q.length) {
+    push(`/modals/search?${q.join("&")}`);
+  } else {
+    push(`/modals/search`);
+  }
+};
 export const routeToFriendLocations = () => push(`/modals/friendlocations`);
 export const routeToFeeds = () => push(`/modals/feeds`);
 

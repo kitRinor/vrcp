@@ -43,9 +43,8 @@ export default function FriendLocations() {
             { 
               title: `Friends in Instances `, 
               data: chunkArray(instances, 2), // 2 columns
-              keyExtractor: (_, index) => `friend-instance-chunk-${index}`,
-              renderItem: ({ item }) => (
-                <View style={styles.chunk}>
+              renderItem: ({ item, index }) => (
+                <View style={styles.chunk} key={`friend-instance-chunk-${index}`}>
                 {item.map((instance: InstanceLike) => (
                   <CardViewInstance key={instance.id} instance={instance} style={styles.cardView} onPress={() => routeToInstance(instance.worldId, instance.instanceId)} />
                 ))}
@@ -55,9 +54,8 @@ export default function FriendLocations() {
             { 
               title: `Private Friends`, 
               data: chunkArray(unlocatableFriends, 3), // 3 columns
-              keyExtractor: (_, index) => `private-friend-chunk-${index}`,
-              renderItem: ({ item }) => (
-                <View style={styles.chunk}>
+              renderItem: ({ item, index }) => (
+                <View style={styles.chunk} key={`private-friend-chunk-${index}`}>
                   {item.map((friend: LimitedUserFriend) => (
                     <TouchableOpacity style={styles.userChip} onPress={() => routeToUser(friend.id)} activeOpacity={0.7}>
                       <UserChip key={friend.id} user={friend} />
@@ -70,7 +68,7 @@ export default function FriendLocations() {
             title: string; 
             data: any[]; 
             keyExtractor: (item: any, index: number) => string;
-            renderItem: ({ item }: { item: any }) => React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | null 
+            renderItem: ({ item, index }: { item: any, index: number }) => React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | null 
           }[]}
           renderSectionHeader={({ section: { title } }) => (
             <View style={[styles.sectionHeader, {borderBottomColor: theme.colors.border}]}>
