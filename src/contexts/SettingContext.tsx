@@ -1,6 +1,8 @@
 import AsyncStorage from "expo-sqlite/kv-store";
 import { createContext, useContext, useEffect, useState } from "react";
+import * as FileSystem from "expo-file-system";
 
+const documentDirectory = FileSystem.documentDirectory;
 
 // provide user settings globally,
 // all data stored in async storage with prefix: "setting_"

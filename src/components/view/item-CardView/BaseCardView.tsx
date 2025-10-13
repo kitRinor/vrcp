@@ -1,8 +1,10 @@
+import GenericTouchable from "@/components/layout/GenericTouchable";
 import { fontSize, radius, spacing } from "@/configs/styles";
 import { CachedImage } from "@/contexts/CacheContext";
 import { omitObject } from "@/libs/utils";
 import { Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
+import { useRef } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
 interface Props<T> {
@@ -11,6 +13,7 @@ interface Props<T> {
   title: string | ((data: T) => string);
   onPress?: () => void;
   onLongPress?: () => void;
+  
   numberOfLines?: number; // for title
   OverlapComponents?: React.ReactNode; // Optional components to overlap on the card
   // Additional props
@@ -31,6 +34,7 @@ const BaseCardView = <T,>({
   ...rest
 }: Props<T>) => {
   const theme = useTheme();
+  const localUriRef = useRef<string | null>(null);
   const resolvedImageUrl =
     typeof imageUrl === "function" ? imageUrl(data) : imageUrl;
   const resolvedTitle = typeof title === "function" ? title(data) : title;
@@ -39,23 +43,23 @@ const BaseCardView = <T,>({
       style={[styles.root, rest.style]}
       {...omitObject(rest, "style", "ImageStyle", "FooterStyle", "TitleStyle")}
     >
-      <TouchableOpacity
-        activeOpacity={0.7}
+      <GenericTouchable
         onPress={onPress}
         onLongPress={onLongPress}
         style={[styles.base, { backgroundColor: theme.colors.card }]}
       >
-        <CachedImage
-          src={resolvedImageUrl}
-          style={[styles.image, rest.ImageStyle]}
-        />
-        <View style={[styles.footer, rest.FooterStyle]}>
-          <Text style={[styles.title, rest.TitleStyle]} numberOfLines={numberOfLines}>
-            {resolvedTitle}
-          </Text>
-        </View>
+          <CachedImage
+            localUriRef={localUriRef}
+            src={resolvedImageUrl}
+            style={[styles.image, rest.ImageStyle]}
+          />
+          <View style={[styles.footer, rest.FooterStyle, { backgroundColor: theme.colors.card }]}>
+            <Text style={[styles.title, rest.TitleStyle]} numberOfLines={numberOfLines}>
+              {resolvedTitle}
+            </Text>
+          </View>
         <View style={styles.overlap}>{OverlapComponents}</View>
-      </TouchableOpacity>
+      </GenericTouchable>
     </View>
   );
 };

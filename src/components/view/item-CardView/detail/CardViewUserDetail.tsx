@@ -6,11 +6,16 @@ import { useTheme } from "@react-navigation/native";
 import { StyleSheet, View } from "react-native";
 import IconSymbol from "../../icon-components/IconView";
 import BaseCardView from "../BaseCardView";
+import GenericTouchable from "@/components/layout/GenericTouchable";
 
 interface Props {
   user: UserLike;
   onPress?: () => void;
   onLongPress?: () => void;
+  onPressImage?: () => void;
+  onLongPressImage?: () => void;
+  onPressIcon?: () => void;
+  onLongPressIcon?: () => void;
 
   isMe?: boolean;
 
@@ -23,6 +28,8 @@ const CardViewUserDetail = ({
   user,
   onPress,
   onLongPress,
+  onPressIcon,
+  onLongPressIcon,
   isMe = false,
   ...rest
 }: Props) => {
@@ -39,16 +46,18 @@ const CardViewUserDetail = ({
       OverlapComponents={
         <>
           <View style={styles.iconContainer}>
-            <CachedImage
-              src={getUserIconUrl(user, true)}
-              style={[
-                styles.icon,
-                {
-                  borderColor: theme.colors.card,
-                  backgroundColor: theme.colors.card,
-                },
-              ]}
-            />
+            <GenericTouchable onPress={onPressIcon} onLongPress={onLongPressIcon}>
+              <CachedImage
+                src={getUserIconUrl(user, true)}
+                style={[
+                  styles.icon,
+                  {
+                    borderColor: theme.colors.card,
+                    backgroundColor: theme.colors.card,
+                  },
+                ]}
+              />
+            </GenericTouchable>
           </View>
           <View style={styles.underRowContainer}>
             <View style={styles.statusContainer}>
@@ -87,6 +96,7 @@ const styles = StyleSheet.create({
     left: 0,
     // for status spacing
     paddingBottom: fontSize.large + spacing.small * 2,
+    
   },
   icon: {
     aspectRatio: 1,
@@ -100,6 +110,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
     width: "100%",
+
   },
   statusContainer: {
     display: "flex",

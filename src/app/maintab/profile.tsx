@@ -18,11 +18,16 @@ import {
   TextInput,
   View,
 } from "react-native";
+import ImagePreview from "@/components/view/ImagePreview";
+import { getUserIconUrl, getUserProfilePicUrl } from "@/libs/vrchat";
 
 export default function Profile() {
   const vrc = useVRChat();
   const theme = useTheme();
   const { currentUser } = useData();
+  const [preview, setPreview] = useState({ imageUrl: "", open: false });
+
+
   return (
     <GenericScreen>
       {currentUser.data ? (
@@ -30,6 +35,8 @@ export default function Profile() {
           <CardViewUserDetail
             user={currentUser.data}
             style={[styles.cardView]}
+            onPress={() => currentUser.data && setPreview({imageUrl: getUserProfilePicUrl(currentUser.data, true), open: true})}
+            onPressIcon={() => currentUser.data && setPreview({imageUrl: getUserIconUrl(currentUser.data, true), open: true})}
           />
 
           <ScrollView
@@ -86,6 +93,11 @@ export default function Profile() {
       ) : (
         <LoadingIndicator absolute />
       )}
+      <ImagePreview
+        imageUrl={[preview.imageUrl]}
+        open={preview.open}
+        onClose={() => setPreview({ imageUrl: "", open: false })}
+      />
     </GenericScreen>
   );
 }
@@ -94,7 +106,7 @@ const styles = StyleSheet.create({
   cardView: {
     position: "relative",
     paddingVertical: spacing.medium,
-    pointerEvents: "none", // override TouchableOpacity events
+    // pointerEvents: "none", // override TouchableOpacity events
   },
   badgeContainer: {
     position: "absolute",

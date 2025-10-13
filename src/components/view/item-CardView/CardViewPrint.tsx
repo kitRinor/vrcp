@@ -19,7 +19,7 @@ const extractTitle = (data: Print) => {
   if (!data.timestamp && !data.authorName && !data.worldName) return "Unknown Print";
   const titles = []
   if (data.timestamp.length > 0) titles.push(formatToDate(data.timestamp)); 
-  if (data.authorName.length > 0) titles.push(`by ${data.authorName}`);
+  // if (data.authorName.length > 0) titles.push(`by ${data.authorName}`);
   if (data.worldName.length > 0) titles.push(`in ${data.worldName}`);
   return titles.join(" ");
 };
@@ -41,7 +41,9 @@ const CardViewPrint = ({ print: world, onPress, onLongPress, ...rest }: Props) =
 
 const styles = StyleSheet.create({
   image: {
-    aspectRatio: 1.4, // print
+    // 白い部分をトリミング
+    transform: [{ translateY: "10%" }, { scale: 1.35 }],
+    resizeMode: "contain",
   }
 });
 export default React.memo(CardViewPrint);

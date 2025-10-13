@@ -7,7 +7,7 @@ import { fontSize, radius, spacing } from "@/configs/styles";
 import { CachedImage, useCache } from "@/contexts/CacheContext";
 import { useVRChat } from "@/contexts/VRChatContext";
 import { extractErrMsg } from "@/libs/utils";
-import { getInstanceType, parseLocationString } from "@/libs/vrchat";
+import { getInstanceType, getUserIconUrl, getUserProfilePicUrl, parseLocationString } from "@/libs/vrchat";
 import { User } from "@/vrchat/api";
 import { useTheme } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
@@ -17,6 +17,7 @@ import { KeyboardAvoidingView, KeyboardAvoidingViewComponent, ScrollView, StyleS
 import { routeToInstance } from "@/libs/route";
 import BadgeChip from "@/components/view/chip-badge/BadgeChip";
 import { useData } from "@/contexts/DataContext";
+import ImagePreview from "@/components/view/ImagePreview";
 
 export default function UserDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -36,6 +37,9 @@ export default function UserDetail() {
 
   const [editNote, setEditNote] = useState(false);
   const editting = React.useRef<string>("");
+
+  const [preview, setPreview] = useState({ imageUrl: "", open: false });
+  
 
   const isFavorite = data.favorites.data.some(fav => fav.favoriteId === id && fav.type === "friend");
 
@@ -155,7 +159,12 @@ export default function UserDetail() {
     <GenericScreen menuItems={menuItems}>
       {user ? (
         <View style={{ flex: 1 }}>
-          <CardViewUserDetail user={user} style={[styles.cardView]} />
+          <CardViewUserDetail 
+            user={user} 
+            onPress={() => user && setPreview({imageUrl: getUserProfilePicUrl(user, true), open: true})}
+            onPressIcon={() => user && setPreview({imageUrl: getUserIconUrl(user, true), open: true})}
+            style={[styles.cardView]} 
+          />
           <ScrollView>
 
             <DetailItemContainer title="Location">
@@ -263,6 +272,11 @@ export default function UserDetail() {
       ) : (
         <LoadingIndicator absolute />
       )}
+      <ImagePreview
+        imageUrl={[preview.imageUrl]}
+        open={preview.open}
+        onClose={() => setPreview({ imageUrl: "", open: false })}
+      />
     </GenericScreen>
     </KeyboardAvoidingView>
   );
@@ -272,7 +286,6 @@ const styles = StyleSheet.create({
   cardView: {
     position: "relative",
     paddingVertical: spacing.medium,
-    pointerEvents: "none", // override TouchableOpacity events
   },
   badgeContainer: {
     position: "absolute",

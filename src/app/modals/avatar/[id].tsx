@@ -134,7 +134,6 @@ const styles = StyleSheet.create({
   cardView: {
     position: "relative",
     paddingVertical: spacing.medium,
-    pointerEvents: "none", // override TouchableOpacity events
   },
   badgeContainer: {
     position: "absolute",

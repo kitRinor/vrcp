@@ -10,10 +10,11 @@ import { Avatar, LimitedWorld, Print } from "@/vrchat/api";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useTheme } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, Image, StyleSheet, Text, Touchable, TouchableOpacity, View } from "react-native";
 import { useData } from "@/contexts/DataContext";
 import CardViewPrint from "@/components/view/item-CardView/CardViewPrint";
 import { CachedImage } from "@/contexts/CacheContext";
+import ImagePreview from "@/components/view/ImagePreview";
 // user's avatar, world, and other uploaded resources
 export default function Resources() {
   const vrc = useVRChat();
@@ -30,7 +31,7 @@ export default function Resources() {
     const offset = useRef(0);
 
     const fetchAvatars = async () => {
-      if (fetchingRef.current) return;
+      if (fetchingRef.current || offset.current < 0) return;
       fetchingRef.current = true;
       try {
         const res = await vrc.avatarsApi.searchAvatars({
@@ -39,8 +40,12 @@ export default function Resources() {
           user: "me",
           releaseStatus: "all",
         });
-        setAvatars(res.data);
-        offset.current += NumPerReq;
+        if (res.data.length === 0) {
+          offset.current = -1; // reset offset if no more data
+        } else {
+          setAvatars(prev => [...prev, ...res.data]);
+          offset.current += NumPerReq;
+        }
       } catch (e) {
         console.error("Error fetching own avatars:", extractErrMsg(e));
       } finally {
@@ -51,6 +56,12 @@ export default function Resources() {
     useEffect(() => {
       fetchAvatars();
     }, []);
+
+    const reload = () => {
+      offset.current = 0;
+      setAvatars([]);
+      fetchAvatars();
+    };
 
     return (
       <View style={styles.tabpanel}>
@@ -66,6 +77,10 @@ export default function Resources() {
             />
           )}
           numColumns={2}
+          onEndReached={fetchAvatars}
+          onEndReachedThreshold={0.5}
+          onRefresh={reload}
+          refreshing={isLoading}
         />
       </View>
     );
@@ -77,7 +92,7 @@ export default function Resources() {
     const offset = useRef(0);
 
     const fetchWorlds = async () => {
-      if (fetchingRef.current) return;
+      if (fetchingRef.current || offset.current < 0) return;
       fetchingRef.current = true;
       try {
         const res = await vrc.worldsApi.searchWorlds({
@@ -86,8 +101,12 @@ export default function Resources() {
           user: "me",
           releaseStatus: "all",
         });
-        setWorlds(res.data);
-        offset.current += NumPerReq;
+        if (res.data.length === 0) {
+          offset.current = -1; // reset offset if no more data
+        } else {
+          setWorlds(prev => [...prev, ...res.data]);
+          offset.current += NumPerReq;
+        }
       } catch (e) {
         console.error("Error fetching own worlds:", extractErrMsg(e));
       } finally {
@@ -98,6 +117,12 @@ export default function Resources() {
     useEffect(() => {
       fetchWorlds();
     }, []);
+
+    const reload = () => {
+      offset.current = 0;
+      setWorlds([]);
+      fetchWorlds();
+    }
 
     return (
       <View style={styles.tabpanel}>
@@ -113,6 +138,10 @@ export default function Resources() {
             />
           )}
           numColumns={2}
+          onEndReached={fetchWorlds}
+          onEndReachedThreshold={0.5}
+          onRefresh={reload}
+          refreshing={isLoading}
         />
       </View>
     );
@@ -120,16 +149,32 @@ export default function Resources() {
   const PrintsTab = () => {
     const [prints, setPrints] = useState<Print[]>([]);
     const fetchingRef = useRef(false);
+    const offset = useRef(0);
     const isLoading = useMemo(() => fetchingRef.current, [fetchingRef.current]);
+
+    const [preview, setPreview] = useState<{ idx: number; open: boolean }>({ idx: 0, open: false });
+    const [previewImageUrls, setPreviewImageUrls] = useState<string[]>([]);
     // prints, ...etc
     const fetchPrints = async () => {
       try {
-        if (fetchingRef.current) return;
+        if (fetchingRef.current || offset.current < 0) return;
         fetchingRef.current = true;
         const res = await vrc.printsApi.getUserPrints({
-          userId: currentUser.data?.id || ""
+          userId: currentUser.data?.id || "",
+        }, {
+          // API仕様にはないがoffsetとnを指定できるっぽい
+          params: {
+            offset: offset.current,
+            n: NumPerReq,
+          }
         });
-        setPrints(res.data);
+        if (res.data.length === 0) {
+          offset.current = -1; // reset offset if no more data
+        } else {
+          setPrints(prev => [...prev, ...res.data]);
+          setPreviewImageUrls(prev => [...prev, ...res.data.map(print => print.files.image || "").filter(url => url.length > 0)]);
+          offset.current += NumPerReq;
+        }
       } catch (e) {
         console.error("Error fetching own prints:", extractErrMsg(e));
       } finally {
@@ -139,16 +184,22 @@ export default function Resources() {
     useEffect(() => {
       fetchPrints();
     }, []);
+    const reload = () => {
+      offset.current = 0;
+      setPrints([]);
+      setPreviewImageUrls([]);
+      fetchPrints();
+    };
 
     return (
       <View style={styles.tabpanel}>
         {isLoading && <LoadingIndicator absolute />}
+        <ImagePreview imageUrl={previewImageUrls} initialIdx={preview.idx} open={preview.open} onClose={() => setPreview({ idx: 0, open: false })} />
         <FlatList
           data={prints}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            // <CardViewPrint print={item} style={styles.printView} />
-            <CachedImage src={item.files.image || ""} style={{ width: "100%", aspectRatio: 1.4, margin: spacing.small }} resizeMode="cover"/>
+          renderItem={({ item, index }) => (
+            <CardViewPrint print={item} style={styles.printView} onPress={() => setPreview({ idx: index, open: true })} />
           )}
           ListEmptyComponent={() => (
             <View style={{ alignItems: "center", marginTop: spacing.large }}>
@@ -157,7 +208,11 @@ export default function Resources() {
               </Text>
             </View>
           )}
-          numColumns={1}
+          numColumns={2}
+          onEndReached={fetchPrints}
+          onEndReachedThreshold={0.5}
+          onRefresh={reload}
+          refreshing={isLoading}
         />
       </View>
     );
@@ -191,6 +246,7 @@ export default function Resources() {
   );
 }
 
+
 const styles = StyleSheet.create({
   tabpanel: {
     flex: 1,
@@ -201,6 +257,6 @@ const styles = StyleSheet.create({
   },
   printView: {
     padding: spacing.small,
-    width: "100%",
+    width: "50%",
   },
 });

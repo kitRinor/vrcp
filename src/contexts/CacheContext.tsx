@@ -1,4 +1,4 @@
-import { omitObject } from "@/libs/utils";
+import { getUserAgent, omitObject } from "@/libs/utils";
 import {
   Avatar,
   CurrentUser,
@@ -54,7 +54,7 @@ interface CacheContextType {
 
 const Context = createContext<CacheContextType | undefined>(undefined);
 
-const cacheRootDir = `${FileSystem.documentDirectory}cache/`; // root-directory for cache
+const cacheRootDir = `${FileSystem.cacheDirectory}`; // root-directory for cache
 
 // get local file uri from key (id or url), subDirName must end with /
 const getLocalUri = async (
@@ -359,47 +359,61 @@ function useCacheByIdWrapper<T = any>(
 
 // Cached Image Component, use this instead of Default Image Component,
 // cache dir "images/" is used for this component
+const imageCacheSubDir = "images/"; // must end with /
+
 function initCachedImage() {
   // create sub-directory for images
-  const subDir = "images/"; // must end with /
-  FileSystem.getInfoAsync(cacheRootDir + subDir)
+  FileSystem.getInfoAsync(cacheRootDir + imageCacheSubDir)
     .then((dirInfo) => {
       if (!dirInfo.exists)
-        FileSystem.makeDirectoryAsync(cacheRootDir + subDir, {
+        FileSystem.makeDirectoryAsync(cacheRootDir + imageCacheSubDir, {
           intermediates: true,
         });
     })
     .catch((error) => {
       console.error(
-        `Error creating cache sub-dir: ${cacheRootDir + subDir}`,
+        `Error creating cache sub-dir: ${cacheRootDir + imageCacheSubDir}`,
         error
       );
     });
 }
+
+async function downloadImageToCache (remoteUri: string): Promise<string | undefined> {
+  try {
+    if (remoteUri.startsWith("file://")) return remoteUri; // local file, no need to cache
+    const localUri = await getLocalUri(remoteUri, imageCacheSubDir, true);
+    const fileInfo = await FileSystem.getInfoAsync(localUri);
+    if (fileInfo.exists) {
+      return localUri
+    } else {
+      const { uri } = await FileSystem.downloadAsync(remoteUri, localUri, {
+        headers: {'User-Agent': getUserAgent()},
+      });
+      return uri;
+    }
+  } catch (error) {
+    console.log("Error loading image:", remoteUri);
+  }
+};
+
 const CachedImage = ({
   src: remoteUri,
+  localUriRef,
   ...rest
 }: {
   src: string;
+  localUriRef?: React.RefObject<string | null>; // to get current local-uri
   [key: string]: any;
 }) => {
   const [src, setSrc] = useState<string | undefined>();
-  const headers = useVRChat().config?.baseOptions["headers"] || {};
-  const childDir = "images/"; // must end with /
   const load = async () => {
-    try {
-      const localUri = await getLocalUri(remoteUri, childDir, true);
-      const fileInfo = await FileSystem.getInfoAsync(localUri);
-      if (fileInfo.exists) {
-        setSrc(localUri);
-      } else {
-        const { uri } = await FileSystem.downloadAsync(remoteUri, localUri, {
-          headers: headers,
-        });
-        setSrc(uri);
-      }
-    } catch (error) {
-      console.log("Error loading image:", remoteUri);
+    const localUri = await downloadImageToCache(remoteUri);
+    if (localUri) {
+      setSrc(localUri);
+      if (localUriRef) localUriRef.current = localUri;
+    } else {
+      setSrc(remoteUri); // fallback to remote uri
+      if (localUriRef) localUriRef.current = null;
     }
   };
   useEffect(() => {
@@ -415,4 +429,4 @@ const CachedImage = ({
   );
 };
 
-export { CachedImage, CacheProvider, useCache };
+export { CachedImage, downloadImageToCache, CacheProvider, useCache };

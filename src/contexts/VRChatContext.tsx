@@ -13,7 +13,6 @@ import {
   WorldsApi,
 } from "@/vrchat/api";
 import { PipelineMessage, PipelineRawMessage } from "@/vrchat/pipline/type";
-import Constants from "expo-constants";
 import {
   createContext,
   ReactNode,
@@ -24,6 +23,7 @@ import {
   useState,
 } from "react";
 import axios from 'axios';
+import { getUserAgent } from "@/libs/utils";
 
 const BASE_PIPELINE_URL = "wss://pipeline.vrchat.cloud";
 const BASE_API_URL = "https://api.vrchat.cloud/api/1";
@@ -66,11 +66,6 @@ const useVRChat = () => {
 
 const VRChatProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
   // setting up VRChat client with application details
-  const name =
-    Constants.expoConfig?.slug +
-    Constants.expoConfig?.extra?.vrcmm?.buildProfile;
-  const version = Constants.expoConfig?.version || "0.0.0-dev";
-  const contact = Constants.expoConfig?.extra?.vrcmm?.contact || "dev@ktrn.dev";
   const [config, setConfig] = useState<Configuration>();
 
   const pipelineRef = useRef<WebSocket | null>(null);
@@ -87,7 +82,7 @@ const VRChatProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
       username: user.username,
       password: user.password,
       baseOptions: {
-        headers: { "User-Agent": `${name}/${version} ${contact}` },
+        headers: { "User-Agent": getUserAgent() },
       },
     });
     setConfig(newConfig); // 即時更新
@@ -113,7 +108,7 @@ const VRChatProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
     const pipeUrl = BASE_PIPELINE_URL + "?authToken=" + authTokenRef.current;
     // @ts-ignore ignore for options param
     pipelineRef.current = new WebSocket(pipeUrl, undefined, {
-      headers: { "User-Agent": `${name}/${version} ${contact}` },
+      headers: { "User-Agent": getUserAgent() },
     });
 
     pipelineRef.current.onmessage = (event) => {
