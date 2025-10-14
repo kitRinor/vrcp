@@ -1,8 +1,8 @@
 import GenericDialog from "@/components/layout/GenericDialog";
 import GenericScreen from "@/components/layout/GenericScreen";
-import DatabaseModal from "@/features/settings/DatabaseModal";
-import DevelopperModal from "@/features/settings/DevelopperModal";
-import UIModal from "@/features/settings/UIModal";
+import DatabaseModal from "@/components/features/settings/DatabaseModal";
+import DevelopperModal from "@/components/features/settings/DevelopperModal";
+import UIModal from "@/components/features/settings/UIModal";
 import IconSymbol from "@/components/view/icon-components/IconView";
 import { SupportedIconNames } from "@/components/view/icon-components/utils";
 import globalStyles, { fontSize, spacing } from "@/configs/styles";
@@ -13,7 +13,7 @@ import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import { navigate } from "expo-router/build/global-state/routing";
-import DebugModal from "@/features/settings/DebugModal";
+import DebugModal from "@/components/features/settings/DebugModal";
 
 interface SettingItem {
   icon: SupportedIconNames;
@@ -133,7 +133,7 @@ export default function Settings() {
         </View>
       ))}
 
-      {/* logout */}
+      {/* dialog and modals */}
       <GenericDialog
         open={openLogout}
         message="Are you sure you want to log out?"
@@ -146,7 +146,6 @@ export default function Settings() {
         confirmTitle="Logout"
         cancelTitle="Cancel"
       />
-
       <DatabaseModal open={openDatabase} setOpen={setOpenDatabase} />
       <UIModal open={openUI} setOpen={setOpenUI} />
       <DevelopperModal open={openDevelopper} setOpen={setOpenDevelopper} />

@@ -5,7 +5,7 @@ import LoadingIndicator from "@/components/view/LoadingIndicator";
 import { navigationBarHeight, spacing } from "@/configs/styles";
 import { useData } from "@/contexts/DataContext";
 import { usersTable } from "@/db/schema";
-import SeeMoreContainer from "@/features/home/SeeMoreContainer";
+import SeeMoreContainer from "@/components/features/home/SeeMoreContainer";
 import { calcFriendsLocations } from "@/libs/funcs/calcFriendLocations";
 import { routeToInstance, routeToUser } from "@/libs/route";
 import { InstanceLike } from "@/libs/vrchat";

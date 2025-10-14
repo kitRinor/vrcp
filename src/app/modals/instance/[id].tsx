@@ -1,5 +1,5 @@
 import GenericScreen from "@/components/layout/GenericScreen";
-import DetailItemContainer from "@/features/detail/DetailItemContainer";
+import DetailItemContainer from "@/components/features/detail/DetailItemContainer";
 import PlatformChips from "@/components/view/chip-badge/PlatformChips";
 import TagChips from "@/components/view/chip-badge/TagChips";
 import UserChip from "@/components/view/chip-badge/UserChip";

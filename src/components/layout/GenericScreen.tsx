@@ -1,21 +1,16 @@
 import { spacing } from "@/configs/styles";
 import { DrawerRouter, useTheme } from "@react-navigation/native";
-import { usePathname, useRouter } from "expo-router";
+import { useFocusEffect, usePathname, useRootNavigationState, useRouter } from "expo-router";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { SupportedIconNames } from "../view/icon-components/utils";
 import { useMenu } from "@/contexts/MenuContext";
 import { Drawer } from 'react-native-drawer-layout';
 import { Text } from "@react-navigation/elements";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import IconSymbol from "../view/icon-components/IconView";
+import { MenuItem } from "./type";
 
-export interface MenuItem {
-  icon?: SupportedIconNames;
-  title: string;
-  onPress: () => void;
-}
-
-interface GenericScreenProps {
+interface Props {
   menuItems?: MenuItem[];
   children: React.ReactNode;
 }
@@ -23,15 +18,15 @@ interface GenericScreenProps {
 const GenericScreen = ({
   menuItems,
   children,
-}: GenericScreenProps) => {
+}: Props) => {
   const theme = useTheme();
-  const path = usePathname();
+  const pathname = usePathname();
   const { openMenu, setOpenMenu } = useMenu();
 
   useEffect(() => {
     if (!openMenu) return;
     setOpenMenu(false); // close menu on path change
-  }, [path]);
+  }, [pathname]);
 
   if (menuItems !== undefined) {
     return (
@@ -71,8 +66,15 @@ const DrawerContent = ({
   return (
     <View>
       {menuItems?.map((item, index) => {
+        // handle divider
+        if (item.type === "divider") {
+          return (
+            <View key={`menu-item-${index}-${item.title}`} style={[styles.drawerItemDivider, { borderBottomColor: theme.colors.subText }]} />
+          );
+        }
+        // handle normal item(= button)
         const onPress = () => {
-          item.onPress();
+          item.onPress?.();
           setOpenMenu(false);
         }
         return (
@@ -107,6 +109,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.medium,
     paddingVertical: spacing.large,
     // borderColor: "blue", borderStyle: "dashed", borderWidth: 1,
+  },
+  drawerItemDivider: {
+    marginHorizontal: spacing.medium,
+    borderBottomWidth: 1,
+    marginVertical: spacing.small,
   },
   screenContainer: {
     flex: 1,

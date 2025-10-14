@@ -10,6 +10,7 @@ import { ThemeProvider } from "@react-navigation/native";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useColorScheme } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 function RootLayout() {
@@ -34,12 +35,14 @@ export default function Root() {
               <MenuProvider>
                 <SafeAreaProvider>
                   <SafeAreaView style={{ flex: 1 }} edges={["left", "right"]}>
-                    <ThemeProvider
-                      value={useColorScheme() !== "dark" ? lightTheme : darkTheme}
-                    >
-                      <RootLayout />
-                      <StatusBar style="auto" />
-                    </ThemeProvider>
+                    <GestureHandlerRootView style={{ flex: 1 }}>
+                      <ThemeProvider
+                        value={useColorScheme() !== "dark" ? lightTheme : darkTheme}
+                      >
+                        <RootLayout />
+                        <StatusBar style="auto" />
+                      </ThemeProvider>
+                    </GestureHandlerRootView>
                   </SafeAreaView>
                 </SafeAreaProvider>
               </MenuProvider>

@@ -2,7 +2,7 @@ import GenericModal from "@/components/layout/GenericModal";
 import GenericScreen from "@/components/layout/GenericScreen";
 import { Atag } from "@/components/view/Atag";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
-import globalStyles, { fontSize, spacing } from "@/configs/styles";
+import { fontSize, spacing } from "@/configs/styles";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
@@ -14,6 +14,7 @@ import {
   Animated,
   KeyboardAvoidingView,
   Pressable,
+  StyleSheet,
   Text,
   TextInput,
   View,
@@ -132,7 +133,7 @@ export default function Login() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior="padding">
       <GenericScreen>
         {(isLoadingLogin || isLoadingVerify) && <LoadingIndicator absolute />}
-        <View style={globalStyles.containerCentered}>
+        <View style={styles.containerCentered}>
           <Pressable
             style={{
               width: "80%",
@@ -165,10 +166,10 @@ export default function Login() {
             />
           </Pressable>
 
-          <View style={globalStyles.containerVertical}>
+          <View style={styles.containerVertical}>
             <Text
               style={[
-                globalStyles.subheader,
+                styles.header,
                 { color: theme.colors.text, marginBottom: spacing.large },
               ]}
             >
@@ -176,7 +177,7 @@ export default function Login() {
             </Text>
             <TextInput
               ref={usernameRef}
-              style={[globalStyles.input, { color: theme.colors.text }]}
+              style={[styles.input, { color: theme.colors.text }]}
               placeholder="Username / Email"
               placeholderTextColor={theme.colors.subText}
               autoComplete="username"
@@ -188,8 +189,8 @@ export default function Login() {
             <TextInput
               ref={passwordRef}
               style={[
-                globalStyles.input,
-                globalStyles.repeatingitemVertical,
+                styles.input,
+                styles.repeatingitemVertical,
                 { color: theme.colors.text },
               ]}
               placeholder="Password"
@@ -201,9 +202,9 @@ export default function Login() {
               onChangeText={setPassword}
             />
           </View>
-          <View style={globalStyles.containerHorizontal}>
+          <View style={styles.containerHorizontal}>
             <Button // button to navigate to sitemap (for debug)
-              style={[globalStyles.button]}
+              style={[styles.button]}
               color={theme.colors.primary}
               onPress={() => setOpenLinks(true)}
             >
@@ -212,8 +213,8 @@ export default function Login() {
             </Button>
             <Button
               style={[
-                globalStyles.button,
-                globalStyles.repeatingitemHorizontal,
+                styles.button,
+                styles.repeatingitemHorizontal,
                 { flex: 1 },
               ]}
               color={theme.colors.primary}
@@ -226,24 +227,31 @@ export default function Login() {
         </View>
 
         {/* 2fa modal */}
-        <GenericModal open={openTFA} onClose={() => setOpenTFA(false)}>
+        <GenericModal
+          buttonItems={[
+            { title: "Close", onPress: () => setOpenTFA(false)},
+            { title: "Verify", onPress: handleVerify, flex: 1 }
+          ]}
+          open={openTFA}
+          onClose={() => setOpenTFA(false)}
+        >
           <Text
             style={[
-              globalStyles.subheader,
-              globalStyles.headerContainer,
+              styles.header,
+              styles.headerContainer,
               { color: theme.colors.text },
             ]}
           >
             Two-Factor Authentication
           </Text>
-          <Text style={[globalStyles.text, { color: theme.colors.text }]}>
+          <Text style={[styles.text, { color: theme.colors.text }]}>
             {modeTFA === "totp"
               ? "Enter the code from your authenticator app"
               : "Enter the code sent to your email"}
           </Text>
           <TextInput
             ref={TFACodeRef}
-            style={[globalStyles.input, { color: theme.colors.text }]}
+            style={[styles.input, { color: theme.colors.text }]}
             placeholder="Enter code"
             keyboardType="numeric"
             autoComplete="one-time-code"
@@ -253,24 +261,18 @@ export default function Login() {
             value={TFACode}
             onChangeText={setTFACode}
           />
-          <Button
-            style={[
-              globalStyles.button,
-              { marginTop: spacing.medium, width: "100%" },
-            ]}
-            color={theme.colors.primary}
-            onPress={handleVerify}
-          >
-            Verify
-          </Button>
         </GenericModal>
 
         {/* links to vrchat modal */}
-        <GenericModal open={openLinks} onClose={() => setOpenLinks(false)}>
+        <GenericModal
+          buttonItems={[{ title: "Close", onPress: () => setOpenLinks(false), flex: 1 }]}
+          open={openLinks}
+          onClose={() => setOpenLinks(false)}
+        >
           <Text
             style={[
-              globalStyles.subheader,
-              globalStyles.headerContainer,
+              styles.header,
+              styles.headerContainer,
               { color: theme.colors.text },
             ]}
           >
@@ -278,13 +280,13 @@ export default function Login() {
           </Text>
           <View
             style={[
-              globalStyles.containerVertical,
+              styles.containerVertical,
               { padding: spacing.medium },
             ]}
           >
             <Text
               style={[
-                globalStyles.text,
+                styles.text,
                 {
                   color: theme.colors.text,
                   fontSize: fontSize.medium,
@@ -300,7 +302,7 @@ export default function Login() {
             </Text>
             <Text
               style={[
-                globalStyles.text,
+                styles.text,
                 {
                   color: theme.colors.text,
                   fontSize: fontSize.medium,
@@ -314,15 +316,75 @@ export default function Login() {
             </Text>
           </View>
 
-          <Button
-            style={[globalStyles.button, { marginBottom: spacing.small }]}
-            color={theme.colors.text}
-            onPress={() => setOpenLinks(false)}
-          >
-            Close
-          </Button>
         </GenericModal>
       </GenericScreen>
     </KeyboardAvoidingView>
   );
 }
+
+const styles = StyleSheet.create({
+  // container styles
+  container: {
+    padding: spacing.small,
+  },
+  containerCentered: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: spacing.small,
+  },
+  containerVertical: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    width: '100%',
+    padding: spacing.small,
+  },
+  containerHorizontal: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    width: '100%',
+    padding: spacing.small,
+  },
+  headerContainer: {
+    width: '100%',
+    padding: spacing.small,
+    textAlign: "center",
+    // borderColor: 'blue', borderWidth: 1, borderStyle: 'solid',
+  },
+  //text Styles
+  header: {
+    fontSize: fontSize.medium,
+    fontWeight: "bold",
+  },
+  text: {
+    fontSize: fontSize.medium,
+    fontWeight: "normal"
+  },
+  description: {
+    fontSize: fontSize.small,
+    fontWeight: "normal"
+  },
+
+  // form elements
+  input: {
+    borderColor: 'gray',
+    borderWidth: 1,
+    width: '100%',
+    padding: spacing.medium,
+  },
+  button: {
+    // padding: spacing.medium,
+    borderRadius: 5,
+  },
+
+
+  // repeating items except for the first one
+  repeatingitemVertical: {
+    marginTop: spacing.small,
+  },
+  repeatingitemHorizontal: {
+    marginLeft: spacing.small,
+  },
+})

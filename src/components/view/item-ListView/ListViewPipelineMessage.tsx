@@ -1,4 +1,4 @@
-import globalStyles, { spacing } from "@/configs/styles";
+import globalStyles, { fontSize, spacing } from "@/configs/styles";
 import { StyleSheet, View } from "react-native";
 import BaseListView from "./BaseListView";
 import { PipelineContent, PipelineMessage } from "@/vrchat/pipline/type";
@@ -61,8 +61,8 @@ const ListViewPipelineMessage = ({
       onPress={onPress}
       onLongPress={onLongPress}
       ContainerStyle={styles.container}
-      TitleStyle={globalStyles.description}
-      SubtitleStyle={globalStyles.text}
+      TitleStyle={styles.title}
+      SubtitleStyle={styles.subtitle}
       {...rest}
     />
   );
@@ -72,15 +72,13 @@ const styles = StyleSheet.create({
   container: {
     padding: spacing.small,
   },
-  title: {
-
-    // borderColor: "blue", borderStyle: "dotted", borderWidth: 1
-  },
   subtitle: {
-    display: "flex",
-    flexDirection: "row",
-    // maxWidth: "100%",
-    // borderColor: "blue", borderStyle: "dotted", borderWidth: 1
+    fontSize: fontSize.medium,
+    fontWeight: "normal"
+  },
+  title: {
+    fontSize: fontSize.small,
+    fontWeight: "normal"
   },
   overlap: {
     position: "absolute",

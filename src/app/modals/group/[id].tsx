@@ -1,5 +1,5 @@
 import GenericScreen from "@/components/layout/GenericScreen";
-import DetailItemContainer from "@/features/detail/DetailItemContainer";
+import DetailItemContainer from "@/components/features/detail/DetailItemContainer";
 import CardViewGroupDetail from "@/components/view/item-CardView/detail/CardViewGroupDetail";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
 import { fontSize, radius, spacing } from "@/configs/styles";

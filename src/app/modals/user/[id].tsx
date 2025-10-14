@@ -1,5 +1,5 @@
-import GenericScreen, { MenuItem } from "@/components/layout/GenericScreen";
-import DetailItemContainer from "@/features/detail/DetailItemContainer";
+import GenericScreen from "@/components/layout/GenericScreen";
+import DetailItemContainer from "@/components/features/detail/DetailItemContainer";
 import LinkChip from "@/components/view/chip-badge/LinkChip";
 import CardViewUserDetail from "@/components/view/item-CardView/detail/CardViewUserDetail";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
@@ -11,13 +11,16 @@ import { getInstanceType, getUserIconUrl, getUserProfilePicUrl, parseLocationStr
 import { User } from "@/vrchat/api";
 import { useTheme } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Platform, TouchableOpacity } from "react-native";
 import { KeyboardAvoidingView, KeyboardAvoidingViewComponent, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { routeToInstance } from "@/libs/route";
 import BadgeChip from "@/components/view/chip-badge/BadgeChip";
 import { useData } from "@/contexts/DataContext";
 import ImagePreview from "@/components/view/ImagePreview";
+import { MenuItem } from "@/components/layout/type";
+import ChangeNoteModal from "@/components/features/detail/user/ChangeNoteModal";
+import ChangeFavoriteModal from "@/components/features/detail/ChangeFavoriteModal";
 
 export default function UserDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -35,13 +38,19 @@ export default function UserDetail() {
     capacity?: string | undefined;
   }>();
 
-  const [editNote, setEditNote] = useState(false);
-  const editting = React.useRef<string>("");
-
   const [preview, setPreview] = useState({ imageUrl: "", open: false });
-  
+
+  const [openChangeNote, setOpenChangeNote] = useState(false);
+  const [openChangeFriend, setOpenChangeFriend] = useState(false);
+  const [openChangeFavorite, setOpenChangeFavorite] = useState(false);
 
   const isFavorite = data.favorites.data.some(fav => fav.favoriteId === id && fav.type === "friend");
+
+  const fetchUser = () => {
+    cache.user.get(id, true) // force latest data
+    .then(setUser)
+    .catch(console.error);
+  }
 
   const fetchLocationInfo = async () => {
     if (!user?.location) return;
@@ -87,30 +96,13 @@ export default function UserDetail() {
   };
 
   useEffect(() => {
-    cache.user.get(id, true) // force latest data
-    .then(setUser)
-    .catch(console.error);
+    fetchUser();
   }, []);
 
   useEffect(() => {
     fetchLocationInfo();
   }, [user?.location]);
 
-  const handleEditNote = () => {
-    editting.current = user?.note ?? "";
-    setEditNote(p => !p);
-  };
-  const handleSubmitNote = () => {
-    vrc.usersApi.updateUserNote({ updateUserNoteRequest: {
-      targetUserId: id,
-      note: editting.current,
-    }}).then(res => {
-      res.status === 200 && setUser(u => u ? { ...u, note: editting.current } : u);
-    }).catch(err => {
-      console.error("Error updating user note:", extractErrMsg(err));
-    });
-    setEditNote(false);
-  }
 
   const handleAddFavorite = (name:string) => {
     vrc.favoritesApi.addFavorite({addFavoriteRequest: {
@@ -118,7 +110,6 @@ export default function UserDetail() {
       type: "friend",
       tags: name ? [name] : [], // ex. group_0
     }}).then(res => {
-      if (res.status !== 200) return;
       data.favorites.set((prev) => [...prev, res.data]); // update cache
     }).catch(err => {
       console.error("Error adding favorite:", extractErrMsg(err));
@@ -128,7 +119,6 @@ export default function UserDetail() {
     vrc.favoritesApi.removeFavorite({
       favoriteId: id,
     }).then(res => {
-      if (res.status !== 200) return;
       data.favorites.set((prev) => prev.filter(fav => fav.favoriteId !== id)); // update cache
     }).catch(err => {
       console.error("Error removing favorite:", extractErrMsg(err));
@@ -139,18 +129,26 @@ export default function UserDetail() {
     {
       icon: user?.isFriend ? "account-multiple-minus" : "account-multiple-plus",
       title: user?.isFriend ? "Remove Friend" : "Add Friend",
-      onPress: user?.isFriend ? () => console.log("remove friend modal") : () => console.log("add friend modal"),
+      onPress: () => setOpenChangeFriend(true)
     },
     {
       icon: isFavorite ? "heart-minus" : "heart-plus",
-      title: isFavorite ? "Remove Favorite" : "Add Favorite",
-      onPress: isFavorite ? () => console.log("remove favorite modal") : () => console.log("add favorite modal"),
+      title: isFavorite ? "Edit Favorite Group" : "Add Favorite Group",
+      onPress: () => setOpenChangeFavorite(true),
     },
+    { 
+      type: "divider"
+    }, 
     {
       icon: "hanger",
       title: "Current Avatar",
       onPress: () => console.log("go to current avatar"),
-    }
+    },
+    {
+      icon: "note-edit-outline",
+      title: "Edit Note",
+      onPress: () => setOpenChangeNote(true),
+    },
 
   ];
 
@@ -204,30 +202,9 @@ export default function UserDetail() {
               
             </DetailItemContainer>
 
-            <DetailItemContainer
-              title="Note"
-              iconButtonConfig={
-                editNote ? [
-                  { name: "close", onPress: handleEditNote },
-                  // { name: "save", onPress: () => handleSubmitNote(editting.current) },
-                ] : [
-                  { name: "edit", onPress: handleEditNote }
-                ]}
-            >
+            <DetailItemContainer title="Note">
               <View style={styles.detailItemContent}>
-                {editNote ?
-                    <TextInput
-                      style={{ color: theme.colors.text, borderColor: theme.colors.border, borderWidth: 1, borderRadius: radius.small, padding: spacing.small }}
-                      defaultValue={user.note}
-                      onChange={e => editting.current = e.nativeEvent.text}
-                      autoFocus
-                      placeholder="Add a note"
-                      multiline
-                      numberOfLines={4}
-                      onBlur={handleSubmitNote} // submit on blur
-                    />
-                  : <Text style={{ color: theme.colors.text }}>{user.note}</Text>
-                }
+                <Text style={{ color: theme.colors.text }}>{user.note}</Text>
               </View>
             </DetailItemContainer>
 
@@ -272,10 +249,25 @@ export default function UserDetail() {
       ) : (
         <LoadingIndicator absolute />
       )}
+
+      {/* dialog and modals */}
       <ImagePreview
         imageUrls={[preview.imageUrl]}
         open={preview.open}
         onClose={() => setPreview({ imageUrl: "", open: false })}
+      />
+      <ChangeNoteModal
+        open={openChangeNote}
+        setOpen={setOpenChangeNote}
+        user={user}
+        onSuccess={fetchUser}
+      />
+      <ChangeFavoriteModal
+        open={openChangeFavorite}
+        setOpen={setOpenChangeFavorite}
+        item={user}
+        type="friend"
+        onSuccess={data.favorites.fetch}
       />
     </GenericScreen>
     </KeyboardAvoidingView>
@@ -304,6 +296,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
+  },
+  noteInput: {
+    borderWidth: 1, 
+    borderRadius: radius.small, 
+    padding: spacing.small
   },
   detailItemContent: {
     flex: 1,

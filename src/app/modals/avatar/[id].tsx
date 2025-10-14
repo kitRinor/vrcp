@@ -1,5 +1,5 @@
-import GenericScreen, { MenuItem } from "@/components/layout/GenericScreen";
-import DetailItemContainer from "@/features/detail/DetailItemContainer";
+import GenericScreen from "@/components/layout/GenericScreen";
+import DetailItemContainer from "@/components/features/detail/DetailItemContainer";
 import CardViewAvatarDetail from "@/components/view/item-CardView/detail/CardViewAvatarDetail";
 import LoadingIndicator from "@/components/view/LoadingIndicator";
 import { fontSize, radius, spacing } from "@/configs/styles";
@@ -17,6 +17,7 @@ import { getAuthorTags, getPlatform, getTrustRankColor } from "@/libs/vrchat";
 import PlatformChips from "@/components/view/chip-badge/PlatformChips";
 import TagChips from "@/components/view/chip-badge/TagChips";
 import { useData } from "@/contexts/DataContext";
+import { MenuItem } from "@/components/layout/type";
 
 export default function AvatarDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();

@@ -20,7 +20,11 @@ const DevelopperModal = ({ open, setOpen }: Props) => {
   const theme = useTheme();
 
   return (
-    <GenericModal open={open} onClose={() => setOpen(false)}>
+    <GenericModal
+      buttonItems={[{ title: "Close", onPress: () => setOpen(false), flex: 1 }]}
+      open={open}
+      onClose={() => setOpen(false)}
+    >
       <Text
         style={[
           globalStyles.header,
@@ -30,17 +34,6 @@ const DevelopperModal = ({ open, setOpen }: Props) => {
       >
         Development Features
       </Text>
-
-      <Button
-        style={[
-          globalStyles.button,
-          { marginTop: spacing.medium, width: "100%" },
-        ]}
-        color={theme.colors.text}
-        onPress={() => setOpen(false)}
-      >
-        close
-      </Button>
     </GenericModal>
   );
 };

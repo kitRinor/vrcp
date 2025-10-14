@@ -5,7 +5,7 @@ import LoadingIndicator from "@/components/view/LoadingIndicator";
 import { spacing } from "@/configs/styles";
 import { useData } from "@/contexts/DataContext";
 import { useVRChat } from "@/contexts/VRChatContext";
-import SeeMoreContainer from "@/features/home/SeeMoreContainer";
+import SeeMoreContainer from "@/components/features/home/SeeMoreContainer";
 import { calcFriendsLocations } from "@/libs/funcs/calcFriendLocations";
 import { routeToFeeds, routeToFriendLocations, routeToInstance, routeToWorld } from "@/libs/route";
 import { InstanceLike } from "@/libs/vrchat";

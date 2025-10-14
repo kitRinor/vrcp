@@ -1,0 +1,22 @@
+import { DimensionValue } from "react-native";
+import { SupportedIconNames } from "../view/icon-components/utils";
+
+export interface ButtonItem {
+  title: string;
+  onPress: () => void;
+  color?: string;
+  disabled?: boolean;
+}
+export interface ButtonItemForFooter extends ButtonItem {
+  flex?: number;
+  width?: DimensionValue;
+  // align?: "left" | "right";
+}
+
+
+export interface MenuItem {
+  icon?: SupportedIconNames;
+  title?: string;
+  onPress?: () => void;
+  type?: "button" | "divider";
+}

@@ -30,7 +30,7 @@ const darkTheme = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
-    primary: "#11acd2ff",
+    primary: "#19c6ffff",
     error: "#ff2020ff",
     success: "#70ff50ff",
     warning: "#ffcc00ff",
@@ -43,6 +43,7 @@ const darkTheme = {
     card: "#313131ff",
     paper: "#222222ff",
     background: "#000000ff",
+  
   },
 };
 

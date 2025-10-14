@@ -22,3 +22,13 @@ export function getUserAgent (): string {
   const contact = Constants.expoConfig?.extra?.vrcmm?.contact || "dev@ktrn.dev";
   return `${name}/${version} ${contact}`;
 }
+
+export function getTintedColor (hexColor: string): string {
+  const r = parseInt(hexColor.slice(1, 3), 16);
+  const g = parseInt(hexColor.slice(3, 5), 16);
+  const b = parseInt(hexColor.slice(5, 7), 16);
+  const a = hexColor.length == 9 ? parseInt(hexColor.slice(7, 9), 16) : 255;
+  const newAlpha = Math.floor(a * 0.2);
+  const newHex = `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}${newAlpha.toString(16).padStart(2, "0")}`;
+  return newHex;
+}

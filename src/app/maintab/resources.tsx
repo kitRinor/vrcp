@@ -6,7 +6,7 @@ import { spacing } from "@/configs/styles";
 import { useVRChat } from "@/contexts/VRChatContext";
 import { extractErrMsg } from "@/libs/utils";
 import { routeToAvatar, routeToWorld } from "@/libs/route";
-import { Avatar, LimitedWorld, Print } from "@/vrchat/api";
+import { Avatar, LimitedWorld, OrderOption, Print, SortOption } from "@/vrchat/api";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { useTheme } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -39,6 +39,8 @@ export default function Resources() {
           n: NumPerReq,
           user: "me",
           releaseStatus: "all",
+          sort: SortOption.Updated,
+          order: OrderOption.Descending,
         });
         if (res.data.length === 0) {
           offset.current = -1; // reset offset if no more data
@@ -100,6 +102,8 @@ export default function Resources() {
           n: NumPerReq,
           user: "me",
           releaseStatus: "all",
+          sort: SortOption.Updated,
+          order: OrderOption.Descending,
         });
         if (res.data.length === 0) {
           offset.current = -1; // reset offset if no more data
@@ -166,6 +170,8 @@ export default function Resources() {
           params: {
             offset: offset.current,
             n: NumPerReq,
+            sort: SortOption.Updated,
+            order: OrderOption.Descending,
           }
         });
         if (res.data.length === 0) {
@@ -194,7 +200,6 @@ export default function Resources() {
     return (
       <View style={styles.tabpanel}>
         {isLoading && <LoadingIndicator absolute />}
-        <ImagePreview imageUrls={previewImageUrls} initialIdx={preview.idx} open={preview.open} onClose={() => setPreview({ idx: 0, open: false })} />
         <FlatList
           data={prints}
           keyExtractor={(item) => item.id}
@@ -214,6 +219,9 @@ export default function Resources() {
           onRefresh={reload}
           refreshing={isLoading}
         />
+        
+        {/* dialog and modals */}
+        <ImagePreview imageUrls={previewImageUrls} initialIdx={preview.idx} open={preview.open} onClose={() => setPreview(prev => ({ ...prev, open: false }))} />
       </View>
     );
   };

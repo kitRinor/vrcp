@@ -12,16 +12,21 @@ const fontSize = {
   large: 20,
 };
 const spacing = {
+  none: 0,
   mini: 2,
   small: 6,
   medium: 10,
   large: 15,
 };
 const radius = {
+  none: 0,
   small: 8,
   medium: 16,
   large: 24,
   all: 1000,
+  // specific items
+  button: 5,
+  input: 2,
 }
 const navigationBarHeight = Platform.OS === 'ios' ? 44 : 56; // default 56dp
 
@@ -82,7 +87,7 @@ const globalStyles = StyleSheet.create({
     padding: spacing.medium,
   },
   button: {
-    padding: spacing.medium,
+    // padding: spacing.medium,
     borderRadius: 5,
   },
   linkText: { // button with no background

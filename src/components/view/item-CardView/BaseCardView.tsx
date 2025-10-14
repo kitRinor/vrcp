@@ -1,11 +1,11 @@
-import GenericTouchable from "@/components/layout/GenericTouchable";
+import { TouchableOpacity } from "@/components/CustomElements";
 import { fontSize, radius, spacing } from "@/configs/styles";
 import { CachedImage } from "@/contexts/CacheContext";
 import { omitObject } from "@/libs/utils";
 import { Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
 import { useRef } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 
 interface Props<T> {
   data: T;
@@ -43,7 +43,7 @@ const BaseCardView = <T,>({
       style={[styles.root, rest.style]}
       {...omitObject(rest, "style", "ImageStyle", "FooterStyle", "TitleStyle")}
     >
-      <GenericTouchable
+      <TouchableOpacity
         onPress={onPress}
         onLongPress={onLongPress}
         style={[styles.base, { backgroundColor: theme.colors.card }]}
@@ -59,7 +59,7 @@ const BaseCardView = <T,>({
             </Text>
           </View>
         <View style={styles.overlap}>{OverlapComponents}</View>
-      </GenericTouchable>
+      </TouchableOpacity>
     </View>
   );
 };

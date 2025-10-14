@@ -1,5 +1,5 @@
 import GenericScreen from "@/components/layout/GenericScreen";
-import DetailItemContainer from "@/features/detail/DetailItemContainer";
+import DetailItemContainer from "@/components/features/detail/DetailItemContainer";
 import BadgeChip from "@/components/view/chip-badge/BadgeChip";
 import LinkChip from "@/components/view/chip-badge/LinkChip";
 import RegionBadge from "@/components/view/chip-badge/RegionBadge";
@@ -20,16 +20,39 @@ import {
 } from "react-native";
 import ImagePreview from "@/components/view/ImagePreview";
 import { getUserIconUrl, getUserProfilePicUrl } from "@/libs/vrchat";
+import ChangeStatusModal from "@/components/features/profile/ChangeStatusModal";
+import { MenuItem } from "@/components/layout/type";
+import ChangeBioModal from "@/components/features/profile/ChangeBioModal";
+import ChangeBioLinksModal from "@/components/features/profile/ChangeBioLinksModal";
 
 export default function Profile() {
   const vrc = useVRChat();
   const theme = useTheme();
   const { currentUser } = useData();
   const [preview, setPreview] = useState({ imageUrl: "", open: false });
+  const [openChangeStatus, setOpenChangeStatus] = useState(false);
+  const [openChangeBio, setOpenChangeBio] = useState(false);
+  const [openChangeBioLinks, setOpenChangeBioLinks] = useState(false);
 
-
+  const menuItems: MenuItem[] = [
+    {
+      icon: "playlist-edit",
+      title: "Edit Bio",
+      onPress: () => setOpenChangeBio(true),
+    },
+    {
+      icon: "link-edit",
+      title: "Edit Bio Links",
+      onPress: () => setOpenChangeBioLinks(true),
+    },
+    {
+      icon: "human-edit",
+      title: "Change Status",
+      onPress: () => setOpenChangeStatus(true),
+    },
+  ];
   return (
-    <GenericScreen>
+    <GenericScreen menuItems={menuItems}>
       {currentUser.data ? (
         <View>
           <CardViewUserDetail
@@ -93,11 +116,16 @@ export default function Profile() {
       ) : (
         <LoadingIndicator absolute />
       )}
+
+      {/* dialog and modals */}
       <ImagePreview
         imageUrls={[preview.imageUrl]}
         open={preview.open}
         onClose={() => setPreview({ imageUrl: "", open: false })}
       />
+      <ChangeStatusModal open={openChangeStatus} setOpen={setOpenChangeStatus} />
+      <ChangeBioModal open={openChangeBio} setOpen={setOpenChangeBio} />
+      <ChangeBioLinksModal open={openChangeBioLinks} setOpen={setOpenChangeBioLinks} />
     </GenericScreen>
   );
 }

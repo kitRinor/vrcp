@@ -28,7 +28,6 @@ export default function TabLayout() {
           },
           default: {},
         }),
-        headerRight: MenuButtonForHeader,
       }}
     >
       <Tabs.Screen
@@ -100,7 +99,8 @@ export default function TabLayout() {
           title: "Profile",
           tabBarIcon: ({ color }) => (
             <MaterialIcons size={28} name="account-circle" color={color} />
-          )
+          ),
+          headerRight: MenuButtonForHeader,
         }}
       />
       <Tabs.Screen

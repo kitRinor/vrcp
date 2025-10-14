@@ -6,7 +6,7 @@ import { useTheme } from "@react-navigation/native";
 import { StyleSheet, View } from "react-native";
 import IconSymbol from "../../icon-components/IconView";
 import BaseCardView from "../BaseCardView";
-import GenericTouchable from "@/components/layout/GenericTouchable";
+import { TouchableOpacity } from "@/components/CustomElements";
 
 interface Props {
   user: UserLike;
@@ -46,7 +46,7 @@ const CardViewUserDetail = ({
       OverlapComponents={
         <>
           <View style={styles.iconContainer}>
-            <GenericTouchable onPress={onPressIcon} onLongPress={onLongPressIcon}>
+            <TouchableOpacity onPress={onPressIcon} onLongPress={onLongPressIcon}>
               <CachedImage
                 src={getUserIconUrl(user, true)}
                 style={[
@@ -57,7 +57,7 @@ const CardViewUserDetail = ({
                   },
                 ]}
               />
-            </GenericTouchable>
+            </TouchableOpacity>
           </View>
           <View style={styles.underRowContainer}>
             <View style={styles.statusContainer}>

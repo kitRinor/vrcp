@@ -1,0 +1,96 @@
+import GenericModal from "@/components/layout/GenericModal";
+import { ButtonItemForFooter } from "@/components/layout/type";
+import IconSymbol from "@/components/view/icon-components/IconView";
+import LoadingIndicator from "@/components/view/LoadingIndicator";
+import globalStyles, { fontSize, radius, spacing } from "@/configs/styles";
+import { useData } from "@/contexts/DataContext";
+import { useVRChat } from "@/contexts/VRChatContext";
+import { getStatusColor } from "@/libs/vrchat";
+import { UserStatus } from "@/vrchat/api";
+import { Button, Text } from "@react-navigation/elements";
+import { useTheme } from "@react-navigation/native";
+import { useEffect, useState } from "react";
+import { Alert, FlatList, StyleSheet, View } from "react-native";
+import { TextInput } from "react-native-gesture-handler";
+
+interface Props {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+}
+
+const ChangeBioModal = ({ open, setOpen }: Props) => {
+  const theme = useTheme();
+  const vrc = useVRChat();
+  const { currentUser } = useData();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [bio, setBio] = useState<string>("");
+
+  const handleSubmitChange = async () => {
+    if (!currentUser.data) return;
+    if (isLoading) return;
+    try {
+      setIsLoading(true);
+      const res = await vrc.usersApi.updateUser({
+        userId: currentUser.data.id,
+        updateUserRequest: {
+          bio: bio,
+        },
+      });
+      currentUser.fetch();
+      setOpen(false);
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Failed to update bio.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!open) return;
+    setBio(currentUser.data?.bio || "");
+  }, [open]);
+
+  const footerButtons: ButtonItemForFooter[] = [
+    {
+      title: "Close",
+      onPress: () => setOpen(false), 
+      color: theme.colors.text,
+    },
+    {
+      title: "Update Bio",
+      onPress: handleSubmitChange,
+      color: theme.colors.primary,
+      flex: 1, 
+    },
+  ]
+  return (
+    <GenericModal buttonItems={footerButtons} open={open} onClose={() => setOpen(false)}>
+      {isLoading && <LoadingIndicator absolute />}
+      { currentUser.data && (
+        <View style={styles.container}>
+          <TextInput
+            style={[styles.input, { color: theme.colors.text, backgroundColor: theme.colors.card, borderColor: theme.colors.border }]}
+            value={bio}
+            onChangeText={setBio}
+            placeholder="Enter your new bio"
+            multiline
+            numberOfLines={10}
+          />
+        </View>
+      )}
+    </GenericModal>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+  },
+  input: {
+    borderRadius: radius.input,
+  },
+  
+});
+
+export default ChangeBioModal;

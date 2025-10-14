@@ -2,7 +2,7 @@ import globalStyles, { radius, spacing } from "@/configs/styles";
 import { Button, Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
 import { Modal, StyleSheet, View } from "react-native";
-interface GenericDialogProps {
+interface Props {
   open: boolean;
   message?: string;
   onConfirm: () => void;
@@ -24,7 +24,7 @@ const GenericDialog = ({
   colorConfirm,
   colorCancel,
 }: // children
-GenericDialogProps) => {
+Props) => {
   const theme = useTheme();
   return (
     <Modal

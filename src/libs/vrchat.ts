@@ -1,4 +1,4 @@
-import { Avatar, CurrentUser, FavoritedWorld, Group, GroupAccessType, Instance, InstanceRegion, InstanceType, LimitedGroup, LimitedUserFriend, LimitedUserInstance, LimitedUserSearch, LimitedWorld, User, UserState, World } from "@/vrchat/api";
+import { Avatar, AvatarPerformance, CurrentUser, FavoritedWorld, Group, GroupAccessType, Instance, InstanceRegion, InstanceType, LimitedGroup, LimitedUserFriend, LimitedUserInstance, LimitedUserSearch, LimitedWorld, User, UserState, UserStatus, World } from "@/vrchat/api";
 export type UserLike = LimitedUserSearch | LimitedUserFriend | LimitedUserInstance | User | CurrentUser
 export type WorldLike = LimitedWorld | FavoritedWorld | World
 export type GroupLike = LimitedGroup | Group
@@ -18,23 +18,37 @@ type MinInstance = Pick< Instance, "id" | "instanceId" | "worldId" | "name" | "n
 // get ImageUrls from user 
 
 export function getUserIconUrl(user: UserLike, highRes = false): string {
-  if (user.userIcon && user.userIcon.length > 0) {
+  if (user.userIcon?.length) {
     return user.userIcon;
   }
-  if (user.profilePicOverride && user.profilePicOverride.length > 0) {
+  if (user.profilePicOverride?.length) {
     return user.profilePicOverride;
   }
   return highRes
-  ? user.currentAvatarImageUrl
-  : user.currentAvatarThumbnailImageUrl ?? user.currentAvatarImageUrl;
+  ? (
+    user.currentAvatarImageUrl.length 
+    ? user.currentAvatarImageUrl 
+    : user.currentAvatarThumbnailImageUrl ?? ""
+  ) : (
+    user.currentAvatarThumbnailImageUrl?.length 
+    ? user.currentAvatarThumbnailImageUrl 
+    : user.currentAvatarImageUrl
+  );
 }
 export function getUserProfilePicUrl(user: UserLike, highRes = false): string {
-  if (user.profilePicOverride && user.profilePicOverride.length > 0) {
+  if (user.profilePicOverride?.length) {
     return user.profilePicOverride;
   }
   return highRes
-  ? user.currentAvatarImageUrl
-  : user.currentAvatarThumbnailImageUrl ?? user.currentAvatarImageUrl;
+  ? (
+    user.currentAvatarImageUrl.length 
+    ? user.currentAvatarImageUrl 
+    : user.currentAvatarThumbnailImageUrl ?? ""
+  ) : (
+    user.currentAvatarThumbnailImageUrl?.length 
+    ? user.currentAvatarThumbnailImageUrl 
+    : user.currentAvatarImageUrl
+  );
 }
 
 // parse location string
@@ -136,12 +150,13 @@ export function getState(user: LimitedUserFriend): UserState | undefined {
 }
 
 
-export function getStatusColor(user: StatusGettableUser) {
-  if (user.status == "join me") return "#00bbffff" // join me
-  if (user.status == "active") return "#59ff00ff" // online
-  if (user.status == "ask me") return "#ff7b00ff" // ask me
-  if (user.status == "busy") return "#b10000ff" // don't disturb
-  if (user.status == "offline") return "#595959ff" // offline
+export function getStatusColor(userOrStr: StatusGettableUser | string ): string {
+  const status = typeof userOrStr === "string" ? userOrStr : userOrStr.status;
+  if (status == "join me") return "#00bbffff" // join me
+  if (status == "active") return "#59ff00ff" // online
+  if (status == "ask me") return "#ff7b00ff" // ask me
+  if (status == "busy") return "#b10000ff" // don't disturb
+  if (status == "offline") return "#595959ff" // offline
   return "#000000ff";
 }
 
@@ -196,16 +211,19 @@ export function getReleaseStatusColor(data: AvatarLike | WorldLike) {
   return "#000000ff";
 }
 
-export function getPlatform (data: AvatarLike | WorldLike) {
-  const platforms: string[] = []
-  if ("performance" in data) {
-    if (data.performance.standalonewindows) platforms.push("standalonewindows");
-    if (data.performance.android) platforms.push("android");
-    if (data.performance.ios) platforms.push("ios");
-  } else if ("unityPackages" in data) {
-    if (data.unityPackages?.some(pkg => pkg.platform == "standalonewindows")) platforms.push("standalonewindows");
-    if (data.unityPackages?.some(pkg => pkg.platform == "android")) platforms.push("android");
-    if (data.unityPackages?.some(pkg => pkg.platform == "ios")) platforms.push("ios");
+export function getPlatform (data: AvatarLike | WorldLike): {
+  platform: string;
+  avatarPerformance?: string;
+}[] {
+  const platforms: { platform: string; avatarPerformance?: string }[] = [];
+  if ("performance" in data) { // Avatar
+    if (data.performance.standalonewindows) platforms.push({ platform: "standalonewindows", avatarPerformance: data.performance.standalonewindows });
+    if (data.performance.android) platforms.push({ platform: "android", avatarPerformance: data.performance.android });
+    if (data.performance.ios) platforms.push({ platform: "ios", avatarPerformance: data.performance.ios });
+  } else if ("unityPackages" in data) { // World
+    if (data.unityPackages?.some(pkg => pkg.platform == "standalonewindows")) platforms.push({ platform: "standalonewindows" });
+    if (data.unityPackages?.some(pkg => pkg.platform == "android")) platforms.push({ platform: "android" });
+    if (data.unityPackages?.some(pkg => pkg.platform == "ios")) platforms.push({ platform: "ios" });
   }
   return platforms;
 }

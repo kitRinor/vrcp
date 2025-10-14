@@ -1,23 +1,19 @@
-import { SupportedIconNames } from "../view/icon-components/utils";
-
-
-export interface QuickMenuItem {
-  icon?: SupportedIconNames;
-  title: string;
-  onPress: () => void;
-}
+import { MenuItem } from "./type";
 
 interface Props {
-  items: QuickMenuItem[];
+  items: MenuItem[];
   onOpen?: () => void;
   open?: boolean;
   setOpen?: (open: boolean) => void;
+  children?: React.ReactNode;
 }
 
-const QuickMenu = ({ items, onOpen, open, setOpen }: Props) => {
+const WithQuickMenu = ({ items, onOpen, open, setOpen, children }: Props) => {
   return (
-    <></>
+    <>
+      {children}
+    </>
   )
 }
 
-export default QuickMenu;
+export default WithQuickMenu;

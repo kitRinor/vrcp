@@ -36,7 +36,11 @@ const UIModal = ({ open, setOpen }: Props) => {
   ]
 
   return (
-    <GenericModal open={open} onClose={() => setOpen(false)}>
+    <GenericModal
+      buttonItems={[{ title: "Close", onPress: () => setOpen(false), flex: 1 }]}
+      open={open}
+      onClose={() => setOpen(false)}
+    >
       <Text
         style={[
           globalStyles.header,
@@ -65,21 +69,11 @@ const UIModal = ({ open, setOpen }: Props) => {
       <Text style={[globalStyles.subheader, { color: theme.colors.text }]}>
         User Color
       </Text>
+
       <View style={globalStyles.container}>
 
-
-
       </View>
-      <Button
-        style={[
-          globalStyles.button,
-          { marginTop: spacing.medium, width: "100%" },
-        ]}
-        color={theme.colors.text}
-        onPress={() => setOpen(false)}
-      >
-        close
-      </Button>
+
     </GenericModal>
   );
 };

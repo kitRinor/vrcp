@@ -1,5 +1,5 @@
-import GenericScreen, { MenuItem } from "@/components/layout/GenericScreen";
-import DetailItemContainer from "@/features/detail/DetailItemContainer";
+import GenericScreen from "@/components/layout/GenericScreen";
+import DetailItemContainer from "@/components/features/detail/DetailItemContainer";
 import PlatformChips from "@/components/view/chip-badge/PlatformChips";
 import TagChips from "@/components/view/chip-badge/TagChips";
 import CardViewWorldDetail from "@/components/view/item-CardView/detail/CardViewWorldDetail";
@@ -27,6 +27,7 @@ import { TouchableOpacity } from "react-native";
 import UserChip from "@/components/view/chip-badge/UserChip";
 import { routeToSearch, routeToUser } from "@/libs/route";
 import { useData } from "@/contexts/DataContext";
+import { MenuItem } from "@/components/layout/type";
 
 export default function WorldDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();

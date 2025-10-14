@@ -1,22 +1,24 @@
 import { omitObject } from "@/libs/utils";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
-import { TouchableOpacity } from "react-native";
 import { isMaterialIconsName, SupportedIconNames } from "./utils";
+import { TouchableOpacity } from "@/components/CustomElements";
 
 interface Props {
-  onPress: () => void;
+  onPress?: () => void;
+  onPressIn?: () => void;
+  onPressOut?: () => void;
+  onLongPress?: () => void;
   name: SupportedIconNames;
   color?: string;
   size?: number;
   [key: string]: any;
 }
 
-const IconButton = ({ onPress, name, color, size, ...rest }: Props) => {
+const IconButton = ({ onPress, onPressIn, onPressOut, onLongPress, name, color, size, ...rest }: Props) => {
   const theme = useTheme();
   return (
     <TouchableOpacity
-      activeOpacity={0.7}
       style={[
         {
           display: "flex",
@@ -28,6 +30,9 @@ const IconButton = ({ onPress, name, color, size, ...rest }: Props) => {
       {...omitObject(rest, "style")}
       // style={{borderColor: "black", borderWidth: 1, borderStyle: "solid"}}
       onPress={onPress}
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+      onLongPress={onLongPress}
     >
       {isMaterialIconsName(name) ? (
         <MaterialIcons
