@@ -104,28 +104,6 @@ export default function UserDetail() {
     fetchLocationInfo();
   }, [user?.location]);
 
-
-  const handleAddFavorite = (name:string) => {
-    vrc.favoritesApi.addFavorite({addFavoriteRequest: {
-      favoriteId: id,
-      type: "friend",
-      tags: name ? [name] : [], // ex. group_0
-    }}).then(res => {
-      data.favorites.set((prev) => [...prev, res.data]); // update cache
-    }).catch(err => {
-      console.error("Error adding favorite:", extractErrMsg(err));
-    });
-  };
-  const handleRemoveFavorite = () => {
-    vrc.favoritesApi.removeFavorite({
-      favoriteId: id,
-    }).then(res => {
-      data.favorites.set((prev) => prev.filter(fav => fav.favoriteId !== id)); // update cache
-    }).catch(err => {
-      console.error("Error removing favorite:", extractErrMsg(err));
-    });
-  };
-
   const freReqStatus = user ? getFriendRequestStatus(user) : "null";
   const menuItems: MenuItem[] = [
     {
@@ -134,7 +112,7 @@ export default function UserDetail() {
       onPress: () => setOpenChangeFriend(true)
     },
     {
-      icon: isFavorite ? "heart-minus" : "heart-plus",
+      icon: isFavorite ? "heart" : "heart-plus",
       title: isFavorite ? "Edit Favorite Group" : "Add Favorite Group",
       onPress: () => setOpenChangeFavorite(true),
     },

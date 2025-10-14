@@ -18,6 +18,7 @@ import PlatformChips from "@/components/view/chip-badge/PlatformChips";
 import TagChips from "@/components/view/chip-badge/TagChips";
 import { useData } from "@/contexts/DataContext";
 import { MenuItem } from "@/components/layout/type";
+import ChangeFavoriteModal from "@/components/features/detail/ChangeFavoriteModal";
 
 export default function AvatarDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -27,6 +28,8 @@ export default function AvatarDetail() {
   const theme = useTheme();
   const [avatar, setAvatar] = useState<Avatar>();
   const [author, setAuthor] = useState<User>();
+
+  const [openChangeFavorite, setOpenChangeFavorite] = useState(false);
 
   const isFavorite = data.favorites.data.some(fav => fav.favoriteId === id && fav.type === "avatar");
 
@@ -75,9 +78,9 @@ export default function AvatarDetail() {
 
   const menuItems: MenuItem[] = [
     {
-      icon: isFavorite ? "heart-minus" : "heart-plus",
-      title: isFavorite ? "Remove Favorite" : "Add Favorite",
-      onPress: isFavorite ? () => console.log("remove favorite modal") : () => console.log("add favorite modal"),
+      icon: isFavorite ? "heart" : "heart-plus",
+      title: isFavorite ? "Edit Favorite Group" : "Add Favorite Group",
+      onPress: () => setOpenChangeFavorite(true),
     },
   ];
 
@@ -127,6 +130,17 @@ export default function AvatarDetail() {
       ) : (
         <LoadingIndicator absolute />
       )}
+
+      
+      {/* dialog and modals */}
+      
+      <ChangeFavoriteModal
+        open={openChangeFavorite}
+        setOpen={setOpenChangeFavorite}
+        item={avatar}
+        type="avatar"
+        onSuccess={data.favorites.fetch}
+      />
     </GenericScreen>
   );
 }

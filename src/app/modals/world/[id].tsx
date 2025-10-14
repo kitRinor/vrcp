@@ -28,6 +28,7 @@ import UserChip from "@/components/view/chip-badge/UserChip";
 import { routeToSearch, routeToUser } from "@/libs/route";
 import { useData } from "@/contexts/DataContext";
 import { MenuItem } from "@/components/layout/type";
+import ChangeFavoriteModal from "@/components/features/detail/ChangeFavoriteModal";
 
 export default function WorldDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -38,6 +39,8 @@ export default function WorldDetail() {
   const [world, setWorld] = useState<World>();
   const [author, setAuthor] = useState<User>();
   const [mode, setMode] = useState<"info" | "instance">("info");
+
+  const [openChangeFavorite, setOpenChangeFavorite] = useState(false);
   
   const isFavorite = data.favorites.data.some(fav => fav.favoriteId === id && fav.type === "world");
 
@@ -88,35 +91,13 @@ export default function WorldDetail() {
     return sortedInstances;
   };
 
-  const handleAddFavorite = (name:string) => {
-    vrc.favoritesApi.addFavorite({addFavoriteRequest: {
-      favoriteId: id,
-      type: "world",
-      tags: name ? [name] : [], // ex. worlds1
-    }}).then(res => {
-      if (res.status !== 200) return;
-      data.favorites.set((prev) => [...prev, res.data]); // update cache
-    }).catch(err => {
-      console.error("Error adding favorite:", extractErrMsg(err));
-    });
-  };
-  const handleRemoveFavorite = () => {
-    vrc.favoritesApi.removeFavorite({
-      favoriteId: id,
-    }).then(res => {
-      if (res.status !== 200) return;
-      data.favorites.set((prev) => prev.filter(fav => fav.favoriteId !== id)); // update cache
-    }).catch(err => {
-      console.error("Error removing favorite:", extractErrMsg(err));
-    });
-  };
 
 
   const menuItems: MenuItem[] = [
     {
-      icon: isFavorite ? "heart-minus" : "heart-plus",
-      title: isFavorite ? "Remove Favorite" : "Add Favorite",
-      onPress: isFavorite ? () => console.log("remove favorite modal") : () => console.log("add favorite modal"),
+      icon: isFavorite ? "heart" : "heart-plus",
+      title: isFavorite ? "Edit Favorite Group" : "Add Favorite Group",
+      onPress: () => setOpenChangeFavorite(true),
     },
   ];
 
@@ -206,6 +187,16 @@ export default function WorldDetail() {
       ) : (
         <LoadingIndicator absolute />
       )}
+
+      {/* dialog and modals */}
+      
+      <ChangeFavoriteModal
+        open={openChangeFavorite}
+        setOpen={setOpenChangeFavorite}
+        item={world}
+        type="world"
+        onSuccess={data.favorites.fetch}
+      />
     </GenericScreen>
   );
 }
