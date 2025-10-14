@@ -7,7 +7,7 @@ import { fontSize, radius, spacing } from "@/configs/styles";
 import { CachedImage, useCache } from "@/contexts/CacheContext";
 import { useVRChat } from "@/contexts/VRChatContext";
 import { extractErrMsg } from "@/libs/utils";
-import { getInstanceType, getUserIconUrl, getUserProfilePicUrl, parseLocationString } from "@/libs/vrchat";
+import { getFriendRequestStatus, getInstanceType, getUserIconUrl, getUserProfilePicUrl, parseLocationString } from "@/libs/vrchat";
 import { User } from "@/vrchat/api";
 import { useTheme } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
@@ -21,6 +21,7 @@ import ImagePreview from "@/components/view/ImagePreview";
 import { MenuItem } from "@/components/layout/type";
 import ChangeNoteModal from "@/components/features/detail/user/ChangeNoteModal";
 import ChangeFavoriteModal from "@/components/features/detail/ChangeFavoriteModal";
+import ChangeFriendModal from "@/components/features/detail/user/ChangeFriendModal";
 
 export default function UserDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -125,10 +126,11 @@ export default function UserDetail() {
     });
   };
 
+  const freReqStatus = user ? getFriendRequestStatus(user) : "null";
   const menuItems: MenuItem[] = [
     {
-      icon: user?.isFriend ? "account-multiple-minus" : "account-multiple-plus",
-      title: user?.isFriend ? "Remove Friend" : "Add Friend",
+      icon: freReqStatus === "completed" ? "account-minus" : freReqStatus === "null" ? "account-plus" : "account-cancel",
+      title: freReqStatus === "completed" ? "Remove Friend" : freReqStatus === "null" ? "Send Friend Request" : "Cancel Friend Request",
       onPress: () => setOpenChangeFriend(true)
     },
     {
@@ -268,6 +270,12 @@ export default function UserDetail() {
         item={user}
         type="friend"
         onSuccess={data.favorites.fetch}
+      />
+      <ChangeFriendModal
+        open={openChangeFriend}
+        setOpen={setOpenChangeFriend}
+        user={user}
+        onSuccess={fetchUser}
       />
     </GenericScreen>
     </KeyboardAvoidingView>

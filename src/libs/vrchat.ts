@@ -195,6 +195,13 @@ export function isSupporter(user: UserLike): boolean {
   return tags.includes("system_supporter");
 }
 
+// get friendRequestStatus
+export function getFriendRequestStatus(user: User): "null" | "outgoing" | "completed" {
+  if (user.friendRequestStatus === "completed") return "completed";
+  if (user.friendRequestStatus === "outgoing") return "outgoing";
+  if (user.friendRequestStatus === "null") return "null";
+  return "null";
+}
 
 // Avatar or World 
 
