@@ -25,15 +25,6 @@ function RootLayout() {
 }
 
 export default function Root() {
-  // const queryClient = new QueryClient();
-  // const asyncStoragePersister = createAsyncStoragePersister({
-  //   storage: AsyncStorage
-  // });
-  // persistQueryClient({
-  //   queryClient: queryClient,
-  //   persister: asyncStoragePersister,
-  //   buster: Constants.default.expoConfig?.version
-  // });
   return (
     <SettingProvider>
       {/* <DBProvider> */}
