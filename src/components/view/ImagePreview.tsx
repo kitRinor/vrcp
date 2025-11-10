@@ -111,7 +111,7 @@ const ImagePreview = ({ imageUrls, initialIdx = 0, open, onClose }: Props) => {
   };
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <GestureHandlerRootView style={styles.gesturehandlerRoot}>
       <Modal visible={open} transparent={true} onRequestClose={onClose}>
         <FlatList
           data={imageUrls}
@@ -170,6 +170,10 @@ const ImagePreview = ({ imageUrls, initialIdx = 0, open, onClose }: Props) => {
 };
 
 const styles = StyleSheet.create({
+  gesturehandlerRoot: { 
+    flex: 1, 
+    position: "absolute" 
+  },
   topRightButtons: {
     position: "absolute",
     top: 40,
