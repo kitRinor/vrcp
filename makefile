@@ -10,6 +10,10 @@ help:   # show this list
 run:  # run the application
 	@npx expo start
 
+.PHONY : gen-oss
+gen-oss:  # generate open source software notice
+	@npx license-checker-rseidelsohn --json --out ./src/assets/licenses.json --start . --direct --unknown --excludePrivatePackages
+
 .PHONY : gen-vrcapi gen-vrcpipe
 gen-vrcapi:  # generate the vrcapi types and clients from openapi spec
 # config on openapitools.json

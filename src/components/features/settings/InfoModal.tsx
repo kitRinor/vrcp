@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Platform, View } from "react-native";
 import TermOfServiceModal from "./info_innermodals/TermOfServiceModal";
 import PrivacyPolicyModal from "./info_innermodals/PrivacyPolicyModal";
+import LicenseModal from "./info_innermodals/LicenseModal";
 
 
 interface Props {
@@ -18,6 +19,7 @@ const InfoModal = ({ open, setOpen }: Props) => {
   const theme = useTheme();
   const [ termOfServiceModal, setTermOfServiceModal ] = useState<boolean>(false);
   const [ privacyPolicyModal, setPrivacyPolicyModal ] = useState<boolean>(false);
+  const [ licenseModal, setLicenseModal ] = useState<boolean>(false);
 
   const devInfo = {
     version: Constants.expoConfig?.version,
@@ -28,8 +30,8 @@ const InfoModal = ({ open, setOpen }: Props) => {
       android: Constants.expoConfig?.android?.package,
       ios: Constants.expoConfig?.ios?.bundleIdentifier,
     }),
-    expoBuildProfile: Constants.expoConfig?.extra?.vrcmm?.buildProfile,
-    node_env: process.env.NODE_ENV,
+    // expoBuildProfile: Constants.expoConfig?.extra?.vrcmm?.buildProfile,
+    // node_env: process.env.NODE_ENV,
   };
 
   const buttonItems = [
@@ -43,6 +45,11 @@ const InfoModal = ({ open, setOpen }: Props) => {
       onPress: () => setPrivacyPolicyModal(true),
       flex: 1,
     },
+    {
+      title: "Licenses",
+      onPress: () => setLicenseModal(true),
+      flex: 1,
+    },
   ];
 
   return (
@@ -52,7 +59,7 @@ const InfoModal = ({ open, setOpen }: Props) => {
       size="large"
       open={open}
       onClose={() => setOpen(false)}
-      buttonItems={buttonItems}
+      // buttonItems={buttonItems}
     >
 
       <Text style={[globalStyles.text, { color: theme.colors.text }]}>
@@ -60,6 +67,16 @@ const InfoModal = ({ open, setOpen }: Props) => {
           .map(([key, value]) => `${key}:   ${value}`)
           .join("\n")}
       </Text>
+
+      <View style={{ marginTop: spacing.medium, gap: spacing.small }} >
+      {buttonItems.map((item, index) => (
+        <View key={index}>
+          <Button onPress={item.onPress} >
+            {item.title}
+          </Button>
+        </View>
+      ))}
+      </View>
 
       {/* Modal */}
       <TermOfServiceModal
@@ -69,6 +86,10 @@ const InfoModal = ({ open, setOpen }: Props) => {
       <PrivacyPolicyModal
         open={privacyPolicyModal}
         setOpen={setPrivacyPolicyModal}
+      />
+      <LicenseModal
+        open={licenseModal}
+        setOpen={setLicenseModal}
       />
 
     </GenericModal>

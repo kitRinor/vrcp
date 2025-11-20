@@ -14,7 +14,7 @@ import { Button, Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
 import { date } from "drizzle-orm/mysql-core";
 import { useEffect, useState } from "react";
-import { Alert, FlatList, StyleSheet, View } from "react-native";
+import { Alert, FlatList, ScrollView, StyleSheet, View } from "react-native";
 import { TextInput } from "react-native-gesture-handler";
 
 interface Props {
@@ -41,7 +41,9 @@ const EventDetailModal = ({ event, open, setOpen }: Props) => {
             {`${formatToDateStr(event.startsAt ?? "")}  ${formatToTimeStr(event.startsAt ?? "")}~${formatToTimeStr(event.endsAt ?? "")}`}
           </Text>
           <Text style={[styles.titleText, { color: theme.colors.text }]}>{event.title}</Text>
-          <Text style={[styles.descriptionText, { color: theme.colors.subText }]}>{event.description}</Text> 
+          <ScrollView style={styles.descripContainer}>
+            <Text style={[styles.descriptionText, { color: theme.colors.subText }]}>{event.description}</Text> 
+          </ScrollView>
         </View> 
       )}
     </GenericModal>
@@ -68,7 +70,10 @@ const styles = StyleSheet.create({
     marginTop: spacing.medium,
     fontSize: fontSize.small,
   },
-
+  descripContainer: {
+    maxHeight: 300,
+    marginTop: spacing.medium,
+  },
   
 });
 
