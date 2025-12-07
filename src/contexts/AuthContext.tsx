@@ -2,6 +2,7 @@ import { extractErrMsg } from "@/libs/utils";
 import { AuthenticationApi } from "@/vrchat/api";
 import { router } from "expo-router";
 import Storage from "expo-sqlite/kv-store";
+import SecureStore from "expo-secure-store";
 import {
   createContext,
   ReactNode,
@@ -22,6 +23,7 @@ type AuthUser = {
 interface LoginParam {
   username: string; // email or username
   password: string; // password
+  saveSecret?: boolean; // save secret for 2FA
 }
 interface VerifyParam {
   code: string;
@@ -87,6 +89,17 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
         Storage.setItem("auth_user_id", res.data.id);
         Storage.setItem("auth_user_displayName", res.data.displayName);
         Storage.setItem("auth_user_icon", res.data.userIcon);
+
+        if (param.saveSecret) {
+          await Promise.all([
+            SecureStore.setItemAsync("auth_secret_username", param.username),
+            SecureStore.setItemAsync("auth_secret_password", param.password ),
+          ]);
+          await Promise.all([
+            SecureStore.deleteItemAsync("auth_secret_username"),
+            SecureStore.deleteItemAsync("auth_secret_password"),
+          ]);
+        }
 
         const authCookie = extractAuthCookie(res.headers?.["set-cookie"]?.[0]);
         const tfaCookie = extract2faCookie(res.headers?.["set-cookie"]?.[0]);
@@ -188,7 +201,14 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        const conf = vrc.configureAPI({}); // configure VRChat client with past data
+        const secret = await Promise.all([
+          SecureStore.getItemAsync("auth_secret_username"),
+          SecureStore.getItemAsync("auth_secret_password"),
+        ]);
+        const conf = vrc.configureAPI({
+          username: secret[0] || undefined,
+          password: secret[1] || undefined,
+        }); // configure VRChat client with past data
         const api = new AuthenticationApi(conf); // because of too slow of setState, use returned value
         const storedData = await Promise.all([
           Storage.getItem("auth_user_id"),
@@ -205,6 +225,7 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
         };
         if (storedUser.id) {
           const verified = (await api.verifyAuthToken()).data.ok;
+
           if (verified) {
             const authCookie = storedData[3];
             if (authCookie) {

@@ -51,7 +51,7 @@ function isOverridable(base: any, target: any): boolean {
 
 // error
 export function extractErrMsg (error: any): string {
-  return error.response?.data?.error?.message || "Unknown error";
+  return error.response?.data?.error?.message || error.message || String(error);
 };
 
 // user agent

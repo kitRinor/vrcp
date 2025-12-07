@@ -16,6 +16,7 @@ import {
   KeyboardAvoidingView,
   Pressable,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
@@ -33,10 +34,12 @@ export default function Login() {
   const TFACodeRef = useRef<TextInput>(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [saveSecret, setSaveSecret] = useState(false);
   const [TFACode, setTFACode] = useState("");
   const [modeTFA, setModeTFA] = useState<"totp" | "email">("totp");
   const [openTFA, setOpenTFA] = useState(false);
   const [openLinks, setOpenLinks] = useState(false);
+
 
   const handleLogin = async () => {
     if (!username) {
@@ -52,6 +55,7 @@ export default function Login() {
     const res = await auth.login({
       username: username,
       password: password,
+      saveSecret: saveSecret,
     });
     if (res === "success") {
       console.log("logged in successfully");
@@ -222,6 +226,15 @@ export default function Login() {
               value={password}
               onChangeText={setPassword}
             />
+            <View style={[styles.containerHorizontal, styles.repeatingitemVertical]}>
+              <Switch
+                value={saveSecret}
+                onValueChange={setSaveSecret}
+              />
+              <Text style={[styles.description, { color: theme.colors.text }]}>
+                Save username and password
+              </Text>
+            </View>
           </View>
           <View style={styles.containerHorizontal}>
             <Button // button to navigate to sitemap (for debug)
@@ -348,7 +361,7 @@ const styles = StyleSheet.create({
   },
   containerHorizontal: {
     flexDirection: "row",
-    justifyContent: "center",
+    justifyContent: "flex-start",
     alignItems: "center",
     width: '100%',
     padding: spacing.small,
@@ -369,6 +382,7 @@ const styles = StyleSheet.create({
     fontWeight: "normal"
   },
   description: {
+    marginLeft: spacing.medium,
     fontSize: fontSize.small,
     fontWeight: "normal"
   },
