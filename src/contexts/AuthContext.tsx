@@ -92,21 +92,17 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
         Storage.setItem("auth_user_icon", res.data.userIcon);
 
         if (param.saveSecret) {
-          await Promise.all([
-            SecureStore.setItem("auth_secret_username", param.username),
-            SecureStore.setItem("auth_secret_password", param.password ),
-          ]);
-          await Promise.all([
-            SecureStore.deleteItemAsync("auth_secret_username"),
-            SecureStore.deleteItemAsync("auth_secret_password"),
-          ]);
+          SecureStore.setItemAsync("auth_secret_username", param.username);
+          SecureStore.setItemAsync("auth_secret_password", param.password );
+        } else {
+          SecureStore.deleteItemAsync("auth_secret_username");
+          SecureStore.deleteItemAsync("auth_secret_password");
         }
 
         const authCookie = extractAuthCookie(res.headers?.["set-cookie"]?.[0]);
         const tfaCookie = extract2faCookie(res.headers?.["set-cookie"]?.[0]);
-        // [ToDo] use SecureStore of expo
-        if (authCookie) Storage.setItem("auth_authCookie", authCookie);
-        if (tfaCookie) Storage.setItem("auth_2faCookie", tfaCookie);
+        if (authCookie) SecureStore.setItemAsync("auth_authCookie", authCookie);
+        if (tfaCookie) SecureStore.setItemAsync("auth_2faCookie", tfaCookie);
 
         if (authCookie) {
           vrc.configurePipeline(authCookie); // set auth cookie to pipeline
@@ -190,8 +186,8 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
     Storage.removeItem("auth_user_icon");
 
     // [ToDo] use SecureStore of expo
-    Storage.removeItem("auth_authCookie");
-    Storage.removeItem("auth_2faCookie");
+    SecureStore.deleteItemAsync("auth_authCookie");
+    SecureStore.deleteItemAsync("auth_2faCookie");
     setUser(undefined);
     setIsLoading(false);
 
@@ -216,8 +212,8 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
           Storage.getItem("auth_user_displayName"),
           Storage.getItem("auth_user_icon"),
 
-          Storage.getItem("auth_authCookie"),
-          Storage.getItem("auth_2faCookie"),
+          SecureStore.getItemAsync("auth_authCookie"),
+          SecureStore.getItemAsync("auth_2faCookie"),
         ]);
         const storedUser = {
           id: storedData[0] || undefined,
