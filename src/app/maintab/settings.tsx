@@ -81,8 +81,8 @@ export default function Settings() {
         },
         {
           icon: "code-not-equal-variant",
-          title: "Development",
-          description: "Manage development features",
+          title: t("pages.settings.itemLabel_development"),
+          description: t("pages.settings.itemDescription_development"),
           onPress: () => setOpenDevelopment(true),
         },
         {

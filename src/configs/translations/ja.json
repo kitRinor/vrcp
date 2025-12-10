@@ -1,1 +1,213 @@
-{}
+{
+  "app": "ホーム",
+  "common": {
+    "dateFormats": {
+      "date": "yyyy年MM月dd日",
+      "time": "HH:mm",
+      "dateTime": "yyyy年MM月dd日 HH:mm"
+    },
+    "message": {
+      "loading": "読み込み中...",
+      "failed_to_fetch": "{{item}}の取得に失敗しました。",
+      "failed_to_update": "{{item}}の更新に失敗しました。",
+      "no_data": "データがありません。"
+    }
+  },
+  "pages": {
+    "home": {
+      "label": "ホーム",
+      "see_more": "もっと見る",
+      "events_area": "今日のイベント",
+      "feeds_area": "フィード",
+      "friendlocations_area": "フレンドインスタンス"
+    },
+    "friends": {
+      "label": "フレンド",
+      "tabLabel_favorites": "お気に入り",
+      "tabLabel_online": "オンライン",
+      "tabLabel_active": "アクティブ",
+      "tabLabel_offline": "オフライン"
+    },
+    "favorites": {
+      "label": "お気に入り",
+      "tabLabel_worlds": "ワールド",
+      "tabLabel_friends": "フレンド",
+      "tabLabel_avatars": "アバター",
+      "no_favoritegroup_selected": "グループが選択されていません。"
+    },
+    "resources": {
+      "label": "リソース",
+      "tabLabel_avatars": "アバター",
+      "tabLabel_worlds": "ワールド",
+      "tabLabel_prints": "プリント",
+      "no_avatars": "アバターがありません。",
+      "no_worlds": "ワールドがありません。",
+      "no_prints": "プリントがありません。"
+    },
+    "profile": {
+      "label": "プロフィール",
+      "menuLabel_edit_bio": "自己紹介を編集",
+      "menuLabel_edit_bio_links": "リンクを編集",
+      "menuLabel_change_status": "ステータスを変更",
+      "menuLabel_open_current_avatar": "現在のアバターを開く",
+      "menuLabel_json": "JSONデータ",
+      "sectionLabel_bio": "自己紹介",
+      "sectionLabel_bio_links": "リンク",
+      "sectionLabel_badges": "バッジ",
+      "sectionLabel_info": "情報",
+      "section_info_last_activity": "最終アクティビティ: {{date, yyyy年MM月dd日 HH:mm}}",
+      "section_info_joined": "登録日: {{date, yyyy年MM月dd日}}"
+    },
+    "settings": {
+      "label": "設定",
+      "groupLabel_general": "一般",
+      "itemLabel_ui": "UI設定",
+      "itemDescription_ui": "UIの外観や動作をカスタマイズします。",
+      "itemLabel_database": "データベース",
+      "itemDescription_database": "データベースの設定やストレージを管理します。",
+      "itemLabel_notifications": "通知",
+      "itemDescription_notifications": "プッシュ通知やアラートを管理します。",
+      "groupLabel_other": "その他",
+      "itemLabel_about": "アプリについて",
+      "itemDescription_about": "アプリの情報やクレジットを表示します。",
+      "itemLabel_development": "開発機能",
+      "itemDescription_development": "開発ツールやオプションにアクセスします。",
+      "itemLabel_feedback": "フィードバック",
+      "itemDescription_feedback": "開発者にフィードバックを送信します。",
+      "groupLabel_account": "アカウント",
+      "itemLabel_logout": "ログアウト",
+      "itemDescription_logout": "このアプリからログアウトします。"
+    },
+    "detail_user": {
+      "label": "ユーザー詳細",
+      "menuLabel_friend_remove": "フレンド解除",
+      "menuLabel_friend_sendRequest": "フレンドリクエスト送信",
+      "menuLabel_friend_cancelRequest": "フレンドリクエスト取り消し",
+      "menuLabel_favoriteGroup_add": "お気に入りに追加",
+      "menuLabel_favoriteGroup_edit": "お気に入りを編集",
+      "menuLabel_note_edit": "メモを編集",
+      "menuLabel_invite_request": "インバイトをリクエスト",
+      "menuLabel_invite_send": "インバイトを送信",
+      "menuLabel_json": "JSONデータ",
+      "sectionLabel_location": "インスタンス",
+      "sectionLabel_description": "説明",
+      "sectionLabel_note": "メモ",
+      "sectionLabel_bio": "自己紹介",
+      "sectionLabel_bio_links": "リンク",
+      "sectionLabel_badges": "バッジ",
+      "sectionLabel_info": "情報",
+      "section_info_last_activity": "最終アクティビティ: {{date, yyyy年MM月dd日 HH:mm}}",
+      "section_info_joined": "登録日: {{date, yyyy年MM月dd日}}",
+      "userLocation_offline": "このユーザーはオフラインです...",
+      "userLocation_private": "このユーザーはプライベートインスタンスにいます...",
+      "userLocation_traveling": "このユーザーは移動中です...",
+      "userLocation_unknown": "情報が取得できませんでした"
+    },
+    "detail_avatar": {
+      "label": "アバター詳細",
+      "menuLabel_favoriteGroup_add": "お気に入りに追加",
+      "menuLabel_favoriteGroup_edit": "お気に入りを編集",
+      "menuLabel_avatar_changeTo": "このアバターに着替える",
+      "menuLabel_avatar_nowUsing": "現在このアバターを使用中",
+      "menuLabel_json": "JSONデータ",
+      "sectionLabel_platform": "プラットフォーム",
+      "sectionLabel_description": "説明",
+      "sectionLabel_tags": "タグ",
+      "sectionLabel_author": "作者",
+      "sectionLabel_info": "情報"
+    },
+    "detail_world": {
+      "label": "ワールド詳細",
+      "tabLabel_info": "情報",
+      "tabLabel_instances": "インスタンス",
+      "no_instances": "インスタンスがありません。",
+      "menuLabel_favoriteGroup_add": "お気に入りに追加",
+      "menuLabel_favoriteGroup_edit": "お気に入りを編集",
+      "menuLabel_json": "JSONデータ",
+      "sectionLabel_platform": "プラットフォーム",
+      "sectionLabel_description": "説明",
+      "sectionLabel_tags": "タグ",
+      "sectionLabel_author": "作者",
+      "sectionLabel_info": "情報",
+      "section_info_capacityAndRecommended": "定員: {{capacity}} | 推奨: {{recommendedCapacity}}",
+      "section_info_visits": "訪問数: {{visits}}",
+      "section_info_updated": "最終更新: {{date, yyyy年MM月dd日}}",
+      "section_info_created": "公開日: {{date, yyyy年MM月dd日}}"
+    },
+    "detail_instance": {
+      "label": "インスタンス詳細",
+      "menuLabel_json": "JSONデータ",
+      "sectionLabel_ownerAndWorld": "オーナー & ワールド",
+      "sectionLabel_World": "ワールド",
+      "sectionLabel_users": "ユーザー",
+      "section_users_more_user_count_one": "+ 他 {{count}} 人",
+      "section_users_more_user_count_other": "+ 他 {{count}} 人",
+      "sectionLabel_platform": "プラットフォーム",
+      "sectionLabel_tags": "タグ",
+      "sectionLabel_info": "情報",
+      "section_info_capacity": "定員: {{capacity}}",
+      "section_info_ageGated": "年齢制限: {{ageGated}}"
+    },
+    "detail_group": {
+      "label": "グループ詳細",
+      "menuLabel_json": "JSONデータ",
+      "sectionLabel_info": "情報"
+    },
+    "search": {
+      "label": "検索結果",
+      "searchbox_placeholder": "ワールド、グループ、ユーザーを検索",
+      "no_worlds_found": "'{{search}}' に一致するワールドは見つかりませんでした。",
+      "no_groups_found": "'{{search}}' に一致するグループは見つかりませんでした。",
+      "no_users_found": "'{{search}}' に一致するユーザーは見つかりませんでした。"
+    },
+    "events": {
+      "label": "イベント",
+      "no_events": "イベントがありません。",
+      "calendar_month_label": "{{date, yyyy年MM月}}",
+      "calendar_date_event_count_one": "{{count}} 件",
+      "calendar_date_event_count_other": "{{count}} 件",
+      "selected_date_events": "{{date, yyyy年MM月dd日}} のイベント"
+    },
+    "friendlocations": {
+      "label": "フレンドインスタンス",
+      "sectionLabel_instances": "インスタンスにいるフレンド",
+      "sectionLabel_private": "プライベートにいるフレンド",
+      "no_friendlocations": "フレンドのインスタンスがありません。"
+    },
+    "feeds": {
+      "label": "フィード",
+      "no_feeds": "フィードがありません。"
+    },
+    "login": {
+      "label": "ログイン",
+      "welcome": "VRCPへようこそ！\nVRChatアカウントでログインしてください。",
+      "online_count_message": "現在、VRChatには {{count}} 人のオンラインユーザーがいます！",
+      "username_placeholder": "ユーザー名 / メールアドレス",
+      "username_empty_error": "ユーザー名またはメールアドレスを入力してください。",
+      "password_placeholder": "パスワード",
+      "password_empty_error": "パスワードを入力してください。",
+      "tfaCode_placeholder": "認証コード (例: 123456)",
+      "save_credentials": "ユーザー名とパスワードを保存",
+      "button_login": "ログイン",
+      "button_links": "ログインできない場合",
+      "tfa_modal_text_totp": "認証アプリの2要素認証コードを入力してください。",
+      "tfa_modal_text_email": "メールに2要素認証コードが送信されました。入力してください。",
+      "button_tfa_verify": "認証",
+      "button_tfa_close": "閉じる",
+      "button_links_close": "閉じる",
+      "tfa_pasted": "クリップボードから貼り付けました",
+      "login_failed_error": "ログインに失敗しました。入力情報を確認してください。",
+      "tfa_failed_error": "2要素認証に失敗しました。もう一度お試しください。",
+      "tfa_invalid_error": "認証コードは6桁である必要があります。",
+      "tfa_disabled_error": "2要素認証が無効です。アカウント設定を確認してください。",
+      "tfa_unknown_error": "不明なエラーが発生しました。後でもう一度お試しください。",
+      "linksModal_title": "ログインでお困りですか？",
+      "linksModal_text1": "VRChatは初めてですか？\n",
+      "linksModal_registerLinkText": "アカウント作成",
+      "linksModal_text2": "パスワードを忘れましたか？\n",
+      "linksModal_passwordLinkText": "パスワードリセット",
+      "linksModal_emailLinkText": "メールアドレスの確認"
+    }
+  },
+  "components": {}
+}

@@ -48,6 +48,11 @@ const UIModal = ({ open, setOpen }: Props) => {
   const [favoriteFriendsColorsModal, setFavoriteFriendsColorsModal] = useState<InnerModalOption<typeof uiOptions.user.favoriteFriendsColors>>({open: false});
 
   const _tmpState = useState(""); // for re-render
+  useEffect(() => {
+    getUserLanguage().then(lang => {
+      _tmpState[1](lang);
+    });
+  }, []); 
 
   const sectionItems: SectionProps[] = [
     {

@@ -3,6 +3,7 @@ import globalStyles, { radius, spacing } from "@/configs/styles";
 import { omitObject } from "@/libs/utils";
 import { Button, Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 
 
@@ -16,6 +17,7 @@ interface Props {
 
 const SeeMoreContainer = ({ title, onPress, children, ...rest }: Props) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   return (
     <View style={[styles.container, rest.style]} {...omitObject(rest, "style")}>
       <View style={[styles.card, {backgroundColor: theme.colors.paper}]} >
@@ -25,7 +27,7 @@ const SeeMoreContainer = ({ title, onPress, children, ...rest }: Props) => {
             onPress={onPress} 
             variant="plain"
           >
-            {"See More" + "  >"}
+            {t("pages.home.see_more") + "  >"}
           </Button>
         </View>
         <View style={styles.children}>
