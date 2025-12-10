@@ -26,9 +26,11 @@ import ChangeBioModal from "@/components/features/profile/ChangeBioModal";
 import ChangeBioLinksModal from "@/components/features/profile/ChangeBioLinksModal";
 import JsonDataModal from "@/components/features/detail/JsonDataModal";
 import { routeToAvatar } from "@/libs/route";
+import { useTranslation } from "react-i18next";
 
 export default function Profile() {
   const vrc = useVRChat();
+  const { t } = useTranslation();
   const theme = useTheme();
   const { currentUser } = useData();
   const [preview, setPreview] = useState({ imageUrl: "", open: false });
@@ -40,17 +42,17 @@ export default function Profile() {
   const menuItems: MenuItem[] = [
     {
       icon: "playlist-edit",
-      title: "Edit Bio",
+      title: t("pages.profile.menuLabel_edit_bio"),
       onPress: () => setOpenChangeBio(true),
     },
     {
       icon: "clipboard-edit-outline",
-      title: "Edit Bio Links",
+      title: t("pages.profile.menuLabel_edit_bio_links"),
       onPress: () => setOpenChangeBioLinks(true),
     },
     {
       icon: "human-edit",
-      title: "Change Status",
+      title: t("pages.profile.menuLabel_change_status"),
       onPress: () => setOpenChangeStatus(true),
     },
     { 
@@ -58,7 +60,7 @@ export default function Profile() {
     },
     {
       icon: "hanger",
-      title: "Open Current Avatar",
+      title: t("pages.profile.menuLabel_open_current_avatar"),
       onPress: () => currentUser.data?.currentAvatar && routeToAvatar(currentUser.data.currentAvatar),
     },
     { 
@@ -66,7 +68,7 @@ export default function Profile() {
     },
     {
       icon: "code-json",
-      title: "Json Data",
+      title: t("pages.profile.menuLabel_json"),
       onPress: () => setOpenJson(true),
     }, 
   ];
@@ -90,7 +92,7 @@ export default function Profile() {
             }
           >
 
-            <DetailItemContainer title="Bio">
+            <DetailItemContainer title={t("pages.profile.sectionLabel_bio")}>
               <View style={styles.detailItemContent}>
                 <Text style={{ color: theme.colors.text }}>
                   {currentUser.data.bio}
@@ -98,7 +100,7 @@ export default function Profile() {
               </View>
             </DetailItemContainer>
 
-            <DetailItemContainer title="Links">
+            <DetailItemContainer title={t("pages.profile.sectionLabel_bio_links")}>
               <View style={styles.detailItemContent}>
                 {currentUser.data.bioLinks.map((link, index) => (
                   <LinkChip key={index} url={link} />
@@ -106,7 +108,7 @@ export default function Profile() {
               </View>
             </DetailItemContainer>
 
-            <DetailItemContainer title="Badges">
+            <DetailItemContainer title={t("pages.profile.sectionLabel_badges")}>
               <View style={[styles.detailItemContent, styles.horizontal]}>
                 {currentUser.data.badges?.map((badge) => (
                   <BadgeChip key={badge.badgeId} badge={badge} />
@@ -114,13 +116,15 @@ export default function Profile() {
               </View>
             </DetailItemContainer>
 
-            <DetailItemContainer title="Info">
+            <DetailItemContainer title={t("pages.profile.sectionLabel_info")}>
               <View style={styles.detailItemContent}>
+                { currentUser.data.last_activity && (
+                  <Text style={{ color: theme.colors.text }}>
+                    {`${t("pages.profile.section_info_last_activity", {date: new Date(currentUser.data.last_activity)})}`}
+                  </Text>
+                )}
                 <Text style={{ color: theme.colors.text }}>
-                  {`last activity: ${currentUser.data.last_activity}`}
-                </Text>
-                <Text style={{ color: theme.colors.text }}>
-                  {`first joined: ${currentUser.data.date_joined}`}
+                  {`${t("pages.profile.section_info_joined", {date: new Date(currentUser.data.date_joined)})}`}
                 </Text>
               </View>
             </DetailItemContainer>

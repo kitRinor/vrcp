@@ -13,10 +13,11 @@ import { useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { router } from "expo-router";
 import { navigate } from "expo-router/build/global-state/routing";
-import InfoModal from "@/components/features/settings/InfoModal";
+import AboutModal from "@/components/features/settings/AboutModal";
 import { ScrollView } from "react-native-gesture-handler";
 import FeedbackModal from "@/components/features/settings/FeedbackModal";
 import { useToast } from "@/contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 interface SettingItem {
   icon: SupportedIconNames;
@@ -29,87 +30,92 @@ interface SettingItem {
 export default function Settings() {
   const auth = useAuth();
   const theme = useTheme();
+  const { t } = useTranslation(); 
   const [openLogout, setOpenLogout] = useState(false);
   const [openDevelopment, setOpenDevelopment] = useState(false);
   const [openFeedback, setOpenFeedback] = useState(false);
-  const [openInfo, setOpenInfo] = useState(false);
+  const [openAbout, setOpenAbout] = useState(false);
   const [openDatabase, setOpenDatabase] = useState(false);
   const [openUI, setOpenUI] = useState(false);
 
   const { showToast } = useToast();
 
-  const settingContents: Record<string, SettingItem[]> = {
-    general: [
-      {
-        icon: "imagesearch-roller",
-        title: "UI",
-        description: "Manage your UI settings",
-        onPress: () => setOpenUI(true),
-      },
-      {
-        icon: "view-list",
-        title: "Database",
-        description: "Manage your database",
-        onPress: () => setOpenDatabase(true),
-      },
-      {
-        icon: "notifications",
-        title: "Notifications",
-        description: "Manage Push Notifications",
-        onPress: () => {
-          const type = ["info", "success", "error"][Math.floor(Math.random() * 3)] as "info" | "success" | "error";
-          showToast(type, "test", `${new Date().getTime()}`);
-        },
-      },
-    ],
-    other: [
-      {
-        icon: "information",
-        title: "Information",
-        description: "View information about this app",
-        onPress: () => setOpenInfo(true),
-      },
-      {
-        icon: "code-not-equal-variant",
-        title: "Development",
-        description: "Manage development features",
-        onPress: () => setOpenDevelopment(true),
-      },
-      {
-        icon: "message-alert",
-        title: "Feedback",
-        description: "send your feedback to developer",
-        onPress: () => setOpenFeedback(true),
-      },
-      ...(Constants.expoConfig?.extra?.vrcp.buildProfile == "development" ? [
+  const settingContents: {
+    title: string; 
+    items: SettingItem[];
+  }[] = [
+    {
+      title: t("pages.settings.groupLabel_general"),
+      items: [
         {
-          icon: "routes" as SupportedIconNames,
-          title: "sitemap",
-          description: "(only in development mode)",
-          onPress: () => router.push("/_sitemap"),
-        }
-      ] : []),
-    ],
-    logout: [
+          icon: "imagesearch-roller",
+          title: t("pages.settings.itemLabel_ui"),
+          description: t("pages.settings.itemDescription_ui"),
+          onPress: () => setOpenUI(true),
+        },
+        {
+          icon: "view-list",
+          title: t("pages.settings.itemLabel_database"),
+          description: t("pages.settings.itemDescription_database"),
+          onPress: () => setOpenDatabase(true),
+        },
+        {
+          icon: "notifications",
+          title: t("pages.settings.itemLabel_notifications"),
+          description: t("pages.settings.itemDescription_notifications"),
+          onPress: () => {
+            const type = ["info", "success", "error"][Math.floor(Math.random() * 3)] as "info" | "success" | "error";
+            showToast(type, "test", `${new Date().getTime()}`);
+          },
+        },
+      ],
+    },
       {
-        icon: "logout",
-        title: "Logout",
-        description: "Log out from this app",
-        onPress: () => setOpenLogout(true),
-        iconColor: theme.colors.error,
-      },
-    ],
-  };
+        title: t("pages.settings.groupLabel_other"),
+        items: [
+          {
+            icon: "information",
+            title: t("pages.settings.itemLabel_about"),
+            description: t("pages.settings.itemDescription_about"),
+            onPress: () => setOpenAbout(true),
+        },
+        {
+          icon: "code-not-equal-variant",
+          title: "Development",
+          description: "Manage development features",
+          onPress: () => setOpenDevelopment(true),
+        },
+        {
+          icon: "message-alert",
+          title: t("pages.settings.itemLabel_feedback"),
+          description: t("pages.settings.itemDescription_feedback"),
+          onPress: () => setOpenFeedback(true),
+        },
+      ],
+    },
+    {
+      title: t("pages.settings.groupLabel_account"),
+      items: [
+        {
+          icon: "logout",
+          title: t("pages.settings.itemLabel_logout"),
+          description: t("pages.settings.itemDescription_logout"),
+          onPress: () => setOpenLogout(true),
+          iconColor: theme.colors.error,
+        },
+      ],
+    },
+  ];
 
   return (
     <GenericScreen scrollable>
       <ScrollView>
-      {Object.entries(settingContents).map(([category, items]) => (
-        <View key={category} style={styles.categoryContainer}>
+      {settingContents.map((categoryGroup) => (
+        <View key={categoryGroup.title} style={styles.categoryContainer}>
           <Text style={[globalStyles.header, { color: theme.colors.text }]}>
-            {category}
+            {categoryGroup.title}
           </Text>
-          {items.map((item, index) => (
+          {categoryGroup.items.map((item, index) => (
             <TouchableOpacity
               activeOpacity={0.7}
               key={index}
@@ -155,7 +161,7 @@ export default function Settings() {
       <DatabaseModal open={openDatabase} setOpen={setOpenDatabase} />
       <UIModal open={openUI} setOpen={setOpenUI} />
       <DevelopmentModal open={openDevelopment} setOpen={setOpenDevelopment} />
-      <InfoModal open={openInfo} setOpen={setOpenInfo} />
+      <AboutModal open={openAbout} setOpen={setOpenAbout} />
       <FeedbackModal open={openFeedback} setOpen={setOpenFeedback} />
 
     </GenericScreen>

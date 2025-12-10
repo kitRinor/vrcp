@@ -5,10 +5,10 @@ import { useTheme } from "@react-navigation/native";
 import Constants from "expo-constants";
 import { useState } from "react";
 import { Platform, View } from "react-native";
-import TermOfServiceModal from "./info_innermodals/TermOfServiceModal";
-import PrivacyPolicyModal from "./info_innermodals/PrivacyPolicyModal";
-import LicenseModal from "./info_innermodals/LicenseModal";
-import ChangeLogModal from "./info_innermodals/ChangeLogModal";
+import TermOfServiceModal from "./about_innermodals/TermOfServiceModal";
+import PrivacyPolicyModal from "./about_innermodals/PrivacyPolicyModal";
+import LicenseModal from "./about_innermodals/LicenseModal";
+import ChangeLogModal from "./about_innermodals/ChangeLogModal";
 
 
 interface Props {
@@ -16,7 +16,7 @@ interface Props {
   setOpen: (open: boolean) => void;
 }
 
-const InfoModal = ({ open, setOpen }: Props) => {
+const AboutModal = ({ open, setOpen }: Props) => {
   const theme = useTheme();
   const [ termOfServiceModal, setTermOfServiceModal ] = useState<boolean>(false);
   const [ privacyPolicyModal, setPrivacyPolicyModal ] = useState<boolean>(false);
@@ -107,4 +107,4 @@ const InfoModal = ({ open, setOpen }: Props) => {
   );
 };
 
-export default InfoModal;
+export default AboutModal;

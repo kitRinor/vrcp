@@ -13,6 +13,7 @@ import { CalendarEvent, PaginatedCalendarEventList } from "@/vrchat/api";
 import { Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { FlatList, RefreshControl, ScrollView, StyleSheet, View } from "react-native";
 
 
@@ -21,6 +22,7 @@ export default function Events () {
   const auth = useAuth();
   const theme = useTheme();
   const vrc = useVRChat();
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const [selectedMonth, setSelectedMonth] = useState<Date>(new Date());
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
@@ -112,7 +114,7 @@ export default function Events () {
     if (events.length > 0) {
       return (
         <Text style={{ fontSize: 10, color: theme.colors.warning, paddingHorizontal: spacing.mini }}>
-          {`${events.length} event${events.length > 1 ? "s" : ""}`}
+          {t("pages.events.calendar_date_event_count", { count: events.length })}
         </Text>
       );
     }
@@ -127,9 +129,9 @@ export default function Events () {
   
   const emptyComponent = useCallback(() => (
     <View style={{ alignItems: "center", marginTop: spacing.large }}>
-      <Text style={{ color: theme.colors.text }}>No events available.</Text>
+      <Text style={{ color: theme.colors.text }}>{t("pages.events.no_events")}</Text>
     </View>
-  ), [theme.colors.text]);
+  ), [theme.colors.text, t]);
 
   return (
     <GenericScreen>
@@ -143,7 +145,7 @@ export default function Events () {
         />
       </View>
       <Text style={[{ marginTop: spacing.medium, marginLeft: spacing.small, color: theme.colors.text, fontWeight: "bold", fontSize: 16 }]}>
-        Events on {formatToDateStr(selectedDate)} 
+        {t("pages.events.selected_date_events", { date: selectedDate })}
       </Text>
       
       <FlatList

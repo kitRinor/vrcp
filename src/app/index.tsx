@@ -23,10 +23,12 @@ import {
 } from "react-native";
 import * as Clipboard from 'expo-clipboard';
 import { useToast } from "@/contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 // login screen
 export default function Login() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const auth = useAuth();
   const usernameRef = useRef<TextInput>(null);
@@ -43,11 +45,11 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (!username) {
-      Alert.alert("Error", "Username is required");
+      Alert.alert("Error", t("pages.login.username_empty_error"));
       usernameRef.current?.focus();
       return;
     } else if (!password) {
-      Alert.alert("Error", "Password is required");
+      Alert.alert("Error", t("pages.login.password_empty_error"));
       passwordRef.current?.focus();
       return;
     }
@@ -66,13 +68,13 @@ export default function Login() {
       setModeTFA("email");
       setOpenTFA(true);
     } else {
-      Alert.alert("Login failed", "Please check your username and password");
+      Alert.alert("Login failed", t("pages.login.login_failed_error"));
     }
   };
 
   const handleVerify = async () => {
     if (!/^\d{6}$/.test(TFACode)) {
-      Alert.alert("Error", "2FA code must be 6 digits number");
+      Alert.alert("Error", t("pages.login.tfa_invalid_error"));
       TFACodeRef.current?.focus();
       return;
     }
@@ -91,16 +93,16 @@ export default function Login() {
       if (res === "success") {
         console.log("logged in successfully");
       } else {
-        Alert.alert("Login failed", "pls contact support");
+        Alert.alert("Login failed", t("pages.login.login_failed_error"));
       }
     } else if (res === "failed") {
       Alert.alert(
         "2FA verification failed",
-        "Please check your code and try again"
+        t("pages.login.tfa_failed_error")
       );
     } else if (res === "disabled") {
       Alert.alert(
-        "2FA is disabled, please check your account settings or contact support"
+        t("pages.login.tfa_disabled_error")
       );
       setOpenTFA(false);
     } else {
@@ -113,7 +115,7 @@ export default function Login() {
       const code = await Clipboard.getStringAsync();
       if (/^\d{6}$/.test(code)) {
         setTFACode(code);
-        showToast("info", "code pasted from clipboard");
+        showToast("info", t("pages.login.tfa_pasted"));
       }
     } catch (err) {
       console.log("Auto-fill TFA code failed:", err);
@@ -143,7 +145,7 @@ export default function Login() {
     // }
     new MiscellaneousApi().getCurrentOnlineUsers()
       .then((res) => {
-        const msg = `There are ${res.data} users online now on VRChat!`;
+        const msg = t("pages.login.online_count_message", { count: res.data });
         setLogoMsg(msg);
         setTimeout(() => setLogoMsg(null), 5000);
       })
@@ -195,15 +197,15 @@ export default function Login() {
             <Text
               style={[
                 styles.header,
-                { color: theme.colors.text, marginBottom: spacing.large },
+                { color: theme.colors.text, marginBottom: spacing.large},
               ]}
             >
-              Login with your VRChat account
+              {t("pages.login.welcome")}
             </Text>
             <TextInput
               ref={usernameRef}
               style={[styles.input, { color: theme.colors.text }]}
-              placeholder="Username / Email"
+              placeholder={t("pages.login.username_placeholder")}
               placeholderTextColor={theme.colors.subText}
               autoComplete="username"
               textContentType="username"
@@ -218,7 +220,7 @@ export default function Login() {
                 styles.repeatingitemVertical,
                 { color: theme.colors.text },
               ]}
-              placeholder="Password"
+              placeholder={t("pages.login.password_placeholder")}
               placeholderTextColor={theme.colors.subText}
               secureTextEntry={true}
               autoComplete="password"
@@ -232,7 +234,7 @@ export default function Login() {
                 onValueChange={setSaveSecret}
               />
               <Text style={[styles.description, { color: theme.colors.text }]}>
-                Save username and password
+                {t("pages.login.save_credentials")}
               </Text>
             </View>
           </View>
@@ -242,8 +244,7 @@ export default function Login() {
               color={theme.colors.primary}
               onPress={() => setOpenLinks(true)}
             >
-              {/* [ Sitemap ] */}
-              Can't login?
+              {t("pages.login.button_links")}
             </Button>
             <Button
               style={[
@@ -255,7 +256,7 @@ export default function Login() {
               onPress={handleLogin}
               variant="filled"
             >
-              Login
+              {t("pages.login.button_login")}
             </Button>
           </View>
         </View>
@@ -264,21 +265,22 @@ export default function Login() {
         <GenericModal
           title="Two-Factor Authentication"
           buttonItems={[
-            { title: "Close", onPress: () => setOpenTFA(false)},
-            { title: "Verify", onPress: handleVerify, flex: 1 }
+            { title: t("pages.login.button_tfa_close"), onPress: () => setOpenTFA(false)},
+            { title: t("pages.login.button_tfa_verify"), onPress: handleVerify, flex: 1 }
           ]}
           open={openTFA}
           onClose={() => setOpenTFA(false)}
         >
           <Text style={[styles.text, { color: theme.colors.text }]}>
             {modeTFA === "totp"
-              ? "Enter the code from your authenticator app"
-              : "Enter the code sent to your email"}
+              ? t("pages.login.tfa_modal_text_totp")
+              : t("pages.login.tfa_modal_text_email")
+            }
           </Text>
           <TextInput
             ref={TFACodeRef}
             style={[styles.input, { color: theme.colors.text }]}
-            placeholder="Enter code"
+            placeholder={t("pages.login.tfaCode_placeholder")}
             keyboardType="numeric"
             autoComplete="one-time-code"
             textContentType="oneTimeCode"
@@ -292,8 +294,8 @@ export default function Login() {
 
         {/* links to vrchat modal */}
         <GenericModal
-          title="is there any problem?"
-          buttonItems={[{ title: "Close", onPress: () => setOpenLinks(false), flex: 1 }]}
+          title={t("pages.login.linksModal_title")}
+          buttonItems={[{ title: t("pages.login.button_links_close"), onPress: () => setOpenLinks(false), flex: 1 }]}
           open={openLinks}
           onClose={() => setOpenLinks(false)}
         >
@@ -313,11 +315,10 @@ export default function Login() {
                 },
               ]}
             >
-              New to VRChat?{" "}
+              {t("pages.login.linksModal_text1")}
               <Atag href="https://vrchat.com/home/register">
-                Create an account
-              </Atag>{" "}
-              !
+                {t("pages.login.linksModal_registerLinkText")}
+              </Atag>
             </Text>
             <Text
               style={[
@@ -329,9 +330,10 @@ export default function Login() {
                 },
               ]}
             >
-              Forgot{" "}
-              <Atag href="https://vrchat.com/home/password">password</Atag> or{" "}
-              <Atag href="https://vrchat.com/home/forgot-email">email</Atag> ?
+              {t("pages.login.linksModal_text2")}
+              <Atag href="https://vrchat.com/home/password">{t("pages.login.linksModal_passwordLinkText")}</Atag>
+              {" / "}
+              <Atag href="https://vrchat.com/home/forgot-email">{t("pages.login.linksModal_emailLinkText")}</Atag>
             </Text>
           </View>
 
@@ -376,10 +378,12 @@ const styles = StyleSheet.create({
   header: {
     fontSize: fontSize.medium,
     fontWeight: "bold",
+    textAlign: "center",
   },
   text: {
     fontSize: fontSize.medium,
-    fontWeight: "normal"
+    fontWeight: "normal",
+    textAlign: "center",
   },
   description: {
     marginLeft: spacing.medium,

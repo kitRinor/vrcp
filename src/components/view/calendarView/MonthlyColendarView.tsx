@@ -5,6 +5,7 @@ import { getTintedColor } from "@/libs/utils";
 import { Button, Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 
 
@@ -23,6 +24,7 @@ const MonthlyCalendarView = ({
   onChangeMonth
 }: CalendarViewProps) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [selectedMonth, setSelectedMonth] = useState<Date>(initialDate);
   const [selectedDate, setSelectedDate] = useState<Date>(initialDate);
   const today = new Date();
@@ -86,7 +88,7 @@ const MonthlyCalendarView = ({
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Text style={[ styles.header ,{ color: theme.colors.text }]}>
-          {selectedMonth.toLocaleString([], { month: "long", year: "numeric" })}
+          {t("pages.events.calendar_month_label", { date: selectedMonth })}
         </Text>
         <View style={[styles.buttons]}>
           <Button

@@ -23,6 +23,7 @@ import { RefreshControl } from "react-native-gesture-handler";
 import JsonDataModal from "@/components/features/detail/JsonDataModal";
 import ChangeAvatarModal from "@/components/features/detail/avatar/ChangeAvatarModal";
 import { useToast } from "@/contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 export default function AvatarDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -30,6 +31,7 @@ export default function AvatarDetail() {
   const cache = useCache();
   const data = useData();
   const theme = useTheme();
+  const { t } = useTranslation();
   const fetchingRef = useRef(false);
   const isLoading = useMemo(() => fetchingRef.current, [fetchingRef.current]);
   const [avatar, setAvatar] = useState<Avatar>();
@@ -65,7 +67,7 @@ export default function AvatarDetail() {
   const menuItems: MenuItem[] = [
     {
       icon: isFavorite ? "heart" : "heart-plus",
-      title: isFavorite ? "Edit Favorite Group" : "Add Favorite Group",
+      title: isFavorite ? t("pages.detail_avatar.menuLabel_favoriteGroup_edit") : t("pages.detail_avatar.menuLabel_favoriteGroup_add"),
       onPress: () => setOpenChangeFavorite(true),
     },
     { 
@@ -73,7 +75,7 @@ export default function AvatarDetail() {
     },
     {
       icon: isCurrentAvatar ? "tshirt-crew-outline" : "tshirt-crew",
-      title: isCurrentAvatar ? "Now Using This Avatar" : "Change to This Avatar",
+      title: isCurrentAvatar ? t("pages.detail_avatar.menuLabel_avatar_nowUsing") : t("pages.detail_avatar.menuLabel_avatar_changeTo"),
       onPress: () => !isCurrentAvatar && setOpenChangeAvatar(true),
     },
     { 
@@ -81,7 +83,7 @@ export default function AvatarDetail() {
     },
     {
       icon: "code-json",
-      title: "Json Data",
+      title: t("pages.detail_avatar.menuLabel_json"),
       onPress: () => setOpenJson(true),
     }, 
   ];
@@ -101,13 +103,13 @@ export default function AvatarDetail() {
             }
           >
 
-            <DetailItemContainer title="Platform">
+            <DetailItemContainer title={t("pages.detail_avatar.sectionLabel_platform")}>
               <View style={styles.detailItemContent}>
                 <PlatformChips platforms={getPlatform(avatar)} />
               </View>
             </DetailItemContainer>
 
-            <DetailItemContainer title="Description">
+            <DetailItemContainer title={t("pages.detail_avatar.sectionLabel_description")}>
               <View style={styles.detailItemContent}>
                 <Text style={{ color: theme.colors.text }}>
                   {avatar.description}
@@ -115,14 +117,14 @@ export default function AvatarDetail() {
               </View>
             </DetailItemContainer>
 
-            <DetailItemContainer title="Tags">
+            <DetailItemContainer title={t("pages.detail_avatar.sectionLabel_tags")}>
               <View style={styles.detailItemContent}>
                 <TagChips tags={getAuthorTags(avatar)} />
               </View>
             </DetailItemContainer>
 
             
-            <DetailItemContainer title="Author">
+            <DetailItemContainer title={t("pages.detail_avatar.sectionLabel_author")}>
               {author && (
                 <View style={styles.detailItemContent}>
                   <TouchableOpacity onPress={() => routeToUser(author.id)} activeOpacity={0.7}>

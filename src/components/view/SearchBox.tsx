@@ -11,6 +11,7 @@ interface SearchBoxProps {
   changeTextTimeout?: number; // Timeout in milliseconds, default: 500 ()
   placeholder?: string;
   defaultValue?: string;
+  clearOnSubmit?: boolean;
   [key: string]: any;
 }
 
@@ -20,6 +21,7 @@ const SearchBox = ({
   changeTextTimeout = 500,
   placeholder,
   defaultValue,
+  clearOnSubmit = false,
   ...rest
 }: SearchBoxProps) => {
   const theme = useTheme();
@@ -48,6 +50,10 @@ const SearchBox = ({
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
     if (ref.current) ref.current.blur();
     if (queryRef.current) onSubmit(queryRef.current);
+    if (clearOnSubmit) {
+      queryRef.current = "";
+      if (ref.current) ref.current.clear();
+    }
   }, [onSubmit]);
 
   return (

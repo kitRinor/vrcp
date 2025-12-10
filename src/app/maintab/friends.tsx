@@ -15,6 +15,7 @@ import { FlatList, SectionList, StyleSheet, View } from "react-native";
 import { Text } from "@react-navigation/elements";
 import { sortFriendWithStatus } from "@/libs/funcs/sortFriendWithStatus";
 import { useToast } from "@/contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 interface FriendsByState {
   online: LimitedUserFriend[];
@@ -24,6 +25,7 @@ interface FriendsByState {
 
 export default function Friends() {
   const theme = useTheme();
+  const { t } = useTranslation ();
   const MaterialTab = createMaterialTopTabNavigator();
 
   // separate loading with online,active and offline friend
@@ -37,24 +39,24 @@ export default function Friends() {
       >
         <MaterialTab.Screen
           name="favorite"
-          options={{ tabBarLabel: "Favorite" }}
+          options={{ tabBarLabel: t("pages.friends.tabLabel_favorites") }}
           component={FavoriteFriendsTab}
         />
         <MaterialTab.Screen
           name="online"
-          options={{ tabBarLabel: "Online" }}
+          options={{ tabBarLabel: t("pages.friends.tabLabel_online") }}
         >
           {() => <StateFriendsTab filterState="online" />}
         </MaterialTab.Screen>
         <MaterialTab.Screen
           name="active"
-          options={{ tabBarLabel: "Active" }}
+          options={{ tabBarLabel: t("pages.friends.tabLabel_active") }}
         >
           {() => <StateFriendsTab filterState="active" />}
         </MaterialTab.Screen>
         <MaterialTab.Screen
           name="offline"
-          options={{ tabBarLabel: "Offline" }}
+          options={{ tabBarLabel: t("pages.friends.tabLabel_offline") }}
         >
           {() => <StateFriendsTab filterState="offline" />}
         </MaterialTab.Screen>
@@ -66,6 +68,7 @@ export default function Friends() {
 
 const FavoriteFriendsTab = memo(() => {
   const theme = useTheme();
+  const { t } = useTranslation ();
   const { showToast } = useToast();
   const { friends, favorites, favoriteGroups } = useData();
   const fetchingRef = useRef(false);
@@ -119,10 +122,10 @@ const FavoriteFriendsTab = memo(() => {
   ), [theme.colors.border, theme.colors.text]);
 
   const sections = useMemo(() => [
-    { title: "Online", data: favoriteFriends.online },
-    { title: "Active", data: favoriteFriends.active },
-    { title: "Offline", data: favoriteFriends.offline },
-  ], [favoriteFriends]);
+    { title: t("pages.friends.tabLabel_online"), data: favoriteFriends.online },
+    { title: t("pages.friends.tabLabel_active"), data: favoriteFriends.active },
+    { title: t("pages.friends.tabLabel_offline"), data: favoriteFriends.offline },
+  ], [favoriteFriends, t]);
 
   return (
     <>

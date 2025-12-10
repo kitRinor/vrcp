@@ -22,9 +22,11 @@ import { useTheme } from "@react-navigation/native";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { useToast } from "@/contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 export default function Favorites() {
   const vrc = useVRChat();
+  const { t } = useTranslation();
   const theme = useTheme();
   const { showToast } = useToast();
   const { favoriteGroups } = useData();
@@ -107,7 +109,7 @@ export default function Favorites() {
             onRefresh={refresh}
           />
         ) : (
-          <Text>No Favorite Group Selected</Text>
+          <Text>{t("pages.favorites.no_favoritegroup_selected")}</Text>
         )}
       </View>
     );
@@ -174,7 +176,7 @@ export default function Favorites() {
             refreshing={isLoading}
           />
         ) : (
-          <Text>No Favorite Group Selected</Text>
+          <Text>{t("pages.favorites.no_favoritegroup_selected")}</Text>
         )}
       </View>
     );
@@ -241,7 +243,7 @@ export default function Favorites() {
             onRefresh={refresh}
           />
         ) : (
-          <Text>No Favorite Group Selected</Text>
+          <Text>{t("pages.favorites.no_favoritegroup_selected")}</Text>
         )}
       </View>
     );
@@ -257,17 +259,17 @@ export default function Favorites() {
       >
         <MaterialTab.Screen
           name="worlds"
-          options={{ tabBarLabel: "Worlds" }}
+          options={{ tabBarLabel: t("pages.favorites.tabLabel_worlds") }}
           component={useCallback(WorldsTab, [favoriteGroupsMap.worlds])}
         />
         <MaterialTab.Screen
           name="friends"
-          options={{ tabBarLabel: "Friends" }}
+          options={{ tabBarLabel: t("pages.favorites.tabLabel_friends") }}
           component={useCallback(FriendsTab, [favoriteGroupsMap.friends])}
         />
         <MaterialTab.Screen
           name="avatars"
-          options={{ tabBarLabel: "Avatars" }}
+          options={{ tabBarLabel: t("pages.favorites.tabLabel_avatars") }}
           component={useCallback(AvatarsTab, [favoriteGroupsMap.avatars])}
         />
       </MaterialTab.Navigator>

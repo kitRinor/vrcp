@@ -15,10 +15,12 @@ import { RefreshControl } from "react-native-gesture-handler";
 import { MenuItem } from "@/components/layout/type";
 import JsonDataModal from "@/components/features/detail/JsonDataModal";
 import { useToast } from "@/contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 export default function GroupDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const vrc = useVRChat();
+  const { t } = useTranslation();
   const cache = useCache();
   const theme = useTheme();
   const { showToast } = useToast();
@@ -48,7 +50,7 @@ export default function GroupDetail() {
     },
     {
       icon: "code-json",
-      title: "Json Data",
+      title: t("pages.detail_group.menuLabel_json"),
       onPress: () => setOpenJson(true),
     }, 
   ];

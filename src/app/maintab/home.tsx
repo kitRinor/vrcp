@@ -22,6 +22,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import ListViewEvent from "@/components/view/item-ListView/ListViewEvent";
 import EventDetailModal from "@/components/features/events/EventDetailModal";
 import ReleaseNote from "@/components/features/home/ReleaseNote";
+import { useTranslation } from "react-i18next";
 
 export default function Home() {
   const theme = useTheme();
@@ -72,6 +73,7 @@ export default function Home() {
 
 const FeedArea = memo(({style}: { style?: any }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { pipelineMessages } = useData();
 
   const renderItem = useCallback(({ item }: { item: PipelineMessage }) => (
@@ -84,7 +86,7 @@ const FeedArea = memo(({style}: { style?: any }) => {
   ), [theme.colors.text]);
   return (
     <SeeMoreContainer
-      title="Feeds"
+      title={t("pages.home.feeds_area")}
       onPress={() => routeToFeeds()}
       style={style}
     >
@@ -101,6 +103,7 @@ const FeedArea = memo(({style}: { style?: any }) => {
 
 const FriendLocationArea = memo(({ style }: { style?: any }) => {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { friends, favorites } = useData();
 
   const instances = useMemo<InstanceLike[]>(() => {
@@ -117,7 +120,7 @@ const FriendLocationArea = memo(({ style }: { style?: any }) => {
   ), [theme.colors.text]);
   return (
     <SeeMoreContainer
-      title="Friends Locations"
+      title={t("pages.home.friendlocations_area")}
       onPress={() => routeToFriendLocations()}
       style={style}
     >
@@ -138,6 +141,7 @@ const EventsArea = memo(({ style }: {
   style?: any
 }) => {
   const auth = useAuth();
+  const { t } = useTranslation();
   const theme = useTheme();
   const vrc = useVRChat();
   const { showToast } = useToast();
@@ -213,7 +217,7 @@ const EventsArea = memo(({ style }: {
 
   return (
     <SeeMoreContainer
-      title="Events Today"
+      title={t("pages.home.events_area")}
       onPress={() => routeToEvents()}
       style={style}
     >

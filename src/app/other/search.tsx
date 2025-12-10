@@ -22,11 +22,13 @@ import { createMaterialTopTabNavigator } from "@react-navigation/material-top-ta
 import { useTheme } from "@react-navigation/native";
 import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { FlatList, StyleSheet, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import { useToast } from "@/contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 export default function Search() {
   const vrc = useVRChat();
+  const { t } = useTranslation();
   const theme = useTheme();
   const { showToast } = useToast();
   const initialParams = useLocalSearchParams<{ search?: string }>();
@@ -68,6 +70,14 @@ export default function Search() {
       fetchWorlds();
     }, [search]);
 
+    const emptyComponent = useCallback(() => (
+      <View style={{ alignItems: "center", marginTop: spacing.large }}>
+        <Text style={{ color: theme.colors.text }}>
+          {t("pages.search.no_worlds_found", { search: search })}
+        </Text>
+      </View>
+    ), [search, t, theme.colors.text]);
+
     return (
       <FlatList
         data={worlds}
@@ -79,6 +89,7 @@ export default function Search() {
             onPress={() => routeToWorld(item.id)}
           />
         )}
+        ListEmptyComponent={emptyComponent}
         numColumns={2}
         onEndReached={fetchWorlds}
         onEndReachedThreshold={0.3}
@@ -114,6 +125,13 @@ export default function Search() {
       fetchUsers();
     }, [search]);
 
+    const emptyComponent = useCallback(() => (
+      <View style={{ alignItems: "center", marginTop: spacing.large }}>
+        <Text style={{ color: theme.colors.text }}>
+          {t("pages.search.no_users_found", { search: search })}
+        </Text>
+      </View>
+    ), [search, t, theme.colors.text]);
     return (
       <FlatList
         data={users}
@@ -125,6 +143,7 @@ export default function Search() {
             onPress={() => routeToUser(item.id)}
           />
         )}
+        ListEmptyComponent={emptyComponent}
         numColumns={2}
         onEndReached={fetchUsers}
         onEndReachedThreshold={0.3}
@@ -162,6 +181,14 @@ export default function Search() {
       fetchGroups();
     }, [search]);
 
+    const emptyComponent = useCallback(() => (
+      <View style={{ alignItems: "center", marginTop: spacing.large }}>
+        <Text style={{ color: theme.colors.text }}>
+          {t("pages.search.no_groups_found", { search: search })}
+        </Text>
+      </View>
+    ), [search, t, theme.colors.text]);
+
     return (
       <FlatList
         data={groups}
@@ -173,6 +200,7 @@ export default function Search() {
             onPress={() => routeToGroup(item.id ?? "")}
           />
         )}
+        ListEmptyComponent={emptyComponent}
         numColumns={2}
         onEndReached={fetchGroups}
         onEndReachedThreshold={0.3}
@@ -186,7 +214,7 @@ export default function Search() {
       <View style={styles.searchBoxContainer}>
         <SearchBox
           onSubmit={handleSearch}
-          placeholder="Search worlds, avatars, and users..."
+          placeholder={t("pages.search.searchbox_placeholder")}
           defaultValue={initialParams.search || ""}
         />
       </View>

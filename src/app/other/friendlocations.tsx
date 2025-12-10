@@ -15,11 +15,13 @@ import React, { useCallback, useMemo, useState } from "react";
 import { FlatList, SectionList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { useToast } from "@/contexts/ToastContext";
 import { extractErrMsg } from "@/libs/utils";
+import { useTranslation } from "react-i18next";
 
 
 
 export default function FriendLocations() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const { friends, favorites } = useData();
   const [isLoading, setIsLoading] = useState(false);
@@ -68,13 +70,13 @@ export default function FriendLocations() {
     renderItem: ({ item, index }: { item: any, index: number }) => React.ReactElement<unknown, string | React.JSXElementConstructor<any>> | null 
   }[] = useMemo(() => [
     { 
-      title: `Friends in Instances `, 
+      title: t("pages.friendlocations.sectionLabel_instances"), 
       data: chunkInstances, 
       renderItem: renderInstItem,
       keyExtractor: (_, index) => `friend-instance-chunk-${index}`
     },
     { 
-      title: `Private Friends`, 
+      title: t("pages.friendlocations.sectionLabel_private"), 
       data: chunkUnlocatableFriends, 
       renderItem: renderUnlocItem,
       keyExtractor: (_, index) => `private-friend-chunk-${index}`

@@ -14,6 +14,7 @@ import { ScrollView } from "react-native-gesture-handler";
 import ColorSchemaModal, { getIconName as getIconNameCS } from "./ui_innermodals/ColorSchemaModal";
 import HomeTabModeModal, { getIconName as getIconNameHT } from "./ui_innermodals/HomeTabModeModal";
 import CardViewColumnsModal, { getIconName as getIconNameCV } from "./ui_innermodals/CardViewColumnsModal";
+import { getUserLanguage, setUserLanguage } from "@/configs/i18n";
 
 interface Props {
   open: boolean;
@@ -45,6 +46,8 @@ const UIModal = ({ open, setOpen }: Props) => {
   const [cardViewColumnsModal, setCardViewColumnsModal] = useState<InnerModalOption<typeof uiOptions.layouts.cardViewColumns>>({open: false});
   const [friendColorModal, setFriendColorModal] = useState<InnerModalOption<typeof uiOptions.user.friendColor>>({open: false});
   const [favoriteFriendsColorsModal, setFavoriteFriendsColorsModal] = useState<InnerModalOption<typeof uiOptions.user.favoriteFriendsColors>>({open: false});
+
+  const _tmpState = useState(""); // for re-render
 
   const sectionItems: SectionProps[] = [
     {
@@ -160,6 +163,27 @@ const UIModal = ({ open, setOpen }: Props) => {
         },
       ]
     },
+    {
+      title: "Others",
+      items: [
+        {
+          icon: "language",
+          title: "Language",
+          description: "Change application language",
+          onPress: async () => {
+            const cur = await getUserLanguage()
+            const newLang = cur === 'en' ? 'ja' : 'en';
+            setUserLanguage(newLang);
+            _tmpState[1](newLang); // force re-render
+          },
+          leading: (
+            <Text style={{ color: theme.colors.text, fontWeight: "bold" }}>
+              {_tmpState[0] === 'en' ? 'English' : '日本語'}
+            </Text>
+          ),
+        },
+      ]
+    }
   ]
 
   return (

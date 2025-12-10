@@ -17,9 +17,11 @@ import { CachedImage } from "@/contexts/CacheContext";
 import ImagePreview from "@/components/view/ImagePreview";
 import { useSetting } from "@/contexts/SettingContext";
 import { useToast } from "@/contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 // user's avatar, world, and other uploaded resources
 export default function Resources() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const MaterialTab = createMaterialTopTabNavigator();
 
   return (
@@ -32,17 +34,17 @@ export default function Resources() {
       >
         <MaterialTab.Screen
           name="avatar"
-          options={{ tabBarLabel: "Avatars" }}
+          options={{ tabBarLabel: t("pages.resources.tabLabel_avatars") }}
           component={useCallback(AvatarsTab, [])}
         />
         <MaterialTab.Screen
           name="world"
-          options={{ tabBarLabel: "Worlds" }}
+          options={{ tabBarLabel: t("pages.resources.tabLabel_worlds") }}
           component={useCallback(WorldsTab, [])}
         />
         <MaterialTab.Screen
           name="print"
-          options={{ tabBarLabel: "Prints" }}
+          options={{ tabBarLabel: t("pages.resources.tabLabel_prints") }}
           component={useCallback(PrintsTab, [])}
         />
       </MaterialTab.Navigator>
@@ -54,6 +56,8 @@ export default function Resources() {
 
 const AvatarsTab = memo(() => {
   const vrc = useVRChat();
+  const theme = useTheme();
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const { settings } = useSetting();
   const cardViewColumns = settings.uiOptions.layouts.cardViewColumns;
@@ -105,6 +109,13 @@ const AvatarsTab = memo(() => {
       onPress={() => routeToAvatar(item.id)}
     />
   ), []);
+  const emptyComponent = useCallback(() => (
+    <View style={{ alignItems: "center", marginTop: spacing.large }}>
+      <Text style={{ color: theme.colors.text }}>
+        {t("pages.resources.no_avatars")}
+      </Text>
+    </View>
+  ), []);
 
   return (
     <View style={styles.tabpanel}>
@@ -114,6 +125,7 @@ const AvatarsTab = memo(() => {
         data={avatars}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
+        ListEmptyComponent={emptyComponent}
         numColumns={cardViewColumns}
         onEndReached={fetchAvatars}
         onEndReachedThreshold={0.5}
@@ -126,6 +138,8 @@ const AvatarsTab = memo(() => {
 
 const WorldsTab = memo(() => {
   const vrc = useVRChat();
+  const theme = useTheme();
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const { settings } = useSetting();
   const cardViewColumns = settings.uiOptions.layouts.cardViewColumns;
@@ -178,6 +192,13 @@ const WorldsTab = memo(() => {
       onPress={() => routeToWorld(item.id)}
     />
   ), []);
+  const emptyComponent = useCallback(() => (
+    <View style={{ alignItems: "center", marginTop: spacing.large }}>
+      <Text style={{ color: theme.colors.text }}>
+        {t("pages.resources.no_worlds")}
+      </Text>
+    </View>
+  ), []);
 
   return (
     <View style={styles.tabpanel}>
@@ -187,6 +208,7 @@ const WorldsTab = memo(() => {
         data={worlds}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
+        ListEmptyComponent={emptyComponent}
         numColumns={cardViewColumns}
         onEndReached={fetchWorlds}
         onEndReachedThreshold={0.5}
@@ -199,6 +221,7 @@ const WorldsTab = memo(() => {
 const PrintsTab = memo(() => {
   const vrc = useVRChat();
   const theme = useTheme();
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const { currentUser } = useData();
   const { settings } = useSetting();
@@ -257,7 +280,7 @@ const PrintsTab = memo(() => {
   const emptyComponent = useCallback(() => (
     <View style={{ alignItems: "center", marginTop: spacing.large }}>
       <Text style={{ color: theme.colors.text }}>
-        No prints available.
+        {t("pages.resources.no_prints")}
       </Text>
     </View>
   ), []);

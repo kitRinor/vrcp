@@ -9,10 +9,12 @@ import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { useTheme } from "@react-navigation/native";
 import { Tabs } from "expo-router";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Image, Platform, useColorScheme, View } from "react-native";
 
 export default function TabLayout() {
   const theme = useTheme();
+  const { t } = useTranslation();
 
   return (
     <Tabs
@@ -33,7 +35,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: "Home",
+          title: t("pages.home.label"),
           headerTitle: (props) => (
             <View
               style={{
@@ -50,12 +52,13 @@ export default function TabLayout() {
             </View>
           ),
           headerRight: () => (
-            <View style={{ flex: 1, paddingRight: spacing.medium }}>
-              <SearchBox
-                onSubmit={routeToSearch}
-                placeholder="Search worlds, avatars, and users..."
-              />
-            </View>
+              <View style={{ flex: 1, paddingRight: spacing.medium }}>
+                <SearchBox
+                  onSubmit={routeToSearch}
+                  clearOnSubmit={true}
+                  placeholder={t("pages.search.searchbox_placeholder")}
+                />
+              </View>
           ),
           tabBarIcon: ({ color }) => (
             <MaterialIcons size={28} name="home" color={color} />
@@ -65,7 +68,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="friends"
         options={{
-          title: "Friends",
+          title: t("pages.friends.label"),
           tabBarIcon: ({ color }) => (
             <MaterialIcons size={28} name="people" color={color} />
           ),
@@ -74,7 +77,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="favorites"
         options={{
-          title: "Favorites",
+          title: t("pages.favorites.label"),
           tabBarIcon: ({ color }) => (
             <MaterialIcons size={28} name="favorite" color={color} />
           ),
@@ -83,7 +86,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="resources"
         options={{
-          title: "Resources",
+          title: t("pages.resources.label"),
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               size={28}
@@ -96,7 +99,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profile",
+          title: t("pages.profile.label"),
           tabBarIcon: ({ color }) => (
             <MaterialIcons size={28} name="account-circle" color={color} />
           ),
@@ -106,7 +109,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: "Settings",
+          title: t("pages.settings.label"),
           tabBarIcon: ({ color }) => (
             <MaterialIcons size={28} name="settings" color={color} />
           ),

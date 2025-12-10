@@ -25,10 +25,12 @@ import ChangeFriendModal from "@/components/features/detail/user/ChangeFriendMod
 import { RefreshControl } from "react-native-gesture-handler";
 import JsonDataModal from "@/components/features/detail/JsonDataModal";
 import { useToast } from "@/contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 export default function UserDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const vrc = useVRChat();
+  const { t } = useTranslation();
   const cache = useCache();
   const data = useData();
   const { showToast } = useToast();
@@ -70,15 +72,15 @@ export default function UserDetail() {
     );
     if (isOffline) {
       setLocationInfo({
-        baseInfo: "the user is offline...",
+        baseInfo: t("pages.detail_user.userLocation_offline"),
       });
     } else if (isPrivate) {
       setLocationInfo({
-        baseInfo: "the user is in a private instance...",
+        baseInfo: t("pages.detail_user.userLocation_private"),
       });
     } else if (isTraveling) {
       setLocationInfo({
-        baseInfo: "the user is traveling...",
+        baseInfo: t("pages.detail_user.userLocation_traveling"),
       });
     } else if (parsedLocation?.worldId && parsedLocation?.instanceId) {
       try {
@@ -101,7 +103,7 @@ export default function UserDetail() {
       }
     } else {
       setLocationInfo({
-        baseInfo: "the user is in an unknown location...",
+        baseInfo: t("pages.detail_user.userLocation_unknown"),
       });
     }
   };
@@ -118,18 +120,20 @@ export default function UserDetail() {
   const menuItems: MenuItem[] = [
     {
       icon: freReqStatus === "completed" ? "account-minus" : freReqStatus === "null" ? "account-plus" : "account-cancel",
-      title: freReqStatus === "completed" ? "Remove Friend" : freReqStatus === "null" ? "Send Friend Request" : "Cancel Friend Request",
+      title: freReqStatus === "completed" ? t("pages.detail_user.menuLabel_friend_remove") 
+        : freReqStatus === "null" ? t("pages.detail_user.menuLabel_friend_sendRequest") 
+        : t("pages.detail_user.menuLabel_friend_cancelRequest"),
       onPress: () => setOpenChangeFriend(true)
     },
     {
       icon: isFavorite ? "heart" : "heart-plus",
-      title: isFavorite ? "Edit Favorite Group" : "Add Favorite Group",
+      title: isFavorite ? t("pages.detail_user.menuLabel_favoriteGroup_edit") : t("pages.detail_user.menuLabel_favoriteGroup_add"),
       onPress: () => setOpenChangeFavorite(true),
       hidden: freReqStatus !== "completed"
     },
     {
       icon: "note-edit-outline",
-      title: "Edit Note",
+      title: t("pages.detail_user.menuLabel_note_edit"),
       onPress: () => setOpenChangeNote(true),
     },
     { 
@@ -137,14 +141,14 @@ export default function UserDetail() {
       hidden: freReqStatus !== "completed"
     }, 
     {
-      icon: "question-mark",
-      title: "Request Invite",
+      icon: "chat-question",
+      title: t("pages.detail_user.menuLabel_invite_request"),
       // onPress: () => {},
       hidden: freReqStatus !== "completed"
     },
     {
-      icon: "question-mark",
-      title: "Send Invite",
+      icon: "chat-plus",
+      title: t("pages.detail_user.menuLabel_invite_send"),
       // onPress: () => {},
       hidden: freReqStatus !== "completed"
     },
@@ -153,7 +157,7 @@ export default function UserDetail() {
     },
     {
       icon: "code-json",
-      title: "Json Data",
+      title: t("pages.detail_user.menuLabel_json"),
       onPress: () => setOpenJson(true),
     }, 
 
@@ -179,7 +183,7 @@ export default function UserDetail() {
             }
           >
 
-            <DetailItemContainer title="Location">
+            <DetailItemContainer title={t("pages.detail_user.sectionLabel_location")}>
               {locationInfo ? (
                 <TouchableOpacity 
                   activeOpacity={0.7} 
@@ -216,19 +220,19 @@ export default function UserDetail() {
               
             </DetailItemContainer>
 
-            <DetailItemContainer title="Note">
+            <DetailItemContainer title={t("pages.detail_user.sectionLabel_note")}>
               <View style={styles.detailItemContent}>
                 <Text style={{ color: theme.colors.text }}>{user.note}</Text>
               </View>
             </DetailItemContainer>
 
-            <DetailItemContainer title="Bio">
+            <DetailItemContainer title={t("pages.detail_user.sectionLabel_bio")}>
               <View style={styles.detailItemContent}>
                 <Text style={{ color: theme.colors.text }}>{user.bio}</Text>
               </View>
             </DetailItemContainer>
 
-            <DetailItemContainer title="Links">
+            <DetailItemContainer title={t("pages.detail_user.sectionLabel_bio_links")}>
               <View style={styles.detailItemContent}>
                 {user.bioLinks.map((link, index) => (
                   <LinkChip key={index} url={link} />
@@ -236,7 +240,7 @@ export default function UserDetail() {
               </View>
             </DetailItemContainer>
 
-            <DetailItemContainer title="Badges">
+            <DetailItemContainer title={t("pages.detail_user.sectionLabel_badges")}>
               <View style={[styles.detailItemContent, styles.horizontal]}>
                 {user.badges?.map((badge) => (
                   <BadgeChip key={badge.badgeId} badge={badge} />
@@ -244,13 +248,15 @@ export default function UserDetail() {
               </View>
             </DetailItemContainer>
 
-            <DetailItemContainer title="Info">
+            <DetailItemContainer title={t("pages.detail_user.sectionLabel_info")}>
               <View style={styles.detailItemContent}>
+                { user.last_activity && (
+                  <Text style={{ color: theme.colors.text }}>
+                    {t("pages.detail_user.section_info_last_activity", { date: new Date(user.last_activity) })}
+                  </Text>
+                )}
                 <Text style={{ color: theme.colors.text }}>
-                  {`last activity: ${user.last_activity}`}
-                </Text>
-                <Text style={{ color: theme.colors.text }}>
-                  {`first joined: ${user.date_joined}`}
+                  {t("pages.detail_user.section_info_joined", { date: new Date(user.date_joined) })}
                 </Text>
               </View>
             </DetailItemContainer>

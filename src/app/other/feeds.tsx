@@ -3,12 +3,14 @@ import ListViewPipelineMessage from "@/components/view/item-ListView/ListViewPip
 import { navigationBarHeight, spacing } from "@/configs/styles";
 import { useData } from "@/contexts/DataContext";
 import { useTheme } from "@react-navigation/native";
+import { useTranslation } from "react-i18next";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 
 
 
 export default function Feeds() {
   const theme = useTheme();
+  const { t } = useTranslation();
   const { pipelineMessages } = useData();
 
   return (
@@ -22,7 +24,7 @@ export default function Feeds() {
           )} 
           ListEmptyComponent={() => (
             <View style={{ alignItems: "center", marginTop: spacing.large }}>
-              <Text style={{ color: theme.colors.text }}>No feeds available.</Text>
+              <Text style={{ color: theme.colors.text }}>{t("pages.feeds.no_feeds")}</Text>
             </View>
           )}
           numColumns={1}

@@ -32,11 +32,13 @@ import { RefreshControl } from "react-native-gesture-handler";
 import { MenuItem } from "@/components/layout/type";
 import JsonDataModal from "@/components/features/detail/JsonDataModal";
 import { useToast } from "@/contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 export default function InstanceDetail() {
   const { id } = useLocalSearchParams<{ id: string }>(); // must be locationStr (e.g. wrld_xxx:00000~region(jp)) 
   const { parsedLocation } = parseLocationString(id);
   const vrc = useVRChat();
+  const { t } = useTranslation();
   const { showToast } = useToast();
   const { friends: allFriends } = useData();
   const cache = useCache();
@@ -95,7 +97,7 @@ export default function InstanceDetail() {
     },
     {
       icon: "code-json",
-      title: "Json Data",
+      title: t("pages.detail_instance.menuLabel_json"),
       onPress: () => setOpenJson(true),
     }, 
   ];
@@ -115,7 +117,7 @@ export default function InstanceDetail() {
             }
           >
 
-            <DetailItemContainer title={owner ? "Owner & World" : "World"}>
+            <DetailItemContainer title={owner ? t("pages.detail_instance.sectionLabel_ownerAndWorld") : t("pages.detail_instance.sectionLabel_World")}>
               <View style={[styles.detailItemContent, styles.horizontal]}>
                 {owner && (
                   <TouchableOpacity key={owner.id} onPress={() => routeToUser(owner.id)} activeOpacity={0.7}>
@@ -129,7 +131,7 @@ export default function InstanceDetail() {
               </View>
             </DetailItemContainer>
 
-            <DetailItemContainer title="Users">
+            <DetailItemContainer title={t("pages.detail_instance.sectionLabel_users")}>
               <View style={styles.detailItemContent}>
                 {chunkArray(friends, 2).map((chunk, index) => (
                   <View style={{ flexDirection: "row" }} key={`friend-chunk-${index}`}>
@@ -141,32 +143,32 @@ export default function InstanceDetail() {
                   </View>
                 ))}
                 {instance.n_users > friends.length && (
-                  <Text style={[styles.moreUser,{ color: theme.colors.text }]}>{`+ ${instance.n_users - friends.length} more users`}</Text>
+                  <Text style={[styles.moreUser,{ color: theme.colors.text }]}>{t("pages.detail_instance.section_users_more_user_count_other", { count: instance.n_users - friends.length })}</Text>
                 )}
               </View>
             </DetailItemContainer>
 
-            <DetailItemContainer title="Platform">
+            <DetailItemContainer title={t("pages.detail_instance.sectionLabel_platform")}>
               <View style={styles.detailItemContent}>
                 <PlatformChips platforms={getPlatform(instance.world)} />
               </View>
             </DetailItemContainer>
 
-            <DetailItemContainer title="Tags">
+            <DetailItemContainer title={t("pages.detail_instance.sectionLabel_tags")}>
               <View style={styles.detailItemContent}>
                 <TagChips tags={getAuthorTags(instance.world)} onPress={(tag) => routeToSearch(tag)} />
               </View>
             </DetailItemContainer>
 
 
-            <DetailItemContainer title="Info">
+            <DetailItemContainer title={t("pages.detail_instance.sectionLabel_info")}>
               <View style={styles.detailItemContent}>
                 <Text
                   style={{ color: theme.colors.text }}
-                >{`capacity: ${instance.capacity}`}</Text>
+                >{t("pages.detail_instance.section_info_capacity", { capacity: instance.capacity })}</Text>
                 <Text
                   style={{ color: theme.colors.text }}
-                >{`agegated: ${instance.ageGate}`}</Text>
+                >{t("pages.detail_instance.section_info_ageGated", { ageGated: instance.ageGate })}</Text>
               </View>
             </DetailItemContainer>
 

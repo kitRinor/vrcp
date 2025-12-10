@@ -8,6 +8,7 @@ import {
 import { ParamListBase, StackNavigationState } from "@react-navigation/native";
 import { Platform } from 'react-native';
 import MenuButtonForHeader from '@/components/layout/MenuButtonForHeader';
+import { useTranslation } from 'react-i18next';
 
 const { Navigator } = createStackNavigator();
 
@@ -21,6 +22,7 @@ const { Navigator } = createStackNavigator();
 // const ModalStack = Platform.OS === 'ios' ? Stack : JsStack;
 
 export default function ModalLayout() {
+  const { t } = useTranslation();
   return (
     <Stack
       screenOptions={{ 
@@ -32,39 +34,39 @@ export default function ModalLayout() {
     >
       <Stack.Screen
         name="user/[id]"
-        options={{title: "User" }}
+        options={{title: t("pages.detail_user.label") }}
       />
       <Stack.Screen
         name="world/[id]"
-        options={{title: "World" }}
+        options={{title: t("pages.detail_world.label") }}
       />
       <Stack.Screen
         name="instance/[id]"
-        options={{title: "Instance" }}
+        options={{title: t("pages.detail_instance.label") }}
       /> 
       <Stack.Screen
         name="avatar/[id]"
-        options={{title: "Avatar" }}
+        options={{title: t("pages.detail_avatar.label") }}
       />
       <Stack.Screen
         name="group/[id]"
-        options={{title: "Group" }}
+        options={{title: t("pages.detail_group.label") }}
       />
 
       <Stack.Screen
         name="events"
-        options={{title: "Events", headerRight: undefined }}
+        options={{title: t("pages.events.label"), headerRight: undefined }}
       /><Stack.Screen
         name="feeds"
-        options={{title: "Feeds", headerRight: undefined }}
+        options={{title: t("pages.feeds.label"), headerRight: undefined }}
       />
       <Stack.Screen
         name="friendlocations"
-        options={{title: "FriendLocations", headerRight: undefined }}
+        options={{title: t("pages.friendlocations.label"), headerRight: undefined }}
       />
       <Stack.Screen
         name="search"
-        options={{title: "Search", headerRight: undefined }}
+        options={{title: t("pages.search.label"), headerRight: undefined }}
       />
     </Stack>
   );

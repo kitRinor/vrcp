@@ -32,10 +32,12 @@ import ChangeFavoriteModal from "@/components/features/detail/ChangeFavoriteModa
 import { RefreshControl } from "react-native-gesture-handler";
 import JsonDataModal from "@/components/features/detail/JsonDataModal";
 import { useToast } from "@/contexts/ToastContext";
+import { useTranslation } from "react-i18next";
 
 export default function WorldDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const vrc = useVRChat();
+  const { t } = useTranslation();
   const cache = useCache();
   const data = useData();
   const { showToast } = useToast();
@@ -105,7 +107,7 @@ export default function WorldDetail() {
   const menuItems: MenuItem[] = [
     {
       icon: isFavorite ? "heart" : "heart-plus",
-      title: isFavorite ? "Edit Favorite Group" : "Add Favorite Group",
+      title: isFavorite ? t("pages.detail_world.menuLabel_favoriteGroup_edit") : t("pages.detail_world.menuLabel_favoriteGroup_add"),
       onPress: () => setOpenChangeFavorite(true),
     },
     { 
@@ -113,9 +115,23 @@ export default function WorldDetail() {
     },
     {
       icon: "code-json",
-      title: "Json Data",
+      title: t("pages.detail_world.menuLabel_json"),
       onPress: () => setOpenJson(true),
     }, 
+  ];
+
+  const tabItems: { 
+    label: string;
+    value: typeof mode,
+  }[] = [
+    {
+      label: t("pages.detail_world.tabLabel_info"),
+      value: "info",
+    },
+    {
+      label: t("pages.detail_world.tabLabel_instances"),
+      value: "instance",
+    },
   ];
 
   return (
@@ -125,9 +141,11 @@ export default function WorldDetail() {
           <CardViewWorldDetail world={world} style={[styles.cardView]} />
 
           <SelectGroupButton
-            data={["info", "instance"]}
-            value={mode}
-            onChange={setMode}
+            data={tabItems}
+            nameExtractor={(item) => item.label}
+            keyExtractor={(item) => item.value}
+            value={tabItems.find((item) => item.value === mode) ?? null}
+            onChange={(item) => setMode(item.value)}
           />
 
           {mode === "info" && (
@@ -139,13 +157,13 @@ export default function WorldDetail() {
                   onRefresh={fetchWorld}
                 />
               }>
-              <DetailItemContainer title="Platform">
+              <DetailItemContainer title={t("pages.detail_world.sectionLabel_platform")}>
                 <View style={styles.detailItemContent}>
                   <PlatformChips platforms={getPlatform(world)} />
                 </View>
               </DetailItemContainer>
 
-              <DetailItemContainer title="Description">
+              <DetailItemContainer title={t("pages.detail_world.sectionLabel_description")}>
                 <View style={styles.detailItemContent}>
                   <Text style={{ color: theme.colors.text }}>
                     {world.description}
@@ -153,13 +171,13 @@ export default function WorldDetail() {
                 </View>
               </DetailItemContainer>
 
-              <DetailItemContainer title="Tags">
+              <DetailItemContainer title={t("pages.detail_world.sectionLabel_tags")}>
                 <View style={styles.detailItemContent}>
                   <TagChips tags={getAuthorTags(world)} onPress={(tag) => routeToSearch(tag)} />
                 </View>
               </DetailItemContainer>
 
-              <DetailItemContainer title="Author">
+              <DetailItemContainer title={t("pages.detail_world.sectionLabel_author")}>
                 {author && (
                   <View style={styles.detailItemContent}>
                     <TouchableOpacity onPress={() => routeToUser(author.id)} activeOpacity={0.7}>
@@ -169,20 +187,20 @@ export default function WorldDetail() {
                 )}
               </DetailItemContainer>
 
-              <DetailItemContainer title="Info">
+              <DetailItemContainer title={t("pages.detail_world.sectionLabel_info")}>
                 <View style={styles.detailItemContent}>
                   <Text
                     style={{ color: theme.colors.text }}
-                  >{`capacity: ${world.capacity} (recommended: ${world.recommendedCapacity})`}</Text>
+                  >{t("pages.detail_world.section_info_capacityAndRecommended", { capacity: world.capacity, recommendedCapacity: world.recommendedCapacity })}</Text>
                   <Text
                     style={{ color: theme.colors.text }}
-                  >{`visits: ${world.visits}`}</Text>
+                  >{t("pages.detail_world.section_info_visits", { visits: world.visits })}</Text>
                   <Text
                     style={{ color: theme.colors.text }}
-                  >{`created: ${formatToDateTimeStr(world.created_at)}`}</Text>
+                  >{t("pages.detail_world.section_info_updated", { date: formatToDateTimeStr(world.updated_at) })}</Text>
                   <Text
                     style={{ color: theme.colors.text }}
-                  >{`updated: ${formatToDateTimeStr(world.updated_at)}`}</Text>
+                  >{t("pages.detail_world.section_info_created", { date: formatToDateTimeStr(world.created_at) })}</Text>
                 </View>
               </DetailItemContainer>
 
@@ -197,7 +215,7 @@ export default function WorldDetail() {
               ListEmptyComponent={() => (
                 <View style={{ alignItems: "center", marginTop: spacing.large }}>
                   <Text style={{ color: theme.colors.text }}>
-                    No instances available.
+                    {t("pages.detail_world.no_instances")}
                   </Text>
                 </View>
               )}
