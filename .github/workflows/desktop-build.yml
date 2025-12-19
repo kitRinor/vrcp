@@ -1,10 +1,11 @@
-name: desktop - Build .exe
+name: desktop - Build EXE
 
 on:
   workflow_dispatch:
 
 jobs:
   build-windows:
+    name: Build Windows executable
     runs-on: windows-latest
     
     defaults:
