@@ -6,8 +6,6 @@ use modules::watcher::{VRChatLogWatcher, LogEntry, get_default_vrchat_dir, find_
 use std::sync::Mutex;
 use tauri::State;
 use specta_typescript::Typescript;
-use specta::Type;
-use tauri_specta::*;
 
 
 // 1. アプリの状態（メモリ）を定義
@@ -82,7 +80,7 @@ pub fn run() {
         .export(
             Typescript::default()
                 // .formatter(specta_typescript::formatter::prettier)
-                .header("/* eslint-disable */"),
+                .header("// @ts-nocheck\n/* eslint-disable */"),
             "../src/lib/bindings.ts",
         )
         .expect("Failed to export typescript bindings");
