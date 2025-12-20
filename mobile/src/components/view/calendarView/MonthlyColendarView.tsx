@@ -124,10 +124,7 @@ const MonthlyCalendarView = ({
 const styles = StyleSheet.create({
   container: {
     padding: spacing.small,
-    aspectRatio: 1.2,
-
-    // borderColor: "blue",
-    // borderWidth: 1,
+    height: "100%",
   },
   headerContainer: {
     flexDirection: "row",
@@ -148,12 +145,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.large * 2,
   },
   calendarContainer: {
-    marginBottom: spacing.small * 4 + fontSize.small,
+    flex:1
   },
   weekContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    // maxHeight: 60,
   },
   dateContainer: {
     padding: spacing.mini,

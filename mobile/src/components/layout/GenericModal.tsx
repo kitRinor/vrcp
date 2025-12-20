@@ -1,6 +1,6 @@
 import globalStyles, { fontSize, radius, spacing } from "@/configs/styles";
 import { useTheme } from "@react-navigation/native";
-import { Modal, StyleSheet, View } from "react-native";
+import { Modal, Pressable, StyleSheet, View } from "react-native";
 import { ButtonItemForFooter } from "./type";
 import { Button, Text } from "@react-navigation/elements";
 import { useMemo } from "react";
@@ -15,10 +15,11 @@ interface Props {
   scrollable?: boolean | "horizontal" | "vertical" | "both"; // if true, vertical only, if "both", horizontal and vertical
   buttonItems?: ButtonItemForFooter[];
   size?: "small" | "normal" | "large" | "full";
+  closeOnOutside?: boolean;
   children: React.ReactNode;
 }
 
-const GenericModal = ({ open, onClose, children, buttonItems, title, showCloseButton = false, scrollable=false, size = "normal" }: Props) => {
+const GenericModal = ({ open, onClose, children, buttonItems, title, showCloseButton = false, scrollable=false, size = "normal", closeOnOutside = true }: Props) => {
   const theme = useTheme();
   return (
     <Modal
@@ -30,6 +31,12 @@ const GenericModal = ({ open, onClose, children, buttonItems, title, showCloseBu
       {/* GestureHandlerRootView is needed for DraggableFlatList */}
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View style={styles.modalRoot}>
+          { closeOnOutside && (
+            <Pressable // close when press outside
+              style={styles.closeOnOutside}
+              onPress={onClose}
+            />
+          )}
           <View
             style={[
               styles.modalContainer,
@@ -144,6 +151,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  closeOnOutside: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
   },
   modalSizeSmall: {
     width: "80%",

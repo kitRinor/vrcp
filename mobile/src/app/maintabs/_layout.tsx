@@ -75,21 +75,21 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="feeds"
-        options={{
-          title: t("pages.feeds.label"),
-          tabBarIcon: ({ color }) => (
-            <MaterialIcons size={28} name="rss-feed" color={color} />
-          ),
-          headerRight: MenuButtonForHeader,
-        }}
-      />
-      <Tabs.Screen
         name="profile"
         options={{
           title: t("pages.profile.label"),
           tabBarIcon: ({ color }) => (
             <MaterialIcons size={28} name="account-circle" color={color} />
+          ),
+          headerRight: MenuButtonForHeader,
+        }}
+      />
+      <Tabs.Screen
+        name="others"
+        options={{
+          title: t("pages.others.label"),
+          tabBarIcon: ({ color }) => (
+            <MaterialIcons size={28} name="menu" color={color} />
           ),
           headerRight: MenuButtonForHeader,
         }}

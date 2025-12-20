@@ -35,6 +35,7 @@ interface PipelineOption {
 }
 interface OtherOption {
   sendDebugLogs: boolean;
+  enableJsonViewer: boolean;
 }
 
 export interface Setting {
@@ -70,6 +71,7 @@ const defaultSettings: Setting = {
   },
   otherOptions: {
     sendDebugLogs: false,
+    enableJsonViewer: false,
   },
 }
 

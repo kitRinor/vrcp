@@ -52,6 +52,13 @@
       "section_info_last_activity": "最終アクティビティ: {{date, yyyy年MM月dd日 HH:mm}}",
       "section_info_joined": "登録日: {{date, yyyy年MM月dd日}}"
     },
+    "others": {
+      "label": "その他",
+      "menuLabel_notifications": "通知",
+      "tabLabel_feeds": "フィード",
+      "tabLabel_events": "イベント",
+      "tabLabel_notifications": "通知"
+    },
     "settings": {
       "label": "設定",
       "groupLabel_general": "一般",
@@ -194,6 +201,10 @@
     "feeds": {
       "label": "フィード",
       "no_feeds": "フィードがありません。"
+    },
+    "notifications": {
+      "label": "通知",
+      "no_notifications": "通知がありません。"
     },
     "login": {
       "label": "ログイン",

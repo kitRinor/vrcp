@@ -159,7 +159,7 @@ export default function Events () {
 
   return (
     <GenericScreen>
-      <View>
+      <View style={styles.calendarContainer}>
         {isLoading && <LoadingIndicator absolute />}
         <MonthlyCalendarView
           initialDate={today}
@@ -190,6 +190,11 @@ export default function Events () {
 const styles = StyleSheet.create({
   listview: {
     width: "100%",
+  },
+  calendarContainer: {
+    minHeight: 250,
+    height: "40%",
+    maxHeight: 350,
   },
   sectionHeader: {
     paddingTop: spacing.medium,

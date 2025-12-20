@@ -21,8 +21,8 @@ import '@/i18n'; // i18n 初期化
 function RootLayout() {
   return (
     <Stack initialRouteName="index" screenOptions={{ headerShown: false, gestureEnabled: true }}>
-      <Stack.Screen name="maintab" options={{ headerShown: false }} />
-      <Stack.Screen name="other" options={{ headerShown: false }} />
+      <Stack.Screen name="maintabs" options={{ headerShown: false }} />
+      <Stack.Screen name="subscreens" options={{ headerShown: false }} />
       <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="tmp" options={{ headerShown: false }} />
     </Stack>

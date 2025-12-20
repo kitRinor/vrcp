@@ -1,7 +1,7 @@
 import globalStyles, { radius, spacing } from "@/configs/styles";
 import { Button, Text } from "@react-navigation/elements";
 import { useTheme } from "@react-navigation/native";
-import { Modal, StyleSheet, View } from "react-native";
+import { Modal, Pressable, StyleSheet, View } from "react-native";
 interface Props {
   open: boolean;
   message?: string;
@@ -11,6 +11,7 @@ interface Props {
   cancelTitle?: string;
   colorConfirm?: string;
   colorCancel?: string;
+  cancelOnOutside?: boolean;
   // children: React.ReactNode
 }
 
@@ -23,6 +24,7 @@ const GenericDialog = ({
   cancelTitle,
   colorConfirm,
   colorCancel,
+  cancelOnOutside = true,
 }: // children
 Props) => {
   const theme = useTheme();
@@ -34,6 +36,12 @@ Props) => {
       onRequestClose={onCancel}
     >
       <View style={styles.modalRoot}>
+        { cancelOnOutside && (
+          <Pressable // close when press outside
+            style={styles.closeOnOutside}
+            onPress={onCancel}
+          />
+        )}
         <View
           style={[
             styles.modalContainer,
@@ -73,6 +81,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+  },
+  closeOnOutside: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
   },
   modalContainer: {
     maxWidth: "90%",

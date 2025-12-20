@@ -76,6 +76,13 @@
       "logout_dialog_confirm": "Logout",
       "logout_dialog_cancel": "Cancel"
     },
+    "others": {
+      "label": "Others",
+      "menuLabel_notifications": "Notification",
+      "tabLabel_feeds": "Feeds",
+      "tabLabel_events": "Events",
+      "tabLabel_notifications": "Notifications"
+    },
 
 
     "detail_user": {
@@ -190,17 +197,20 @@
       "selected_month_events": "Events on {{date, yyyy/MM}}",
       "selected_month_events_day_label": "{{date, do (EEE)}}"
     },
+    "feeds": {
+      "label": "Feeds",
+      "no_feeds": "No feeds available."
+    },
+    "notifications": {
+      "label": "Notifications",
+      "no_notifications": "No notifications."
+    },
     "friendlocations": {
       "label": "Friend Locations",
       "sectionLabel_instances": "Friends in Instances",
       "sectionLabel_private": "Friends in Private Instances",
       "no_friendlocations": "No friend locations available."
     },
-    "feeds": {
-      "label": "Feeds",
-      "no_feeds": "No feeds available."
-    },
-
 
     "login": {
       "label": "Login",
@@ -375,7 +385,12 @@
       }
     },
     "developmentModal": {
-      "title": "Development Features"
+      "title": "Developer Options",
+      "groupLabel_option": "Options (not implemented)",
+      "itemLabel_json": "JSON Viewer",
+      "itemDescription_json": "Enable JSON viewer for detail pages.",
+      "itemLabel_sendLogs": "Send Logs",
+      "itemDescription_sendLogs": "Enable sending logs to developer."
     },
     "feedbackModal": {
       "title": "Send Feedback",

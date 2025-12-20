@@ -7,6 +7,7 @@ import {
   FavoriteLimits,
   LimitedUserFriend,
   LimitedWorld,
+  Notification,
 } from "@/vrchat/api";
 import { createContext, useCallback, useContext, useEffect, useMemo, useReducer, useState } from "react";
 import { useAuth } from "./AuthContext";
@@ -41,6 +42,7 @@ interface DataContextType {
   favoriteGroups: DataWrapper<FavoriteGroup[]>;
   favorites: DataWrapper<Favorite[]>; // almost for favorited friends
 
+  notifications: DataWrapper<Notification[]>; // notifications
   pipelineMessages: PipelineMessage[]; // store pipeline messages
 }
 
@@ -137,6 +139,11 @@ const DataProvider: React.FC<{ children?: React.ReactNode }> = ({
     ]);
     return res.flatMap((r) => r.data);
   };
+  const getNotifications = async () => {
+    const npr = 100;
+    const res = await vrc.notificationsApi.getNotifications({ offset: 0, n: npr });
+    return res.data;
+  };
 
 
   // register data wrappers
@@ -147,6 +154,8 @@ const DataProvider: React.FC<{ children?: React.ReactNode }> = ({
     favorites: useDataWrapper<Favorite[]>("favorites", getFavorites, [], !!auth.user),
     favWorlds: useDataWrapper<FavoritedWorld[]>("favWorlds", getFavWorlds, [], !!auth.user),
     favAvatars: useDataWrapper<Avatar[]>("favAvatars", getFavAvatars, [], !!auth.user),
+
+    notifications: useDataWrapper<Notification[]>("notifications", getNotifications, [], !!auth.user),
   };
 
   useEffect(() => {

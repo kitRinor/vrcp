@@ -53,6 +53,7 @@ export default function ModalLayout() {
         options={{title: t("pages.detail_group.label") }}
       />
 
+      {/* Profile > menus */}
       <Stack.Screen
         name="favorites"
         options={{title: t("pages.favorites.label") }}
@@ -61,10 +62,22 @@ export default function ModalLayout() {
         name="resources"
         options={{title: t("pages.resources.label") }}
       />
+
+      {/* Other > tabs */}
       <Stack.Screen
         name="events"
         options={{title: t("pages.events.label"), headerRight: undefined }} // no menu button
       />
+      <Stack.Screen
+        name="feeds"
+        options={{title: t("pages.feeds.label"), headerRight: undefined }} // no menu button
+      />
+      <Stack.Screen
+        name="notifications"
+        options={{title: t("pages.notifications.label"), headerRight: undefined }} // no menu button
+      />
+
+      {/* Home */}
       <Stack.Screen
         name="friendlocations"
         options={{title: t("pages.friendlocations.label"), headerRight: undefined }} // no menu button

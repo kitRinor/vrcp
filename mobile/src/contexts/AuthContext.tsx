@@ -13,6 +13,7 @@ import {
   useState,
 } from "react";
 import { useVRChat } from "./VRChatContext";
+import { routeToHome, routeToIndex } from "@/libs/route";
 
 type AuthUser = {
   id?: string;
@@ -114,7 +115,7 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
           icon: res.data.userIcon,
         });
         console.log(`login as ${res.data.displayName}: ${res.data.id}`);
-        router.replace("/maintab/home"); // navigate to tabs if user is logged in
+        routeToHome(); // navigate to tabs if user is logged in
 
         setIsLoading(false);
         return "success";
@@ -190,8 +191,7 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
     SecureStore.deleteItemAsync("auth_2faCookie");
     setUser(undefined);
     setIsLoading(false);
-
-    router.replace("/"); // navigate to index after logout
+    routeToIndex(); // navigate to index after logout
   };
 
   useEffect(() => {
@@ -230,7 +230,7 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
             }
             setUser(storedUser);
             console.log(`login as ${storedUser.displayName}: ${storedUser.id}`);
-            router.replace("/maintab/home"); // navigate to tabs if user is logged in
+            routeToHome(); // navigate to tabs if user is logged in
             setIsLoading(false);
             return;
           } else {
