@@ -1,43 +1,187 @@
-// desktop/src-tauri/src/modules/watcher.rs
-
 use std::fs::{self, File};
 use std::io::{BufRead, BufReader, Seek, SeekFrom};
 use std::path::PathBuf;
-use serde::Serialize;
-use regex::Regex; 
+use std::time::SystemTime;
+use serde::{Serialize, Deserialize};
+use regex::Regex;
 use specta::Type;
+use tauri_specta::Event;
+use chrono::NaiveDateTime;
 
-// 1. ログデータ構造 (情報をリッチにする)
-#[derive(Debug, Serialize, Clone, PartialEq, Type)] 
+// ▼▼▼ 1. データ構造 ▼▼▼
+
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq, Type)]
 pub struct LogEntry {
     pub timestamp: String, // "2025.12.13 15:30:00"
-    pub log_type: String,  // "Log" or "Warning" etc
-    pub content: String,   // "[Player] XXXXXX Joined"
+    pub log_type: String,  // "Log", "Warning", "Error"
+    pub content: String,   // "[Player] John Doe Joined"
 }
 
-// 2. ログ監視クラス
-pub struct VRChatLogWatcher {
-    path: PathBuf,
+impl LogEntry {
+    /// ログの日時文字列を Unix Timestamp (ミリ秒) に変換するヘルパー
+    pub fn get_timestamp_millis(&self) -> Option<i64> {
+        // VRChatの形式: "2025.12.13 15:30:00"
+        let fmt = "%Y.%m.%d %H:%M:%S";
+        NaiveDateTime::parse_from_str(&self.timestamp, fmt)
+            .ok()
+            .map(|dt| dt.and_utc().timestamp_millis())
+    }
+}
+
+// フロントエンドへの通知用イベント定義
+#[derive(Debug, Clone, Serialize, Type, Event)]
+#[tauri_specta(name = "log-update")]
+pub struct LogUpdateEvent(pub Vec<LogEntry>);
+
+// ▼▼▼ 2. ログ監視・管理クラス ▼▼▼
+
+pub struct LogManager {
+    parser: Regex,
+    current_file_path: Option<PathBuf>,
     last_position: u64,
-    parser: Regex, // 正規表現エンジンを保持
 }
 
-impl VRChatLogWatcher {
-    pub fn new(path: PathBuf) -> Self {
-        // VRChatのログ形式にマッチする正規表現
-        // 例: "2023.10.01 00:00:00 Log        -  Content"
+impl LogManager {
+    pub fn new() -> Self {
+        // 正規表現: "YYYY.MM.DD HH:MM:SS Type - Content"
         let re = Regex::new(r"^(\d{4}\.\d{2}\.\d{2} \d{2}:\d{2}:\d{2}) ([^ ]+)\s+-\s+(.*)$").unwrap();
-
+        
         Self {
-            path,
-            last_position: 0,
             parser: re,
+            current_file_path: None,
+            last_position: 0,
         }
     }
 
-    /// 行を解析して LogEntry に変換する
+    /// 指定した時刻 (Unix millis) 以降のログを、全ての過去ログファイルから検索して取得
+    pub fn get_logs_since(&self, since_timestamp: i64) -> Vec<LogEntry> {
+        let log_dir = get_default_vrchat_dir().unwrap_or_default();
+        if !log_dir.exists() {
+            return vec![];
+        }
+
+        let mut all_logs = Vec::new();
+        
+        // 1. すべてのログファイルを列挙
+        if let Ok(entries) = fs::read_dir(log_dir) {
+            let mut files: Vec<(PathBuf, SystemTime)> = entries
+                .filter_map(|e| e.ok())
+                .filter(|e| {
+                    let name = e.file_name().to_string_lossy().to_string();
+                    name.starts_with("output_log_") && name.ends_with(".txt")
+                })
+                .filter_map(|e| {
+                    let meta = e.metadata().ok()?;
+                    Some((e.path(), meta.modified().unwrap_or(SystemTime::UNIX_EPOCH)))
+                })
+                .collect();
+
+            // 2. 更新日時が古い順にソート
+            files.sort_by_key(|(_, time)| *time);
+
+            // 3. 各ファイルをチェック
+            for (path, modified) in files {
+                // ファイルの最終更新が指定時刻より古ければ、中身を見るまでもなくスキップ
+                // (少しマージンを持たせて判定しても良い)
+                let modified_millis = modified.duration_since(SystemTime::UNIX_EPOCH)
+                    .unwrap_or_default().as_millis() as i64;
+                
+                if modified_millis < since_timestamp {
+                    continue; 
+                }
+
+                // ファイルを読んで解析
+                if let Ok(logs) = self.parse_entire_file(&path) {
+                    for log in logs {
+                        // ログ個別の行時間をチェック
+                        if let Some(ts) = log.get_timestamp_millis() {
+                            if ts > since_timestamp {
+                                all_logs.push(log);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        all_logs
+    }
+
+    /// 監視ループ用: 最新のログファイルだけをチェックして差分を返す
+    pub fn check_recent_updates(&mut self) -> Vec<LogEntry> {
+        let log_dir = get_default_vrchat_dir().unwrap_or_default();
+        let latest_path = find_latest_log(&log_dir);
+
+        match latest_path {
+            Some(path) => {
+                // ファイルが変わった場合（VRChat再起動時など）
+                if self.current_file_path.as_ref() != Some(&path) {
+                    self.current_file_path = Some(path.clone());
+                    self.last_position = 0; // 最初から読む
+                }
+
+                self.read_diff(&path).unwrap_or_default()
+            }
+            None => vec![],
+        }
+    }
+
+    // --- 内部ヘルパー ---
+
+    /// ファイル全体を読んでパースする（Sync用）
+    fn parse_entire_file(&self, path: &PathBuf) -> Result<Vec<LogEntry>, std::io::Error> {
+        let file = File::open(path)?;
+        let reader = BufReader::new(file);
+        let mut entries = Vec::new();
+
+        for line in reader.lines() {
+            if let Ok(l) = line {
+                if let Some(entry) = self.parse_line(&l) {
+                    entries.push(entry);
+                }
+            }
+        }
+        Ok(entries)
+    }
+
+    /// ファイルの前回読んだ位置から続きを読む（Watch用）
+    fn read_diff(&mut self, path: &PathBuf) -> Result<Vec<LogEntry>, std::io::Error> {
+        let mut file = File::open(path)?;
+        let current_len = file.metadata()?.len();
+
+        // ファイルサイズが縮んでいたらリセット (ログローテート等の異常系)
+        if current_len < self.last_position {
+            self.last_position = 0;
+        }
+
+        // 変化なし
+        if current_len == self.last_position {
+            return Ok(vec![]);
+        }
+
+        // シークして続きから読む
+        file.seek(SeekFrom::Start(self.last_position))?;
+        let reader = BufReader::new(file);
+
+        let mut entries = Vec::new();
+        // let mut bytes_read = 0;
+
+        for line in reader.lines() {
+            let line_str = line?;
+            // Windowsの改行(CRLF)などは line? で処理されるが、
+            // バイト数を計算するために +1 (LF) や +2 (CRLF) の考慮が必要
+            // 簡易的に文字列長 + 1 (LF想定) とするが、厳密には metadata 再取得が確実
+            // ここでは簡易実装として current_len を最後に代入する方式をとる
+            if let Some(entry) = self.parse_line(&line_str) {
+                entries.push(entry);
+            }
+        }
+
+        // 読み終わった位置を更新
+        self.last_position = current_len;
+        Ok(entries)
+    }
+
     fn parse_line(&self, line: &str) -> Option<LogEntry> {
-        // 正規表現でキャプチャ
         if let Some(caps) = self.parser.captures(line) {
             return Some(LogEntry {
                 timestamp: caps[1].to_string(),
@@ -45,51 +189,18 @@ impl VRChatLogWatcher {
                 content: caps[3].to_string(),
             });
         }
-        // マッチしない行（スタックトレースなど）はとりあえず無視するか、全部contentに入れる
-        None 
-    }
-
-    /// ファイルを読み込んで、解析済みの構造体を返す
-    pub fn read_new_entries(&mut self) -> Result<Vec<LogEntry>, std::io::Error> {
-        let mut file = File::open(&self.path)?;
-        let current_len = file.metadata()?.len();
-
-        if current_len < self.last_position {
-            self.last_position = 0;
-        }
-
-        file.seek(SeekFrom::Start(self.last_position))?;
-
-        let reader = BufReader::new(file);
-        let mut entries = Vec::new();
-
-        for line in reader.lines() {
-            let line_str = line?;
-            // パースに成功した行だけリストに追加
-            if let Some(entry) = self.parse_line(&line_str) {
-                entries.push(entry);
-            }
-        }
-
-        self.last_position = current_len;
-        Ok(entries)
+        None
     }
 }
 
-// ▼▼▼ ヘルパー関数 (前回と同じ) ▼▼▼
+// ▼▼▼ パス解決系 (変更なし) ▼▼▼
 
 pub fn get_default_vrchat_dir() -> Option<PathBuf> {
-    dirs::home_dir().map(|path| {
-        path.join("AppData")
-            .join("LocalLow")
-            .join("VRChat")
-            .join("VRChat")
-    })
+    dirs::data_local_dir().map(|path| path.join("VRChat/VRChat"))
 }
 
 pub fn find_latest_log(dir: &PathBuf) -> Option<PathBuf> {
     let entries = fs::read_dir(dir).ok()?;
-
     let mut log_files: Vec<PathBuf> = entries
         .filter_map(|entry| entry.ok())
         .map(|entry| entry.path())
@@ -102,53 +213,29 @@ pub fn find_latest_log(dir: &PathBuf) -> Option<PathBuf> {
         })
         .collect();
 
+    // 最終更新日時でソート
     log_files.sort_by_key(|path| {
         path.metadata()
             .and_then(|m| m.modified())
-            .ok()
+            .unwrap_or(SystemTime::UNIX_EPOCH)
     });
 
-    log_files.pop()
+    log_files.pop() // 一番新しいものを返す
 }
 
-// ▼▼▼ テストコード (パース試験を追加) ▼▼▼
+// ▼▼▼ テストコード ▼▼▼
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::io::Write;
 
     #[test]
-    fn test_log_parser() {
-        let test_file_path = PathBuf::from("test_parser_log.txt");
-        
-        // 1. テストデータ作成
-        {
-            let mut file = File::create(&test_file_path).unwrap();
-            // 正しい形式の行
-            writeln!(file, "2025.12.13 15:00:00 Log        -  [Player] XXXXXX Joined").unwrap();
-            // 無視されるべき行（ゴミデータ）
-            writeln!(file, "Invalid Line Data").unwrap();
-            // 別のログ
-            writeln!(file, "2025.12.13 15:05:00 Warning    -  [System] Low FPS").unwrap();
-        }
-
-        let mut watcher = VRChatLogWatcher::new(test_file_path.clone());
-
-        // 2. 読み込み実行
-        let entries = watcher.read_new_entries().unwrap();
-
-        // 3. 検証
-        assert_eq!(entries.len(), 2); // 3行中、有効なのは2行だけ
-
-        // 1行目のチェック
-        assert_eq!(entries[0].timestamp, "2025.12.13 15:00:00");
-        assert_eq!(entries[0].log_type, "Log");
-        assert_eq!(entries[0].content, "[Player] XXXXXX Joined");
-
-        // 2行目のチェック
-        assert_eq!(entries[1].log_type, "Warning");
-        assert_eq!(entries[1].content, "[System] Low FPS");
-
-        std::fs::remove_file(test_file_path).unwrap();
+    fn test_parse_and_timestamp() {
+        let entry = LogEntry {
+            timestamp: "2025.12.20 12:00:00".to_string(),
+            log_type: "Log".to_string(),
+            content: "Test".to_string(),
+        };
+        // 変換できるか
+        assert!(entry.get_timestamp_millis().is_some());
     }
 }

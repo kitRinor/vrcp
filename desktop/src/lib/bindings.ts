@@ -6,22 +6,22 @@
 
 
 export const commands = {
-async greet(name: string) : Promise<string> {
-    return await TAURI_INVOKE("greet", { name });
-},
-async checkLogUpdates() : Promise<Result<LogEntry[], string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("check_log_updates") };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
+/**
+ * [Pull型] 指定時刻以降のログを過去ファイル含めて取得
+ */
+async syncLogs(sinceTimestamp: number) : Promise<LogEntry[]> {
+    return await TAURI_INVOKE("sync_logs", { sinceTimestamp });
 }
 }
 
 /** user-defined events **/
 
 
+export const events = __makeEvents__<{
+logUpdateEvent: LogUpdateEvent
+}>({
+logUpdateEvent: "log-update-event"
+})
 
 /** user-defined constants **/
 
@@ -30,6 +30,7 @@ async checkLogUpdates() : Promise<Result<LogEntry[], string>> {
 /** user-defined types **/
 
 export type LogEntry = { timestamp: string; log_type: string; content: string }
+export type LogUpdateEvent = LogEntry[]
 
 /** tauri-specta globals **/
 
