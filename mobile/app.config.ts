@@ -1,15 +1,27 @@
 import { ConfigContext } from "@expo/config";
+import * as fs from 'fs';
+import * as path from 'path';
 
 interface ProfileSwitch<T = any> {development: T; preview: T; production: T;}
 
-// Injected via CI/CD pipeline
-// extracted from versions.json in the workflow and passed as env variable
-const appVersion = process.env.APP_VERSION || "0.0.1";
+
+// extract from ./versions.json
+const getVersionFromJSON = (): string => {
+  try {
+    const versionsContent = fs.readFileSync(path.join(__dirname, 'versions.json'), 'utf-8');
+    const latestVersion = JSON.parse(versionsContent).versions[0].nativeVersion;
+    return latestVersion;
+  } catch (error) {
+    console.warn('Warning: Could not load versions.json. Fallback to default version.');
+    return '0.0.1'; // 読み込めなかった場合のフォールバック
+  }
+};
+const appVersion = getVersionFromJSON();
 
 const appIdentifier: ProfileSwitch<string> = {
-  development: "dev.ktrn.vrcp.dev",
-  preview: "dev.ktrn.vrcp.pre",
-  production: "dev.ktrn.vrcp.mobile"
+  development: "cc.amgr.vrcp.mobile.dev",
+  preview: "cc.amgr.vrcp.mobile.pre",
+  production: "cc.amgr.vrcp.mobile"
 }
 const appName: ProfileSwitch<string> = {
   development: "VRCP-dev",
@@ -42,9 +54,9 @@ const appIcons: ProfileSwitch<{
   }
 }
 const contact: ProfileSwitch<string> = {
-  development: "dev@ktrn.dev",
-  preview: "dev@ktrn.dev",
-  production: "contact@ktrn.dev"
+  development: "contact@amgr.cc",
+  preview: "contact@amgr.cc",
+  production: "contact@amgr.cc"
 }
 
 const profile = (process.env.BUILD_PROFILE || "development") as keyof ProfileSwitch; // must be "development" | "preview" | "production"

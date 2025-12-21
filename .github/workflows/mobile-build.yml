@@ -2,18 +2,37 @@ name: mobile - Build APK
 
 on:
   workflow_dispatch:
+    inputs:
+      build_platform:
+        description: 'EAS Build Target Platform'
+        required: true
+        default: 'android'
+        type: choice
+        options:
+          - android
+          - ios
+      build_profile:
+        description: 'EAS Build Profile'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - development
+          - preview
+          - production
+          - prod-apk
 
 jobs:
   build:
     name: Build APK
-    runs-on: ubuntu-latest
-    environment: production # prod 環境変数 
+    runs-on: ${{ inputs.build_platform == 'ios' && 'macos-latest' || 'ubuntu-latest' }}
+    environment: ${{ (inputs.build_profile == 'production' || inputs.build_profile == 'prod-apk') && 'production' || 'development' }} 
     defaults:
       run:
         working-directory: ./mobile
 
     permissions:
-      contents: read # ビルドするだけなのでreadで十分
+      contents: read
 
     steps:
       - name: Checkout code
@@ -26,11 +45,23 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ./mobile/package-lock.json
 
+      # Install Java for Android builds
       - name: Setup Java
+        if: inputs.build_platform == 'android'
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      # Cache CocoaPods for iOS builds
+      - name: Cache CocoaPods
+        if: inputs.build_platform == 'ios'
+        uses: actions/cache@v3
+        with:
+          path: ./mobile/ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('mobile/ios/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
 
       - name: Install dependencies
         run: npm ci
@@ -38,36 +69,80 @@ jobs:
       - name: Setup EAS
         run: npm install -g eas-cli
 
-      - name: Extract Release Info
+      - name: Extract Build Info
         id: extract_info
         run: |
-          # バージョンとリリースノートを抽出
-          NATIVE_VER=$(jq -r '.versions[0].nativeVersion' versions.json)
-          NOTES=$(jq -r '.versions[0].updates[] | "- " + .date + ": " + .message' versions.json)
+          PROFILE="${{ inputs.build_profile }}"
           
-          # 環境変数にセット (ビルドステップ用)
+          # get envs from eas.json and save to eas_env file
+          jq -r ".build[\"$PROFILE\"].env // {} | to_entries[] | .key + \"=\" + (.value | tostring)" eas.json > .eas_env
+          
+          # export all envs on eas_env file
+          while IFS='=' read -r key value; do
+            export "$key=$value"
+            echo "Exported: $key"
+          done < .eas_env
+          rm .eas_env
+
+          # Generate app config to get app info
+          APP_CONFIG=$(npx expo config --json --non-interactive)
+          
+          NATIVE_VER=$(echo "$APP_CONFIG" | jq -r '.version')
+          
+          # set to env for build steps
           echo "NATIVE_VER=$NATIVE_VER" >> $GITHUB_ENV
           
           # 次のワークフローに渡すためにファイルに保存
           mkdir -p build_assets
           echo "$NATIVE_VER" > build_assets/version.txt
-          
-          # リリース本文を作成してファイルに保存
-          echo "## Ver $NATIVE_VER" > build_assets/body.txt
-          echo "" >> build_assets/body.txt
-          echo "### Updates in this version" >> build_assets/body.txt
-          echo "$NOTES" >> build_assets/body.txt
-          echo "" >> build_assets/body.txt
-          echo "Built at: $(date +'%Y-%m-%d')" >> build_assets/body.txt
 
-      - name: Build APK with EAS
+      - name: Determine File Extension
+        id: ext
+        run: |
+          PLATFORM="${{ inputs.build_platform }}"
+          PROFILE="${{ inputs.build_profile }}"
+          EXT=""
+          SUFFIX=""
+          
+          if  [ "$PROFILE" == "development" ]; then
+            SUFFIX="-dev"
+          elif [ "$PROFILE" == "preview" ]; then
+            SUFFIX="-pre"
+          else
+            SUFFIX=""
+          fi
+  
+          if [ "$PLATFORM" == "android" ]; then
+            if [ "$PROFILE" == "production" ]; then
+              # Android:production => aab
+              EXT="aab"
+            else
+              # Android:other => apk
+              EXT="apk"
+            fi
+          elif [ "$PLATFORM" == "ios" ]; then
+             # iOS => ipa
+             EXT="ipa"
+          fi
+
+          echo "Target Extension: .$EXT"
+          echo "FILE_EXT=$EXT" >> $GITHUB_ENV
+          echo "FILE_SUFFIX=$SUFFIX" >> $GITHUB_ENV
+
+      - name: Build App with EAS
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
           APP_VERSION: ${{ env.NATIVE_VER }}
 
           EXPO_PUBLIC_DISCORD_WEBHOOK_URL: ${{ secrets.EXPO_PUBLIC_DISCORD_WEBHOOK_URL }}
         
-        run: eas build --platform android --profile prod-apk --non-interactive --local --output "./build_assets/vrcp-${{ env.NATIVE_VER }}.apk"
+        run: |
+          eas build \
+          --platform ${{ inputs.build_platform }} \
+          --profile ${{ inputs.build_profile }} \
+          --non-interactive \
+          --local \
+          --output "./build_assets/vrcp-${{ env.NATIVE_VER }}${{ env.FILE_SUFFIX }}.${{ env.FILE_EXT }}"
 
       # APKとメタデータ(バージョン情報など)をアーティファクトとしてアップロード
       - name: Upload Artifacts

@@ -1,4 +1,4 @@
-# VRC-Pocket (VRCP)
+# VRCP
 VRChat API Client App For Mobile
 
 on Developping, 
