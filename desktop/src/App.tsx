@@ -15,13 +15,13 @@ function App() {
           // 1. 【Pull】 過去ログの同期
           console.log("Syncing past logs...");
           const pastLogs = await commands.syncLogs(0); // 0 : 全ログを取得
-          setLogs(pastLogs.reverse().slice(0, 100)); // 最新100件だけ表示
+          setLogs(pastLogs.reverse().slice(0, 50)); // 最新100件だけ表示
           console.log(`Synced ${pastLogs.length} logs.`);
           // 2. 【Push】 リアルタイム更新の監視
           const eventPromise = events.logUpdateEvent.listen((event) => {
             const newEntries = event.payload;
-            console.log("Received new logs:", newEntries);
-            setLogs((prevLogs) => [...newEntries.reverse(), ...prevLogs].slice(0, 100));
+            console.log(`Received new logs:\n ${newEntries.map(e => e.timestamp).join('\n')}`);
+            setLogs((prevLogs) => [...newEntries.reverse(), ...prevLogs].slice(0, 50));
           });
 
           unlisten = await eventPromise;
@@ -53,7 +53,7 @@ function App() {
             };
             newLogs.push(newLog);
           }
-          setLogs((prevLogs) => [...newLogs.reverse(), ...prevLogs].slice(0,100));
+          setLogs((prevLogs) => [...newLogs.reverse(), ...prevLogs].slice(0,50));
         }, 3000);
         unlisten = () => clearInterval(interval);
       }
