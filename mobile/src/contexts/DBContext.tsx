@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect } from "react";
 import * as sqlite from "expo-sqlite";
 import { drizzle } from 'drizzle-orm/expo-sqlite';
-import Constants from 'expo-constants';
 import { SQLiteColumn, SQLiteInsertValue, sqliteTable, SQLiteTableWithColumns, SQLiteUpdateSetSource, TableConfig } from "drizzle-orm/sqlite-core";
 import { and, eq, like, not, sql, SQL } from "drizzle-orm";
 import { avatarsTable, favoriteGroupsTable, groupsTable, usersTable, worldsTable } from "@/db/schema";
@@ -38,7 +37,7 @@ const useDB = () => {
   const context = useContext(Context);
   if (!context) throw new Error("useDB must be used within a DBProvider");
   return context;
-} 
+}
 
 const DBProvider: React.FC<{ children?: React.ReactNode }> = ({
   children
@@ -53,7 +52,7 @@ const DBProvider: React.FC<{ children?: React.ReactNode }> = ({
   // migration on initial load
   useEffect(() => {
     applyMigrations(false);
-  }, []); 
+  }, []);
 
   const wrappers = {
     users: initTableWrapper(db, usersTable),
@@ -103,7 +102,7 @@ const DBProvider: React.FC<{ children?: React.ReactNode }> = ({
       console.log("DB reset complete");
     } catch (error) {
       console.error("Error resetting DB:", error);
-    } 
+    }
   }
   const getDBInfo = async (): Promise<{ size: number; rows: number; }> => {
     try {
@@ -123,7 +122,7 @@ const DBProvider: React.FC<{ children?: React.ReactNode }> = ({
 
   return (
     <Context.Provider value={{
-      _db: db, 
+      _db: db,
       _fileName: fileName,
       resetDB,
       getDBInfo,
@@ -137,7 +136,7 @@ const DBProvider: React.FC<{ children?: React.ReactNode }> = ({
 const initTableWrapper = <
   T extends TableConfig,
 >(
-  db: ReturnType<typeof drizzle>, 
+  db: ReturnType<typeof drizzle>,
   table: SQLiteTableWithColumns<T>
 ): TableWrapper<SQLiteTableWithColumns<T>> => {
   // if not exist, create table

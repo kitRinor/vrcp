@@ -5,7 +5,7 @@ import { openBrowserAsync } from "expo-web-browser";
 import { Platform } from "react-native";
 
 interface Props {
-  href: Href & string;
+  href: Href & string | string;
   children?: React.ReactNode;
   [key: string]: any;
 }
@@ -24,7 +24,7 @@ export function Atag({ children, href, ...rest }: Props) {
         rest.style,
       ]}
       {...rest}
-      href={href}
+      href={href as Href}
       onPress={async (event) => {
         if (Platform.OS !== "web") {
           event.preventDefault();

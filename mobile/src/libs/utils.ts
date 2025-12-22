@@ -1,9 +1,10 @@
-import Constants from "expo-constants";
+
 import { Storage } from "expo-sqlite/kv-store";
-import rawVersions from '@/../versions.json'; 
+import rawVersions from '@/../versions.json';
+import { constants } from "@/configs/const";
 
 
-// object 
+// object
 export function omitObject <T extends object> (obj: T, ...keys: Array<keyof T>): Partial<T> {
   const newObj: Partial<T> = {};
   const ks: Array<keyof T> = Object.keys(obj) as Array<keyof T>;
@@ -58,9 +59,9 @@ export function extractErrMsg (error: any): string {
 
 // user agent
 export function getUserAgent (): string {
-  const name = Constants.expoConfig?.name || "VRCP";
-  const version = Constants.expoConfig?.version || "0.0.0-dev";
-  const contact = Constants.expoConfig?.extra?.vrcp?.contact || "dev@ktrn.dev";
+  const name = constants.name;
+  const version = constants.version;
+  const contact = constants.contact;
   return `${name}/${version} ${contact}`;
 }
 
@@ -83,7 +84,7 @@ export function isNewVersion(): boolean {
   if (!storedVersionKey || !currentVersion) return false;
   const currentVersionKey = `${currentVersion.nativeVersion}:${currentVersion.updates?.[0].date}`;
   return storedVersionKey !== currentVersionKey;
-} 
+}
 export function updateLastVersion(): void {
   const currentVersion = rawVersions.versions?.[0];
   if (!currentVersion) return;

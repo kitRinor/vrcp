@@ -5,13 +5,21 @@ import { useTheme } from "@react-navigation/native";
 import Constants from "expo-constants";
 import { useState } from "react";
 import { Platform, View } from "react-native";
-import PrivacyPolicyModal from "./about_innermodals/PrivacyPolicyModal";
 import LicenseModal from "./about_innermodals/LicenseModal";
 import ChangeLogModal from "./about_innermodals/ChangeLogModal";
 import { useTranslation } from "react-i18next";
-import TermsOfUseModal from "./about_innermodals/TermsOfUseModal";
-import { ButtonEx } from "@/components/CustomElements";
+import { ButtonEx, TouchableEx } from "@/components/CustomElements";
+import { openBrowserAsync } from "expo-web-browser";
+import { constants } from "@/configs/const";
+import IconSymbol from "@/components/view/icon-components/IconView";
+import { SupportedIconNames } from "@/components/view/icon-components/utils";
+import { getTintedColor } from "@/libs/utils";
 
+interface AboutButtonItem {
+  icon?: SupportedIconNames;
+  title: string;
+  onPress?: () => void;
+}
 
 interface Props {
   open: boolean;
@@ -21,8 +29,6 @@ interface Props {
 const AboutModal = ({ open, setOpen }: Props) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const [ termsOfUseModal, setTermsOfUseModal ] = useState<boolean>(false);
-  const [ privacyPolicyModal, setPrivacyPolicyModal ] = useState<boolean>(false);
   const [ licenseModal, setLicenseModal ] = useState<boolean>(false);
   const [ changeLogModal, setChangeLogModal ] = useState<boolean>(false);
 
@@ -37,26 +43,24 @@ const AboutModal = ({ open, setOpen }: Props) => {
     }),
   };
 
-  const buttonItems = [
+  const buttonItems: AboutButtonItem[] = [
     {
+      icon: "arrow-outward",
       title: t("components.aboutModal.button_termsOfUse"),
-      onPress: () => setTermsOfUseModal(true),
-      flex: 1,
+      onPress: () => openBrowserAsync(constants.externalLinks.terms_of_use),
     },
     {
+      icon: "arrow-outward",
       title: t("components.aboutModal.button_privacyPolicy"),
-      onPress: () => setPrivacyPolicyModal(true),
-      flex: 1,
+      onPress: () => openBrowserAsync(constants.externalLinks.privacy_policy),
     },
     {
       title: t("components.aboutModal.button_Licenses"),
       onPress: () => setLicenseModal(true),
-      flex: 1,
     },
     {
       title: t("components.aboutModal.button_ChangeLog"),
       onPress: () => setChangeLogModal(true),
-      flex: 1,
     },
   ];
 
@@ -67,7 +71,6 @@ const AboutModal = ({ open, setOpen }: Props) => {
       size="large"
       open={open}
       onClose={() => setOpen(false)}
-      // buttonItems={buttonItems}
     >
 
       <Text style={[globalStyles.text, { color: theme.colors.text }]}>
@@ -79,22 +82,24 @@ const AboutModal = ({ open, setOpen }: Props) => {
       <View style={{ marginTop: spacing.medium, gap: spacing.small }} >
       {buttonItems.map((item, index) => (
         <View key={index}>
-          <ButtonEx onPress={item.onPress} >
-            {item.title}
-          </ButtonEx>
+          <TouchableEx
+            onPress={item.onPress}
+            style={{
+              flexDirection: "row", alignItems: "center", justifyContent: "center",
+              paddingVertical: spacing.small,
+              borderColor: theme.colors.border,
+              borderWidth: 1,
+              borderRadius: 8,
+            }}
+          >
+            <Text style={[globalStyles.text, { fontSize: 16 }]}>{item.title}</Text>
+            {item.icon && <IconSymbol name={item.icon} size={16} style={{ marginLeft: spacing.small }} />}
+          </TouchableEx>
         </View>
       ))}
       </View>
 
       {/* Modal */}
-      <TermsOfUseModal
-        open={termsOfUseModal}
-        setOpen={setTermsOfUseModal}
-      />
-      <PrivacyPolicyModal
-        open={privacyPolicyModal}
-        setOpen={setPrivacyPolicyModal}
-      />
       <LicenseModal
         open={licenseModal}
         setOpen={setLicenseModal}

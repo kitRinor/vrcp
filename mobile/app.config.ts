@@ -53,11 +53,6 @@ const appIcons: ProfileSwitch<{
     monochromeImage: "./src/assets/images/adaptive-icon-mono.png",
   }
 }
-const contact: ProfileSwitch<string> = {
-  development: "contact@amgr.cc",
-  preview: "contact@amgr.cc",
-  production: "contact@amgr.cc"
-}
 
 const profile = (process.env.BUILD_PROFILE || "development") as keyof ProfileSwitch; // must be "development" | "preview" | "production"
 
@@ -74,13 +69,12 @@ export default ({ config }: ConfigContext) => ({
     updates: { // configure EAS Update
       url: "https://u.expo.dev/5dcb6ea7-b710-4155-9dc5-e4c5a9ce160d"
     },
-    runtimeVersion: { 
+    runtimeVersion: {
       policy: "appVersion"
     },
     extra: {
       vrcp: {// custom constants accessible via Constants.expoConfig.extra.vrcp
         buildProfile: profile,
-        contact: contact[profile],  
       },
       eas: {
         projectId: "5dcb6ea7-b710-4155-9dc5-e4c5a9ce160d"

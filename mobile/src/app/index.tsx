@@ -6,8 +6,6 @@ import { fontSize, navigationBarHeight, spacing } from "@/configs/styles";
 import { useAuth } from "@/contexts/AuthContext";
 import { MiscellaneousApi } from "@/vrchat/api";
 import { useTheme } from "@react-navigation/native";
-import Constants from "expo-constants";
-import { navigate } from "expo-router/build/global-state/routing";
 import { useRef, useState } from "react";
 import {
   Alert,
@@ -25,6 +23,7 @@ import { useToast } from "@/contexts/ToastContext";
 import { useTranslation } from "react-i18next";
 import { ButtonEx } from "@/components/CustomElements";
 import IconButton from "@/components/view/icon-components/IconButton";
+import { constants } from "@/configs/const";
 
 // login screen
 export default function Login() {
@@ -141,10 +140,6 @@ export default function Login() {
     }).start();
   };
   const onLongPressLogo = () => {
-    // if (Constants.expoConfig?.extra?.vrcp.buildProfile === "development") {
-    //   navigate("/_sitemap"); // navigate to sitemap on logo press (for debug)
-    //   return;
-    // }
     new MiscellaneousApi().getCurrentOnlineUsers()
       .then((res) => {
         const msg = t("pages.login.online_count_message", { count: res.data });
@@ -330,7 +325,7 @@ export default function Login() {
               ]}
             >
               {t("pages.login.linksModal_text1")}
-              <Atag href="https://vrchat.com/home/register">
+              <Atag href={constants.externalLinks.vrc_register}>
                 {t("pages.login.linksModal_registerLinkText")}
               </Atag>
             </Text>
@@ -345,9 +340,9 @@ export default function Login() {
               ]}
             >
               {t("pages.login.linksModal_text2")}
-              <Atag href="https://vrchat.com/home/password">{t("pages.login.linksModal_passwordLinkText")}</Atag>
+              <Atag href={constants.externalLinks.vrc_forgot_password}>{t("pages.login.linksModal_passwordLinkText")}</Atag>
               {" / "}
-              <Atag href="https://vrchat.com/home/forgot-email">{t("pages.login.linksModal_emailLinkText")}</Atag>
+              <Atag href={constants.externalLinks.vrc_forgot_email}>{t("pages.login.linksModal_emailLinkText")}</Atag>
             </Text>
           </View>
 
