@@ -24,6 +24,7 @@ import * as Clipboard from 'expo-clipboard';
 import { useToast } from "@/contexts/ToastContext";
 import { useTranslation } from "react-i18next";
 import { ButtonEx } from "@/components/CustomElements";
+import IconButton from "@/components/view/icon-components/IconButton";
 
 // login screen
 export default function Login() {
@@ -36,6 +37,7 @@ export default function Login() {
   const TFACodeRef = useRef<TextInput>(null);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [saveSecret, setSaveSecret] = useState(false);
   const [TFACode, setTFACode] = useState("");
   const [modeTFA, setModeTFA] = useState<"totp" | "email">("totp");
@@ -213,21 +215,26 @@ export default function Login() {
               onChangeText={setUsername}
               inputMode="email"
             />
-            <TextInput
-              ref={passwordRef}
-              style={[
-                styles.input,
-                styles.repeatingitemVertical,
-                { color: theme.colors.text },
-              ]}
-              placeholder={t("pages.login.password_placeholder")}
-              placeholderTextColor={theme.colors.subText}
-              secureTextEntry={true}
-              autoComplete="password"
-              textContentType="password"
-              value={password}
-              onChangeText={setPassword}
-            />
+            <View style={[styles.passwordContainer, styles.repeatingitemVertical]}>
+              <TextInput
+                ref={passwordRef}
+                style={[styles.passwordInput, { color: theme.colors.text }]}
+                placeholder={t("pages.login.password_placeholder")}
+                placeholderTextColor={theme.colors.subText}
+                secureTextEntry={!showPassword}
+                autoComplete="password"
+                textContentType="password"
+                value={password}
+                onChangeText={setPassword}
+              />
+              <IconButton
+                name={showPassword ? "eye" : "eye-off"}
+                size={24}
+                color={theme.colors.subText}
+                style={{ marginRight: spacing.small }}
+                onPress={() => setShowPassword((prev) => !prev)}
+              />
+            </View>
             <View style={[styles.containerHorizontal, styles.repeatingitemVertical]}>
               <Switch
                 value={saveSecret}
@@ -408,6 +415,16 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderWidth: 1,
     width: '100%',
+    padding: spacing.medium,
+  },
+  passwordContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderColor: 'gray',
+    borderWidth: 1,
+  },
+  passwordInput: {
+    flex: 1,
     padding: spacing.medium,
   },
   button: {
