@@ -1,8 +1,8 @@
 import GenericDialog from "@/components/layout/GenericDialog";
-import { usePathname, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { BackHandler, Alert } from 'react-native';
+import { BackHandler } from 'react-native';
 // provide menu state globally
 
 interface AppMenuContextType {
@@ -23,6 +23,7 @@ const AppMenuProvider: React.FC<{ children?: React.ReactNode }> = ({
 }) => {
   const [openMenu, setOpenMenu] = useState(false);
   const router = useRouter();
+  const [ openExitDialog, setOpenExitDialog ] = useState(false);
   const { t } = useTranslation();
 
   // close Drawer if open, else go back, else close app
@@ -32,15 +33,7 @@ const AppMenuProvider: React.FC<{ children?: React.ReactNode }> = ({
     } else if (router.canGoBack()) {
       router.back();
     } else {
-      Alert.alert(
-        t('components.exitDialog.label'),
-        t('components.exitDialog.message'), //
-        [
-          { text: t('components.exitDialog.button_no'), style: 'cancel' },
-          { text: t('components.exitDialog.button_yes'), onPress: () => BackHandler.exitApp() },
-        ],
-        { cancelable: true }
-      );
+      setOpenExitDialog(true);
     }
   };
 
@@ -63,6 +56,14 @@ const AppMenuProvider: React.FC<{ children?: React.ReactNode }> = ({
       handleBack,
     }}>
       {children}
+      <GenericDialog
+        open={openExitDialog}
+        message={t('components.exitDialog.message')}
+        cancelTitle={t('components.exitDialog.button_no')}
+        confirmTitle={t('components.exitDialog.button_yes')}
+        onCancel={() => setOpenExitDialog(false)}
+        onConfirm={BackHandler.exitApp}
+      />
     </Context.Provider>
   );
 }

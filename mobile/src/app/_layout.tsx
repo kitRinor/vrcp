@@ -44,28 +44,28 @@ export default function Root() {
           <AuthProvider>
             <CacheProvider>
               <DataProvider>
-              <AppMenuProvider>
                 <SafeAreaProvider>
                   {/* <SafeAreaView style={{ flex: 1 }} edges={["left", "right"]}> */}
                     <GestureHandlerRootView style={{ flex: 1 }}>
                       <ThemeProvider
                         value={theme}
                       >
-                        <ToastProvider>
-                          <RootLayout />
-                          <StatusBar style="auto" />
-                        </ToastProvider>
+                        <AppMenuProvider>
+                          <ToastProvider>
+                            <RootLayout />
+                            <StatusBar style="auto" />
+                          </ToastProvider>
+                        </AppMenuProvider>
                       </ThemeProvider>
                     </GestureHandlerRootView>
                   {/* </SafeAreaView> */}
                 </SafeAreaProvider>
-              </AppMenuProvider>
-            </DataProvider>
-          </CacheProvider>
-        </AuthProvider>
-      </VRChatProvider>
-      {/* </DBProvider> */}
-    </QueryClientProvider>
+              </DataProvider>
+            </CacheProvider>
+          </AuthProvider>
+        </VRChatProvider>
+        {/* </DBProvider> */}
+      </QueryClientProvider>
     </SettingProvider>
   );
 }
