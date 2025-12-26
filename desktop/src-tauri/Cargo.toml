@@ -1,8 +1,8 @@
 [package]
 name = "vrcp"
 version = "0.0.1"
-description = "A Tauri App"
-authors = ["you"]
+description = "VRChat API Client"
+authors = ["amgr-cc"]
 edition = "2021"
 default-run = "vrcp"
 license = "MIT"
