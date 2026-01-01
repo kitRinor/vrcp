@@ -1,125 +1,127 @@
 import { useEffect, useState, useRef } from "react";
-import { commands, events, type LogEntry } from "./lib/bindings";
-import { isTauri } from "@tauri-apps/api/core";
-import { motion, AnimatePresence } from "framer-motion";
+import { events, type Payload } from "./lib/bindings"; // 生成されたファイルをインポート
 
 function App() {
-  const [logs, setLogs] = useState<LogEntry[]>([]);
+  // ログのリストを保持するState
+  const [logs, setLogs] = useState<Payload[]>([]);
+
+  // 自動スクロール用のRef
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let unlisten: (() => void) | undefined;
+    // Rustからのイベント "payload" をリッスン
+    // bindings.ts で定義された型安全なリスナー
+    const unlistenPromise = events.payload.listen((event) => {
+      // event.payload に Rust側の Payload 構造体が入っている
+      const newLog = event.payload;
 
-    const init = async () => {
-      if (isTauri()) {
-        try {
-          // 1. 【Pull】 過去ログの同期
-          console.log("Syncing past logs...");
-          const pastLogs = await commands.syncLogs(0); // 0 : 全ログを取得
-          setLogs(pastLogs.reverse().slice(0, 50)); // 最新100件だけ表示
-          console.log(`Synced ${pastLogs.length} logs.`);
-          // 2. 【Push】 リアルタイム更新の監視
-          const eventPromise = events.logUpdateEvent.listen((event) => {
-            const newEntries = event.payload;
-            console.log(`Received new logs:\n ${newEntries.map(e => e.timestamp).join('\n')}`);
-            setLogs((prevLogs) => [...newEntries.reverse(), ...prevLogs].slice(0, 50));
-          });
+      console.log("New Log:", newLog);
 
-          unlisten = await eventPromise;
-        } catch (err) {
-          console.error("Failed to initialize log watcher:", err);
-        }
-      } else {
-        console.warn("Not running in Tauri environment. Log monitoring with dummy data.");
-        setLogs([
-          { timestamp: "2024-01-01 12:00:00", log_type: "PlayerJoined", content: "usr_00000000-0000-0000-0000-000000000000" },
-          { timestamp: "2024-01-01 12:01:00", log_type: "PlayerLeft", content: "usr_00000000-0000-0000-0000-000000000000" },
-          { timestamp: "2024-01-01 12:02:00", log_type: "Joining", content: "wrld_00000000-0000-0000-0000-000000000000:99999~private(usr_00000000-0000-0000-0000-000000000000)~canRequestInvite~region(jp)" },
-        ].reverse());
-        const genRand16 = (n:number) => Math.random().toString(16).slice(2, 2 + n);
-        const genUUID = () => `${genRand16(8)}-${genRand16(4)}-${genRand16(4)}-${genRand16(4)}-${genRand16(12)}`;
-        const interval = setInterval(() => {
-          if (Math.random() < 0.3) return;
-          const count = Math.floor(Math.random() * 3) + 1
-          const newLogs: LogEntry[] = []
-          for (let i = 0; i < count; i++) {
-            const now = new Date();
-            const type = ["PlayerJoined", "PlayerLeft", "Joining"][Math.floor(Math.random() * 3)]
-            const newLog: LogEntry = {
-              timestamp: now.toISOString().replace('T', ' ').split('.')[0],
-              log_type: type, 
-              content: type === "Joining" 
-                ? `wrld_${genUUID()}:${Math.random().toString(10).slice(2,7)}~private(usr_${genUUID()})~canRequestInvite~region(jp)` 
-                : `usr_${genUUID()}`
-            };
-            newLogs.push(newLog);
-          }
-          setLogs((prevLogs) => [...newLogs.reverse(), ...prevLogs].slice(0,50));
-        }, 3000);
-        unlisten = () => clearInterval(interval);
-      }
-    }
+      setLogs((prevLogs) => [...prevLogs, newLog]);
+    });
 
-    init();
-
-    // クリーンアップ関数
+    // クリーンアップ関数（コンポーネントのアンマウント時にリスナー解除）
     return () => {
-      if (unlisten) {
-        unlisten();
-      }
+      unlistenPromise.then((unlisten) => unlisten());
     };
   }, []);
 
-  // ログタイプごとの色分け
-  const getLogColor = (type: string) => {
-    if (type.includes("Warning")) return "text-yellow-400";
-    if (type.includes("Error")) return "text-red-400";
-    if (type.includes("Exception")) return "text-red-500 font-bold";
-    return "text-gray-300"; // Default
+  // ログが追加されたら自動で一番下へスクロール
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [logs]);
+
+  // イベントの種類ごとに表示メッセージと色を分けるヘルパー関数
+  const getEventContent = (log: Payload) => {
+    const { event } = log;
+
+    switch (event.type) {
+      case "AppStart":
+        return { color: "text-green-500", text: "VRChat Started" };
+      case "AppStop":
+        return { color: "text-red-500", text: "VRChat Stopped" };
+      case "Login":
+        return {
+          color: "text-blue-400",
+          text: `Login: ${event.data.username} (ID: ${event.data.user_id})`
+        };
+      case "WorldEnter":
+        return {
+          color: "text-yellow-400",
+          text: `Entered World: ${event.data.world_name}`
+        };
+      case "InstanceJoin":
+        return {
+          color: "text-orange-400",
+          text: `Joined Instance: ${event.data.instance_id}`
+        };
+      case "PlayerJoin":
+        return {
+          color: "text-cyan-400",
+          text: `[+] Join: ${event.data.player_name}`
+        };
+      case "PlayerLeft":
+        return {
+          color: "text-gray-400",
+          text: `[-] Left: ${event.data.player_name}`
+        };
+      case "SelfLeft":
+        return { color: "text-gray-500", text: "Left Room" };
+      default:
+        return { color: "text-white", text: "Unknown Event" };
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4 font-mono text-sm">
-      <header className="mb-4 border-b border-gray-700 pb-2 flex justify-between items-center">
-        <h1 className="text-xl font-bold text-blue-400">VRChat Log Monitor</h1>
-        <span className="text-gray-500 text-xs">{logs.length} lines</span>
-      </header>
+    <main className="container mx-auto p-4 h-screen flex flex-col bg-slate-900 text-white">
+      <h1 className="text-2xl font-bold mb-4 border-b border-slate-700 pb-2">
+        VRChat Log Monitor
+      </h1>
 
-      <div className="space-y-1 overflow-auto max-h-[90vh]">
+      {/* ログ表示エリア */}
+      <div className="flex-1 overflow-y-auto bg-slate-800 rounded-md p-4 shadow-inner font-mono text-sm">
         {logs.length === 0 ? (
-          <div className="text-gray-500 italic">Waiting for logs...</div>
+          <p className="text-gray-500 text-center mt-10">Waiting for logs...</p>
         ) : (
-          <AnimatePresence initial={false}>
-          {logs.map((log, index) => (
-            <motion.div 
-              key={`${log.timestamp}-${log.content}`} 
-              className="flex gap-2 hover:bg-gray-800 p-1 rounded"
-              layout // 押し下げるアニメーション
-              initial={{ opacity: 0, y: -20, height: 0 }}
-              animate={{ opacity: 1, y: 0, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.1 }}
-            >
-              {/* 日時 */}
-              <span className="text-gray-500 whitespace-nowrap shrink-0 select-none">
-                [{log.timestamp.split(' ')[1]}] {/* 時間だけ表示 */}
-              </span>
-              
-              {/* ログタイプ */}
-              <span className={`w-28 shrink-0 ${getLogColor(log.log_type)}`}>
-                {log.log_type}
-              </span>
-              
-              {/* 内容 */}
-              <span className="break-all whitespace-pre-wrap text-gray-200">
-                {log.content}
-              </span>
-            </motion.div>
-          ))}
-          </AnimatePresence>
+          logs.map((log, index) => {
+            const { color, text } = getEventContent(log);
+            return (
+              <div key={index} className="mb-1 flex border-b border-slate-700/50 pb-1 last:border-0">
+                {/* タイムスタンプ */}
+                <span className="text-gray-500 mr-4 select-none w-36 shrink-0">
+                  {log.timestamp}
+                </span>
+
+                {/* イベントタイプバッジ (オプション) */}
+                <span className={`font-bold mr-2 w-24 shrink-0 ${color}`}>
+                  [{log.event.type}]
+                </span>
+
+                {/* 詳細メッセージ */}
+                <span className="break-all">
+                  {text}
+                </span>
+              </div>
+            );
+          })
         )}
-        {/* 自動スクロールのアンカー */}
+        {/* 自動スクロール用のダミー要素 */}
+        <div ref={bottomRef} />
       </div>
-    </div>
+
+      {/* フッター操作エリア */}
+      <div className="mt-4 flex justify-between">
+        <span className="text-xs text-gray-500">
+          Listening for events... ({logs.length} logs captured)
+        </span>
+        <button
+          onClick={() => setLogs([])}
+          className="px-4 py-2 bg-red-600 hover:bg-red-700 rounded text-sm transition"
+        >
+          Clear Logs
+        </button>
+      </div>
+    </main>
   );
 }
 
