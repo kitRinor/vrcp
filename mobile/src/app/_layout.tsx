@@ -13,12 +13,13 @@ import { Platform, useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { ToastProvider } from "@/contexts/ToastContext";
 
 import '@/i18n'; // i18n 初期化
 import GlobalDrawer from "@/components/layout/GlobalDrawer";
 import ConfirmAtFirstDialog from "@/components/features/ConfirmAtFirstDialog";
+import { registerBackgroundTaskAsync } from "@/tasks/bg-fetch";
 
 function RootLayout() {
   return (
@@ -41,6 +42,19 @@ export default function Root() {
   const cs = useColorScheme();
   const theme = useMemo(() => cs !== "dark" ? lightTheme : darkTheme, [cs]);
 
+  useEffect(() => {
+    const initTask = async () => {
+      try {
+        await registerBackgroundTaskAsync();
+        console.log('Background task registered successfully');
+      } catch (err) {
+        console.error('Failed to register background task:', err);
+      }
+    };
+
+    initTask();
+  }, []);
+
   return (
     <SettingProvider>
       <QueryClientProvider client={queryClient}>
@@ -51,20 +65,20 @@ export default function Root() {
               <DataProvider>
                 <SafeAreaProvider>
                   {/* <SafeAreaView style={{ flex: 1 }} edges={["left", "right"]}> */}
-                    <GestureHandlerRootView style={{ flex: 1 }}>
-                      <ThemeProvider
-                        value={theme}
-                      >
-                        <AppMenuProvider>
-                          <ToastProvider>
-                            <GlobalDrawer>
-                              <RootLayout />
-                            </GlobalDrawer>
-                            <StatusBar style="auto" />
-                          </ToastProvider>
-                        </AppMenuProvider>
-                      </ThemeProvider>
-                    </GestureHandlerRootView>
+                  <GestureHandlerRootView style={{ flex: 1 }}>
+                    <ThemeProvider
+                      value={theme}
+                    >
+                      <AppMenuProvider>
+                        <ToastProvider>
+                          <GlobalDrawer>
+                            <RootLayout />
+                          </GlobalDrawer>
+                          <StatusBar style="auto" />
+                        </ToastProvider>
+                      </AppMenuProvider>
+                    </ThemeProvider>
+                  </GestureHandlerRootView>
                   {/* </SafeAreaView> */}
                 </SafeAreaProvider>
               </DataProvider>
