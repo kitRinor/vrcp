@@ -6,7 +6,7 @@ use std::io::{BufRead, BufReader, Seek, SeekFrom};
 use std::path::PathBuf;
 use std::sync::OnceLock;
 use std::time::Duration;
-use tauri::{AppHandle, Manager};
+use tauri::AppHandle;
 use tauri_specta::Event;
 
 use crate::modules::db::LogDatabase;
@@ -270,8 +270,7 @@ async fn watch_loop(app: AppHandle, db: LogDatabase) {
 }
 
 // ================================================================
-// Section C: Public Entry Point
-// (外部から呼ばれる唯一の関数)
+// Public Entry Point
 // ================================================================
 
 /// 監視タスクをバックグラウンドで開始する

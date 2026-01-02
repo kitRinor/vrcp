@@ -2,4 +2,5 @@
 
 pub mod db;
 pub mod server;
+pub mod systray;
 pub mod watcher;
